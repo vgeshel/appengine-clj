@@ -31,6 +31,12 @@
 (defn create-key [kind id]
   (KeyFactory/createKey kind (Long/valueOf (String/valueOf id))))
 
+(defn key-to-str [key]
+  (KeyFactory/keyToString key))
+
+(defn str-to-key [s]
+  (KeyFactory/stringToKey s))
+
 (defn find-all
   "Executes the given com.google.appengine.api.datastore.Query
   and returns the results as a lazy sequence of items converted with entity-to-map."
