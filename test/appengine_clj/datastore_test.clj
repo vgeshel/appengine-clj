@@ -45,11 +45,11 @@
     (is (= [child] (ds/find-all (doto (Query. "Child" (parent :key))))))))
 
 (dstest create-with-struct
-        (defstruct person :name :kind)
-        (let [person (ds/create (struct person "jim" "child"))]
-          (is (not (nil? (:key person))))
-          (is (= (:name person) "jim"))
-          (is (= (:kind person) "child"))))
+  (defstruct person :name :kind)
+  (let [person (ds/create (struct person "jim" "child"))]
+    (is (not (nil? (:key person))))
+    (is (= (:name person) "jim"))
+    (is (= (:kind person) "child"))))
 
 (dstest get-given-a-key-returns-a-mapified-entity
   (let [key (:key (ds/create {:kind "Person" :name "cliff"}))]
@@ -69,8 +69,25 @@
          key2)))
 
 (dstest update-with-struct
-        (defstruct person :name :kind)
-        (let [person (ds/update {:name "tom"} (:key (ds/create (struct person "jim" "child"))))]
-          (is (not (nil? (:key person))))
-          (is (= (:name person) "tom"))
-          (is (= (:kind person) "child"))))
+  (defstruct person :name :kind)
+  (let [person (ds/update {:name "tom"} (:key (ds/create (struct person "jim" "child"))))]
+    (is (not (nil? (:key person))))
+    (is (= (:name person) "tom"))
+    (is (= (:kind person) "child"))))
+
+(dstest test-create-key-with-number
+  (let [key (ds/create-key "Person" 1)]
+    (is (= (class key) com.google.appengine.api.datastore.Key))
+    (is (= (.getKind key) "Person"))
+    (is (= (.getId key) 1))
+    (is (nil? (.getName key)))
+    (is (.isComplete key))))
+
+(dstest test-create-key-with-string
+  (let [key (ds/create-key "Country" "de")]
+    (is (= (class key) com.google.appengine.api.datastore.Key))
+    (is (= (.getKind key) "Country"))
+    (is (= (.getId key) 0))
+    (is (= (.getName key) "de"))
+    (is (.isComplete key))))
+

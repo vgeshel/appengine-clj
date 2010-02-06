@@ -29,7 +29,8 @@
         (map-to-entity map)))
 
 (defn create-key [kind id]
-  (KeyFactory/createKey kind (Long/valueOf (String/valueOf id))))
+  (KeyFactory/createKey
+   (str kind) (if (integer? id) (Long/valueOf (str id)) (str id))))
 
 (defn key-to-str [key]
   (KeyFactory/keyToString key))
