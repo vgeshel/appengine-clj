@@ -1,16 +1,53 @@
-(ns appengine-clj.datastore-test
+(ns appengine-clj.test.datastore
   (:require [appengine-clj.datastore :as ds])
-  (:use
-     clojure.contrib.test-is
-     appengine-clj.test-utils)
+  (:use clojure.contrib.test-is
+        appengine-clj.test-utils)
   (:import (com.google.appengine.api.datastore
-             DatastoreServiceFactory
-             Entity
-             EntityNotFoundException
-             Query
-             Query$FilterOperator
-             Query$SortDirection)))
+            DatastoreServiceFactory
+            Entity
+            EntityNotFoundException
+            KeyFactory
+            Query
+            Query$FilterOperator
+            Query$SortDirection)))
 
+(dstest test-create-key-with-integer
+  (let [key (ds/create-key "person" 1)]
+    (is (= (class key) com.google.appengine.api.datastore.Key))
+    (is (= (.getKind key) "person"))
+    (is (= (.getId key) 1))
+    (is (nil? (.getName key)))
+    (is (.isComplete key))))
+
+(dstest test-create-key-with-string
+  (let [key (ds/create-key "country" "de")]
+    (is (= (class key) com.google.appengine.api.datastore.Key))
+    (is (= (.getKind key) "country"))
+    (is (= (.getId key) 0))
+    (is (= (.getName key) "de"))
+    (is (.isComplete key))))
+
+(dstest test-create-key-with-parent
+  (let [continent (ds/create-key "continent" "eu")
+        country (ds/create-key continent "country" "de")]
+    (is (= (class country) com.google.appengine.api.datastore.Key))
+    (is (= (.getParent country) continent))
+    (is (= (.getKind country) "country"))
+    (is (= (.getId country) 0))
+    (is (= (.getName country) "de"))
+    (is (.isComplete country))))
+
+(dstest test-key->string  
+  (is (= (ds/key->string (ds/create-key "person" 1)) "agR0ZXN0cgwLEgZwZXJzb24YAQw")))
+
+(dstest test-string->key
+  (let [key (ds/string->key "agR0ZXN0cgwLEgZwZXJzb24YAQw")]
+    (is (= (.getKind key) "person"))
+    (is (= (.getId key) (long 1)))))
+
+;; (dstest test-map->entity
+;;   (let [entity (ds/map->entity {:kind "country" :name "Germany"})]
+;;     ))
 
 (dstest entity-to-map-converts-to-persistent-map
   (let [entity (doto (Entity. "MyKind")
@@ -75,19 +112,17 @@
     (is (= (:name person) "tom"))
     (is (= (:kind person) "child"))))
 
-(dstest test-create-key-with-number
-  (let [key (ds/create-key "Person" 1)]
-    (is (= (class key) com.google.appengine.api.datastore.Key))
-    (is (= (.getKind key) "Person"))
-    (is (= (.getId key) 1))
-    (is (nil? (.getName key)))
-    (is (.isComplete key))))
-
-(dstest test-create-key-with-string
-  (let [key (ds/create-key "Country" "de")]
-    (is (= (class key) com.google.appengine.api.datastore.Key))
-    (is (= (.getKind key) "Country"))
-    (is (= (.getId key) 0))
-    (is (= (.getName key) "de"))
-    (is (.isComplete key))))
-
+;; (dstest test-create-with-string-key
+;;   (println "AAAAAAAAAAAAAAAAAAAAAA")
+;;   (let [country (ds/put {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})]
+;;     ;; (ds/create {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})
+;;     ;; (ds/create {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})
+;;     (println "AAAAAAAAAAAAAAAAAAAAAA")
+;;     (println country)
+;;     (println (:key country))
+;;     ;; (println (:key country))
+;;     ;; (println (.getKind(:key country)))
+;;     ;; (println (.getId(:key country)))
+;;     ;; (println (.getName(:key country)))
+;;     (println (ds/get (:key country)))
+;;     ))

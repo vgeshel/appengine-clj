@@ -3,6 +3,21 @@
             DatastoreServiceFactory Entity Key Query KeyFactory))
   (:refer-clojure :exclude [get]))
 
+(defn create-key
+  "Creates a new Key from the given kind and id. If a parent key is given
+the new key will be a child of the parent key."
+  ([kind id]
+     (create-key nil kind id))
+  ([#^Key parent kind id]
+     (KeyFactory/createKey parent kind (if (integer? id) (Long/valueOf (str id)) (str id)))))
+
+(defn key->string
+  "Converts the given Key into a websafe string."
+  [key] (KeyFactory/keyToString key))
+
+(defn string->key
+  "Converts a String-representation of a Key into the Key instance it represents."
+  [string] (KeyFactory/stringToKey string))
 
 (defn entity-to-map
   "Converts an instance of com.google.appengine.api.datastore.Entity
@@ -19,24 +34,42 @@
           (Entity. (:key map))
           (dissoc map :key)))
 
+(defn map->entity
+  ([child]
+     (map->entity nil child))
+  ([parent child]
+     (Entity. (key))
+     ))
+
+;; (defn set-properties [entity map]
+;;   (reduce #(do (.setProperty %1 (name (first %2)) (second %2)) %1) entity (dissoc map :key :kind)))
+
+;; (defn record->entity
+;;   ([record]
+;;      (record->entity record nil))
+;;   ([record parent-record]
+;;      (reduce #(do (.setProperty %1 (name (first %2)) (second %2)) %1)
+;;              (Entity.
+;;               (:kind record)
+;;               (if parent-record (:key parent-record)))
+;;              (dissoc record :key))))
+
 (defn get
   "Retrieves the identified entity or raises EntityNotFoundException."
   [#^Key key]
   (entity-to-map (.get (DatastoreServiceFactory/getDatastoreService) key)))
 
+;; (defn put [map]
+;;   (.put (DatastoreServiceFactory/getDatastoreService)
+;;         (map-to-entity map)))
+
 (defn put [map]
-  (.put (DatastoreServiceFactory/getDatastoreService)
-        (map-to-entity map)))
+  (assoc map :key (.put (DatastoreServiceFactory/getDatastoreService) (map-to-entity map))))
 
-(defn create-key [kind id]
-  (KeyFactory/createKey
-   (str kind) (if (integer? id) (Long/valueOf (str id)) (str id))))
+;; (defn create-key [kind id]
+;;   (KeyFactory/createKey
+;;    kind (String/valueOf id)))
 
-(defn key-to-str [key]
-  (KeyFactory/keyToString key))
-
-(defn str-to-key [s]
-  (KeyFactory/stringToKey s))
 
 (defn find-all
   "Executes the given com.google.appengine.api.datastore.Query
@@ -55,9 +88,18 @@
     (let [kind (item :kind)
           properties (dissoc (merge {} item) :kind) ; converts struct to map
           entity (if parent-key (Entity. kind parent-key) (Entity. kind))]
-      (doseq [[prop-name value] properties] (.setProperty entity (name prop-name) value))
-      (.put (DatastoreServiceFactory/getDatastoreService) entity)
-      (entity-to-map entity))))
+      (doseq [[prop-name value] properties]
+        (.setProperty entity (name prop-name) value))
+      (let [key (.put (DatastoreServiceFactory/getDatastoreService) entity)]
+        (assoc (entity-to-map entity) :key key)))))
+
+;; (defn create
+;;   "Takes a map of keyword-value pairs or struct and puts a new Entity in the Datastore.
+;;   The map or struct must include a :kind String.
+;;   Returns the saved Entity converted with entity-to-map (which will include the assigned :key)."
+;;   ([item] (create item nil))
+;;   ([item #^Key parent-key]
+;;      (put (assoc item :key (if parent-key (Entity. (:kind item) parent-key) (Entity. (:kind item)))))))
 
 (defn update
   "Takes a map of properties and updates or adds to the identified Entity"
