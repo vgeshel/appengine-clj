@@ -1,6 +1,6 @@
 (ns appengine-clj.datastore
   (:import (com.google.appengine.api.datastore
-            DatastoreServiceFactory Entity Key Query KeyFactory))
+            DatastoreConfig DatastoreServiceFactory Entity Key Query KeyFactory))
   (:refer-clojure :exclude [get]))
 
 (defn create-key
@@ -10,6 +10,12 @@ the new key will be a child of the parent key."
      (create-key nil kind id))
   ([#^Key parent kind id]
      (KeyFactory/createKey parent kind (if (integer? id) (Long/valueOf (str id)) (str id)))))
+
+(defn datastore
+  "Creates a DatastoreService using the default or the provided
+configuration."
+  ([] (datastore DatastoreConfig/DEFAULT))
+  ([configuration] (DatastoreServiceFactory/getDatastoreService configuration)))
 
 (defn key->string
   "Converts the given Key into a websafe string."
@@ -39,14 +45,14 @@ keywords."
 (defn get
   "Retrieves the identified entity or raises EntityNotFoundException."
   [#^Key key]
-  (entity->map (.get (DatastoreServiceFactory/getDatastoreService) key)))
+  (entity->map (.get (datastore) key)))
 
 ;; (defn put [map]
-;;   (.put (DatastoreServiceFactory/getDatastoreService)
+;;   (.put (datastore)
 ;;         (map->entity map)))
 
 (defn put [map]
-  (assoc map :key (.put (DatastoreServiceFactory/getDatastoreService) (map->entity map))))
+  (assoc map :key (.put (datastore) (map->entity map))))
 
 ;; (defn create-key [kind id]
 ;;   (KeyFactory/createKey
@@ -57,7 +63,7 @@ keywords."
   "Executes the given com.google.appengine.api.datastore.Query
   and returns the results as a lazy sequence of items converted with entity->map."
   [#^Query query]
-  (let [data-service (DatastoreServiceFactory/getDatastoreService)
+  (let [data-service (datastore)
         results (.asIterable (.prepare data-service query))]
     (map entity->map results)))
 
@@ -72,7 +78,7 @@ keywords."
           entity (if parent-key (Entity. kind parent-key) (Entity. kind))]
       (doseq [[prop-name value] properties]
         (.setProperty entity (name prop-name) value))
-      (let [key (.put (DatastoreServiceFactory/getDatastoreService) entity)]
+      (let [key (.put (datastore) entity)]
         (assoc (entity->map entity) :key key)))))
 
 ;; (defn create
@@ -86,13 +92,13 @@ keywords."
 (defn update
   "Takes a map of properties and updates or adds to the identified Entity"
   [properties #^Key key]
-  (let [entity (.get (DatastoreServiceFactory/getDatastoreService) key)]
+  (let [entity (.get (datastore) key)]
     (doseq [[prop-name value] properties] (.setProperty entity (name prop-name) value))
-    (.put (DatastoreServiceFactory/getDatastoreService) entity)
+    (.put (datastore) entity)
     (entity->map entity)))
 
 (defn delete
   "Deletes the identified entities."
   [& #^Key keys]
-  (.delete (DatastoreServiceFactory/getDatastoreService) keys))
+  (.delete (datastore) keys))
 
