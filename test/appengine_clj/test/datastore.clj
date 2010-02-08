@@ -38,12 +38,29 @@
     (is (.isComplete country))))
 
 (dstest test-key->string  
-  (is (= (ds/key->string (ds/create-key "person" 1)) "agR0ZXN0cgwLEgZwZXJzb24YAQw")))
+  (is (= (ds/key->string (ds/create-key "person" 1)) "agR0ZXN0cgwLEgZwZXJzb24YAQw"))
+  (is (= (ds/key->string (ds/create-key "country" "de")) "agR0ZXN0cg8LEgdjb3VudHJ5IgJkZQw"))
+  (let [continent (ds/create-key "continent" "eu")
+        country (ds/create-key continent "country" "de")]
+    (is (= (ds/key->string country) "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA"))))
 
 (dstest test-string->key
   (let [key (ds/string->key "agR0ZXN0cgwLEgZwZXJzb24YAQw")]
     (is (= (.getKind key) "person"))
-    (is (= (.getId key) (long 1)))))
+    (is (= (.getId key) (long 1)))
+    (is (nil? (.getName key))))
+  (let [key (ds/string->key "agR0ZXN0cg8LEgdjb3VudHJ5IgJkZQw")]
+    (is (= (.getKind key) "country"))
+    (is (= (.getId key) 0))
+    (is (= (.getName key) "de")))
+  (let [key (ds/string->key "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA")]
+    (is (= (.getKind key) "country"))
+    (is (= (.getId key) 0))
+    (is (= (.getName key) "de"))
+    (let [parent (.getParent key)]
+      (is (= (.getKind parent) "continent"))
+      (is (= (.getId parent) 0))
+      (is (= (.getName parent) "eu")))))
 
 ;; (dstest test-map->entity
 ;;   (let [entity (ds/map->entity {:kind "country" :name "Germany"})]
