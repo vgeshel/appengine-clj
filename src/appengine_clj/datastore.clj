@@ -56,22 +56,17 @@ keywords."
 (defmethod get :default [map]
   (get (:key map)))
 
-;; (defn get
-;;   "Retrieves the identified entity or raises EntityNotFoundException."
-;;   [#^Key key]
-;;   (entity->map (.get (datastore) key)))
+(defmulti put
+  "Puts the PersistentHashMap or Entity into the datastore and
+  returns a PersistentHashMap of the entity."
+  class)
 
-;; (defn put [map]
-;;   (.put (datastore)
-;;         (map->entity map)))
+(defmethod put Entity [entity]
+  (let [key (.put (datastore) entity)]
+    (assoc (entity->map entity) :key key)))
 
-(defn put [map]
-  (assoc map :key (.put (datastore) (map->entity map))))
-
-;; (defn create-key [kind id]
-;;   (KeyFactory/createKey
-;;    kind (String/valueOf id)))
-
+(defmethod put :default [map]
+  (put (map->entity map)))
 
 (defn find-all
   "Executes the given com.google.appengine.api.datastore.Query

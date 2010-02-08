@@ -121,11 +121,18 @@
     (is (= "cliff" ((ds/get key) :name)))))
 
 (dstest test-get
-  (let [country (ds/put {:key (ds/create-key "country" "de") :name "Germany"})]
+  (let [country (ds/create {:key (ds/create-key "country" "de") :name "Germany" :kind "country"})]
     (is (= ((ds/get country) country)))
     (is (= ((ds/get (:key country)) country)))
-    (is (= ((ds/get (ds/map->entity country)) country)))
-    ))
+    (is (= ((ds/get (ds/map->entity country)) country)))))
+
+(dstest test-put
+  (let [person (ds/put {:name "Bob" :kind "person"})]
+    (is (= (:key person) (ds/create-key "person" 1)))
+    (is (= (:name person) "Bob")))
+  (let [country (ds/put {:key (ds/create-key "country" "de") :name "Germany"})]
+    (is (= (:key country) (ds/create-key "country" "de")))
+    (is (= (:name country) "Germany"))))
 
 (dstest delete-by-key
   (let [key (:key (ds/create {:kind "MyKind"}))]
