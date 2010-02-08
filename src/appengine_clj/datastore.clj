@@ -19,7 +19,7 @@ the new key will be a child of the parent key."
   "Converts a String-representation of a Key into the Key instance it represents."
   [string] (KeyFactory/stringToKey string))
 
-(defn entity-to-map
+(defn entity->map
   "Converts an instance of com.google.appengine.api.datastore.Entity
   to a PersistentHashMap with properties stored under keyword keys,
   plus the entity's kind stored under :kind and key stored under :key."
@@ -28,43 +28,25 @@ the new key will be a child of the parent key."
     {:kind (.getKind entity) :key (.getKey entity)}
     (.entrySet (.getProperties entity))))
 
-(defn map-to-entity [map]
-  (reduce #(do (.setProperty %1 (name (first %2)) (second %2))
-               %1)
-          (Entity. (:key map))
-          (dissoc map :key)))
-
 (defn map->entity
-  ([child]
-     (map->entity nil child))
-  ([parent child]
-     (Entity. (key))
-     ))
-
-;; (defn set-properties [entity map]
-;;   (reduce #(do (.setProperty %1 (name (first %2)) (second %2)) %1) entity (dissoc map :key :kind)))
-
-;; (defn record->entity
-;;   ([record]
-;;      (record->entity record nil))
-;;   ([record parent-record]
-;;      (reduce #(do (.setProperty %1 (name (first %2)) (second %2)) %1)
-;;              (Entity.
-;;               (:kind record)
-;;               (if parent-record (:key parent-record)))
-;;              (dissoc record :key))))
+  "Converts a PersistentHashMap into a Entity instance. The map must
+have the key or kind of the entity stored under the :key or a :kind
+keywords."
+  [map]
+  (reduce #(do (.setProperty %1 (name (first %2)) (second %2)) %1)
+          (Entity. (or (:key map) (:kind map))) (dissoc map :key :kind)))
 
 (defn get
   "Retrieves the identified entity or raises EntityNotFoundException."
   [#^Key key]
-  (entity-to-map (.get (DatastoreServiceFactory/getDatastoreService) key)))
+  (entity->map (.get (DatastoreServiceFactory/getDatastoreService) key)))
 
 ;; (defn put [map]
 ;;   (.put (DatastoreServiceFactory/getDatastoreService)
-;;         (map-to-entity map)))
+;;         (map->entity map)))
 
 (defn put [map]
-  (assoc map :key (.put (DatastoreServiceFactory/getDatastoreService) (map-to-entity map))))
+  (assoc map :key (.put (DatastoreServiceFactory/getDatastoreService) (map->entity map))))
 
 ;; (defn create-key [kind id]
 ;;   (KeyFactory/createKey
@@ -73,16 +55,16 @@ the new key will be a child of the parent key."
 
 (defn find-all
   "Executes the given com.google.appengine.api.datastore.Query
-  and returns the results as a lazy sequence of items converted with entity-to-map."
+  and returns the results as a lazy sequence of items converted with entity->map."
   [#^Query query]
   (let [data-service (DatastoreServiceFactory/getDatastoreService)
         results (.asIterable (.prepare data-service query))]
-    (map entity-to-map results)))
+    (map entity->map results)))
 
 (defn create
   "Takes a map of keyword-value pairs or struct and puts a new Entity in the Datastore.
   The map or struct must include a :kind String.
-  Returns the saved Entity converted with entity-to-map (which will include the assigned :key)."
+  Returns the saved Entity converted with entity->map (which will include the assigned :key)."
   ([item] (create item nil))
   ([item #^Key parent-key]
     (let [kind (item :kind)
@@ -91,12 +73,12 @@ the new key will be a child of the parent key."
       (doseq [[prop-name value] properties]
         (.setProperty entity (name prop-name) value))
       (let [key (.put (DatastoreServiceFactory/getDatastoreService) entity)]
-        (assoc (entity-to-map entity) :key key)))))
+        (assoc (entity->map entity) :key key)))))
 
 ;; (defn create
 ;;   "Takes a map of keyword-value pairs or struct and puts a new Entity in the Datastore.
 ;;   The map or struct must include a :kind String.
-;;   Returns the saved Entity converted with entity-to-map (which will include the assigned :key)."
+;;   Returns the saved Entity converted with entity->map (which will include the assigned :key)."
 ;;   ([item] (create item nil))
 ;;   ([item #^Key parent-key]
 ;;      (put (assoc item :key (if parent-key (Entity. (:kind item) parent-key) (Entity. (:kind item)))))))
@@ -107,7 +89,7 @@ the new key will be a child of the parent key."
   (let [entity (.get (DatastoreServiceFactory/getDatastoreService) key)]
     (doseq [[prop-name value] properties] (.setProperty entity (name prop-name) value))
     (.put (DatastoreServiceFactory/getDatastoreService) entity)
-    (entity-to-map entity)))
+    (entity->map entity)))
 
 (defn delete
   "Deletes the identified entities."

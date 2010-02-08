@@ -62,9 +62,20 @@
       (is (= (.getId parent) 0))
       (is (= (.getName parent) "eu")))))
 
-;; (dstest test-map->entity
-;;   (let [entity (ds/map->entity {:kind "country" :name "Germany"})]
-;;     ))
+(dstest test-map->entity
+  (let [entity (ds/map->entity {:key (ds/create-key "country" "de") :name "Germany"})]
+    (is (= (class entity) Entity))
+    (is (= (.getKind entity) "country"))
+    (is (= (.. entity getKey getKind) "country"))
+    (is (= (.. entity getKey getId) 0))
+    (is (= (.. entity getKey getName) "de"))
+    (is (= (. entity getProperty "name") "Germany")))
+  (let [entity (ds/map->entity {:kind "person" :name "bob"})]
+    (is (= (class entity) Entity))
+    (is (= (.getKind entity) "person"))
+    (is (= (.. entity getKey getId) 0))
+    (is (nil? (.. entity getKey getName)))
+    (is (= (. entity getProperty "name") "bob"))))
 
 (dstest entity-to-map-converts-to-persistent-map
   (let [entity (doto (Entity. "MyKind")
@@ -72,7 +83,7 @@
                 (.setProperty "bar" "Bar"))]
     (.put (DatastoreServiceFactory/getDatastoreService) entity)
     (is (= {:foo "Foo" :bar "Bar" :kind "MyKind" :key (.getKey entity)}
-           (ds/entity-to-map entity)))))
+           (ds/entity->map entity)))))
 
 (dstest find-all-runs-given-query
   (.put (DatastoreServiceFactory/getDatastoreService)
