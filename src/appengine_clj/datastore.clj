@@ -1,6 +1,5 @@
 (ns appengine-clj.datastore
-  (:import (com.google.appengine.api.datastore
-            DatastoreConfig DatastoreServiceFactory Entity Key Query KeyFactory))
+  (:import (com.google.appengine.api.datastore DatastoreConfig DatastoreServiceFactory Entity Key Query KeyFactory))
   (:refer-clojure :exclude [get]))
 
 (defn create-key
@@ -42,10 +41,25 @@ keywords."
   (reduce #(do (.setProperty %1 (name (first %2)) (second %2)) %1)
           (Entity. (or (:key map) (:kind map))) (dissoc map :key :kind)))
 
-(defn get
-  "Retrieves the identified entity or raises EntityNotFoundException."
-  [#^Key key]
+(defmulti get
+  "Retrieves a PersistentHashMap of an Entity in the datastore. The
+  entity can be retrieved by an instance of Key, Entity or a
+  PersistentHashMap with a :key keyword."
+  class)
+
+(defmethod get Entity [entity]
+  (get (.getKey entity)))
+
+(defmethod get Key [key]
   (entity->map (.get (datastore) key)))
+
+(defmethod get :default [map]
+  (get (:key map)))
+
+;; (defn get
+;;   "Retrieves the identified entity or raises EntityNotFoundException."
+;;   [#^Key key]
+;;   (entity->map (.get (datastore) key)))
 
 ;; (defn put [map]
 ;;   (.put (datastore)
