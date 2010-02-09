@@ -5,3 +5,4 @@ classes
 datastore-indexes-auto.xml
 *~
 lib
+/pom.xml
