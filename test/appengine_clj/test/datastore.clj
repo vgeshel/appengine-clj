@@ -153,6 +153,11 @@
     (let [country (ds/update (ds/map->entity country) {:name "Germany"})]
       (is (= (:name country) "Germany")))))
 
+(dstest test-properties
+  (let [record {:key (ds/create-key "person" 1) :name "Bob"}]
+    (is (= (ds/properties record) {:name "Bob"}))
+    (is (= (ds/properties (ds/map->entity record)) {:name "Bob"}))))
+
 ;; (dstest test-create-with-string-key
 ;;   (println "AAAAAAAAAAAAAAAAAAAAAA")
 ;;   (let [country (ds/put {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})]
