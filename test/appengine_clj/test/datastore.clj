@@ -11,31 +11,33 @@
             Query$FilterOperator
             Query$SortDirection)))
 
-(dstest test-create-key-with-integer
+(dstest test-create-key-with-int
   (let [key (ds/create-key "person" 1)]
     (is (= (class key) com.google.appengine.api.datastore.Key))
+    (is (.isComplete key))
+    (is (nil? (.getParent key)))    
     (is (= (.getKind key) "person"))
     (is (= (.getId key) 1))
-    (is (nil? (.getName key)))
-    (is (.isComplete key))))
+    (is (nil? (.getName key)))))
 
 (dstest test-create-key-with-string
   (let [key (ds/create-key "country" "de")]
     (is (= (class key) com.google.appengine.api.datastore.Key))
+    (is (.isComplete key))
+    (is (nil? (.getParent key)))
     (is (= (.getKind key) "country"))
     (is (= (.getId key) 0))
-    (is (= (.getName key) "de"))
-    (is (.isComplete key))))
+    (is (= (.getName key) "de"))))
 
 (dstest test-create-key-with-parent
   (let [continent (ds/create-key "continent" "eu")
         country (ds/create-key continent "country" "de")]
     (is (= (class country) com.google.appengine.api.datastore.Key))
+    (is (.isComplete country))
     (is (= (.getParent country) continent))
     (is (= (.getKind country) "country"))
     (is (= (.getId country) 0))
-    (is (= (.getName country) "de"))
-    (is (.isComplete country))))
+    (is (= (.getName country) "de"))))
 
 (dstest test-key->string  
   (is (= (ds/key->string (ds/create-key "person" 1)) "agR0ZXN0cgwLEgZwZXJzb24YAQw"))
@@ -70,12 +72,102 @@
     (is (= (.. entity getKey getId) 0))
     (is (= (.. entity getKey getName) "de"))
     (is (= (. entity getProperty "name") "Germany")))
-  (let [entity (ds/map->entity {:kind "person" :name "bob"})]
+  (let [entity (ds/map->entity {:kind "person" :name "Bob"})]
     (is (= (class entity) Entity))
     (is (= (.getKind entity) "person"))
     (is (= (.. entity getKey getId) 0))
     (is (nil? (.. entity getKey getName)))
-    (is (= (. entity getProperty "name") "bob"))))
+    (is (= (. entity getProperty "name") "Bob"))))
+
+(dstest create-with-struct
+  (defstruct country :name :kind)
+  (let [country (ds/create (struct country "Germany" "country"))]
+    (is (not (nil? (:key country))))
+    (is (= (:name country) "Germany"))
+    (is (= (:kind country) "country"))))
+
+(dstest test-create-with-int-key
+  (let [person (ds/create {:kind "person" :name "Bob"})]
+    (is (= (class person) clojure.lang.PersistentArrayMap))
+    (is (.isComplete (:key person)))
+    (is (= (.getKind (:key person)) "person"))
+    (is (= (.getId (:key person)) 1))
+    (is (nil? (.getName (:key person))))      
+    (is (= (:kind person)) "person")
+    (is (= (:name person) "Bob"))))
+
+(dstest test-create-with-string-key
+  (let [country (ds/create {:key (ds/create-key "country" "de") :name "Germany"})]
+    (is (= (class country) clojure.lang.PersistentArrayMap))
+    (is (.isComplete (:key country)))
+    (is (= (.getKind (:key country)) "country"))
+    (is (= (.getId (:key country)) 0))
+    (is (= (.getName (:key country)) "de"))    
+    (is (= (:kind country)) "country")
+    (is (= (:name country) "Germany"))))
+
+(dstest test-get
+  (is (nil? (ds/get nil)))
+  (is (nil? (ds/get {}))))
+
+(dstest test-get-with-int-key
+  (let [person (ds/create {:kind "person" :name "Bob"})]
+    (is (= (class person) clojure.lang.PersistentArrayMap))
+    (is (= ((ds/get person) person)))
+    (is (= ((ds/get (:key person)) person)))
+    (is (= ((ds/get (ds/map->entity person)) person)))))
+
+(dstest test-get-with-string-key
+  (let [country (ds/create {:key (ds/create-key "country" "de") :name "Germany"})]
+    (is (= (class country) clojure.lang.PersistentArrayMap))
+    (is (= ((ds/get country) country)))
+    (is (= ((ds/get (:key country)) country)))
+    (is (= ((ds/get (ds/map->entity country)) country)))))
+
+(dstest test-put
+  (let [person (ds/put {:name "Bob" :kind "person"})]
+    (is (= (:key person) (ds/create-key "person" 1)))
+    (is (= (:name person) "Bob")))
+  (let [country (ds/put {:key (ds/create-key "country" "de") :name "Germany"})]
+    (is (= (:key country) (ds/create-key "country" "de")))
+    (is (= (:name country) "Germany"))))
+
+(dstest delete-with-key
+  (let [key (:key (ds/create {:kind "person" :name "Bob"}))]
+    (ds/delete key)
+    (is (thrown? EntityNotFoundException (ds/get key)))))
+
+(dstest delete-with-multiple-keys
+  (let [key1 (:key (ds/create {:kind "person" :name "Alice"}))
+        key2 (:key (ds/create {:kind "person" :name "Bob"}))]
+    (ds/delete key1 key2)
+    (are (thrown? EntityNotFoundException (ds/get _1))
+         key1 key2)))
+
+(dstest test-update
+  (let [country (ds/put {:key (ds/create-key "country" "de") :name "Deutschland"})]
+    (let [country (ds/update country {:name "Germany"})]
+      (is (= (:name country) "Germany")))
+    (let [country (ds/update (:key country) {:name "Germany"})]
+      (is (= (:name country) "Germany")))
+    (let [country (ds/update (ds/map->entity country) {:name "Germany"})]
+      (is (= (:name country) "Germany")))))
+
+;; (dstest test-create-with-string-key
+;;   (println "AAAAAAAAAAAAAAAAAAAAAA")
+;;   (let [country (ds/put {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})]
+;;     ;; (ds/create {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})
+;;     ;; (ds/create {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})
+;;     (println "AAAAAAAAAAAAAAAAAAAAAA")
+;;     (println country)
+;;     (println (:key country))
+;;     ;; (println (:key country))
+;;     ;; (println (.getKind(:key country)))
+;;     ;; (println (.getId(:key country)))
+;;     ;; (println (.getName(:key country)))
+;;     (println (ds/get (:key country)))
+;;     ))
+
 
 (dstest entity-to-map-converts-to-persistent-map
   (let [entity (doto (Entity. "MyKind")
@@ -103,68 +195,12 @@
       (is (= "hume" (.getProperty created-entity "name")))
       (is (= 31 (.getProperty created-entity "age"))))))
 
-(dstest create-can-create-a-child-entity-from-a-parent-key
-  (let [parent (ds/create {:kind "Mother" :name "mama"})
-        child (ds/create {:kind "Child" :name "baby"} (parent :key))]
-    (is (= (parent :key) (.getParent (child :key))))
-    (is (= [child] (ds/find-all (doto (Query. "Child" (parent :key))))))))
-
-(dstest create-with-struct
-  (defstruct person :name :kind)
-  (let [person (ds/create (struct person "jim" "child"))]
-    (is (not (nil? (:key person))))
-    (is (= (:name person) "jim"))
-    (is (= (:kind person) "child"))))
+;; (dstest create-can-create-a-child-entity-from-a-parent-key
+;;   (let [parent (ds/create {:kind "Mother" :name "mama"})
+;;         child (ds/create {:kind "Child" :name "baby"} (parent :key))]
+;;     (is (= (parent :key) (.getParent (child :key))))
+;;     (is (= [child] (ds/find-all (doto (Query. "Child" (parent :key))))))))
 
 (dstest get-given-a-key-returns-a-mapified-entity
   (let [key (:key (ds/create {:kind "Person" :name "cliff"}))]
     (is (= "cliff" ((ds/get key) :name)))))
-
-(dstest test-get
-  (let [country (ds/create {:key (ds/create-key "country" "de") :name "Germany" :kind "country"})]
-    (is (= ((ds/get country) country)))
-    (is (= ((ds/get (:key country)) country)))
-    (is (= ((ds/get (ds/map->entity country)) country)))))
-
-(dstest test-put
-  (let [person (ds/put {:name "Bob" :kind "person"})]
-    (is (= (:key person) (ds/create-key "person" 1)))
-    (is (= (:name person) "Bob")))
-  (let [country (ds/put {:key (ds/create-key "country" "de") :name "Germany"})]
-    (is (= (:key country) (ds/create-key "country" "de")))
-    (is (= (:name country) "Germany"))))
-
-(dstest delete-by-key
-  (let [key (:key (ds/create {:kind "MyKind"}))]
-    (ds/delete key)
-    (is (thrown? EntityNotFoundException (ds/get key)))))
-
-(dstest delete-by-multiple-keys
-  (let [key1 (:key (ds/create {:kind "MyKind"}))
-        key2 (:key (ds/create {:kind "MyKind"}))]
-    (ds/delete key1 key2)
-    (are (thrown? EntityNotFoundException (ds/get _1))
-         key1
-         key2)))
-
-(dstest update-with-struct
-  (defstruct person :name :kind)
-  (let [person (ds/update {:name "tom"} (:key (ds/create (struct person "jim" "child"))))]
-    (is (not (nil? (:key person))))
-    (is (= (:name person) "tom"))
-    (is (= (:kind person) "child"))))
-
-;; (dstest test-create-with-string-key
-;;   (println "AAAAAAAAAAAAAAAAAAAAAA")
-;;   (let [country (ds/put {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})]
-;;     ;; (ds/create {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})
-;;     ;; (ds/create {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})
-;;     (println "AAAAAAAAAAAAAAAAAAAAAA")
-;;     (println country)
-;;     (println (:key country))
-;;     ;; (println (:key country))
-;;     ;; (println (.getKind(:key country)))
-;;     ;; (println (.getId(:key country)))
-;;     ;; (println (.getName(:key country)))
-;;     (println (ds/get (:key country)))
-;;     ))
