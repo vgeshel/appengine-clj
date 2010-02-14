@@ -1,4 +1,4 @@
-(ns appengine-clj.datastore
+(ns appengine.datastore
   (:import (com.google.appengine.api.datastore DatastoreConfig DatastoreServiceFactory Entity Key Query KeyFactory))
   (:refer-clojure :exclude [get]))
 

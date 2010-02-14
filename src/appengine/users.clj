@@ -1,4 +1,4 @@
-(ns appengine-clj.users
+(ns appengine.users
   (:import
     (com.google.appengine.api.users User UserService UserServiceFactory)))
 
@@ -11,14 +11,14 @@
    (let [user-service (UserServiceFactory/getUserService)]
      {:user (.getCurrentUser user-service) :user-service user-service}))
   ([request]
-   (:appengine-clj/user-info request)))
+   (:appengine/user-info request)))
 
 (defn wrap-with-user-info
   "Ring middleware method that wraps an application so that every request will have
-  a user-info map assoc'd to the request under the key :appengine-clj/user-info."
+  a user-info map assoc'd to the request under the key :appengine/user-info."
   [application]
   (fn [request]
-    (application (assoc request :appengine-clj/user-info (user-info)))))
+    (application (assoc request :appengine/user-info (user-info)))))
 
 (defn wrap-requiring-login
   ([application] (wrap-requiring-login application nil))

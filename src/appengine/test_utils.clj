@@ -1,4 +1,4 @@
-(ns appengine-clj.test-utils
+(ns appengine.test-utils
   (:require [clojure.contrib.test-is :as test-is])
   (:import
     (com.google.appengine.tools.development ApiProxyLocalFactory)

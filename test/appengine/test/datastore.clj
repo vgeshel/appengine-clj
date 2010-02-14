@@ -1,7 +1,7 @@
-(ns appengine-clj.test.datastore
-  (:require [appengine-clj.datastore :as ds])
+(ns appengine.test.datastore
+  (:require [appengine.datastore :as ds])
   (:use clojure.contrib.test-is
-        appengine-clj.test-utils)
+        appengine.test-utils)
   (:import (com.google.appengine.api.datastore
             DatastoreServiceFactory
             Entity
