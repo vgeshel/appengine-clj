@@ -23,9 +23,9 @@
 
 (deftest test-find-entity-fn-doc
   (is (= (find-entity-fn-doc 'country 'iso-3166-alpha-2)
-         "Find first country by iso-3166-alpha-2."))
+         "Find the first country by iso-3166-alpha-2."))
   (is (= (find-entity-fn-doc 'sheep 'color)
-         "Find first sheep by color.")))
+         "Find the first sheep by color.")))
 
 (deftest test-find-entity-fn-name
   (is (= (find-entity-fn-name 'country 'iso-3166-alpha-2)
@@ -37,6 +37,12 @@
   (let [country (create-country "Spain")]
     (is (= [country] (ds/find-all (filter-query 'country 'name "Spain"))))
     (is (= [country] (ds/find-all (filter-query "country" "name" "Spain"))))))
+
+(dstest test-filter-fn
+  (is (fn? (filter-fn 'country 'name)))
+  (let [country (create-country "Spain")]
+    (is (= [country] ((filter-fn 'country 'name) "Spain")))
+    (is (= [country] ((filter-fn "country" "name") "Spain")))))
 
 (dstest test-find-all-countries-by-name
   (def-property-finder find-all-countries-by-name

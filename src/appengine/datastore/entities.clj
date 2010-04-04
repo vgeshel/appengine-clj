@@ -10,20 +10,23 @@
   (str "find-all-" (pluralize (str entity)) "-by-" property))
 
 (defn- find-entity-fn-doc [entity property]
-  (str "Find first " entity " by " property "."))
+  (str "Find the first " entity " by " property "."))
 
 (defn- find-entity-fn-name [entity property]
   (str "find-" entity "-by-" property))
 
 (defn filter-query [entity property value & [operator]]
   (doto (Query. (str entity))
-    (.addFilter (str property)
-                (or operator Query$FilterOperator/EQUAL)
-                (if (map? value) ((keyword value) value) value))))
+    (.addFilter
+     (str property)
+     (or operator Query$FilterOperator/EQUAL)
+     (if (map? value) ((keyword value) value) value))))
 
-(defn filter-fn [entity property value & [operator]]
-  (fn [property-val]
-    (ds/find-all (filter-query entity property property-val operator))))
+(defn filter-fn [entity property & [operator]]
+  (let [operator (or operator Query$FilterOperator/EQUAL)]
+    (fn [property-val]
+      (ds/find-all
+       (filter-query entity property property-val operator)))))
 
 (defmacro def-property-finder [name doc-string entity [property operator] & [result-fn]]
   (let [property# property]
