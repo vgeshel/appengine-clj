@@ -21,6 +21,10 @@
                 (or operator Query$FilterOperator/EQUAL)
                 (if (map? value) ((keyword value) value) value))))
 
+(defn filter-fn [entity property value & [operator]]
+  (fn [property-val]
+    (ds/find-all (filter-query entity property property-val operator))))
+
 (defmacro def-property-finder [name doc-string entity [property operator] & [result-fn]]
   (let [property# property]
     `(defn ~(symbol name) ~doc-string

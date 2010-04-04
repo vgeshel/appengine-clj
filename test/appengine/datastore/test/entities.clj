@@ -38,12 +38,12 @@
     (is (= [country] (ds/find-all (filter-query 'country 'name "Spain"))))
     (is (= [country] (ds/find-all (filter-query "country" "name" "Spain"))))))
 
-(dstest test-find-countries-by-name
-  (def-property-finder find-countries-by-name
+(dstest test-find-all-countries-by-name
+  (def-property-finder find-all-countries-by-name
     "Find all countries by name."
     country (name))
   (let [country (create-country "Spain")]
-    (is (= [country] (find-countries-by-name (:name country))))))
+    (is (= [country] (find-all-countries-by-name (:name country))))))
 
 (dstest test-find-country-by-name
   (def-property-finder find-country-by-name
@@ -57,8 +57,8 @@
   (let [country (create-country "Spain" "es")]
     (is (= country (find-country-by-name (:name country))))
     (is (= country (find-country-by-iso-3166-alpha-2 (:iso-3166-alpha-2 country))))    
-    (is (= [country] (find-countries-by-name (:name country))))
-    (is (= [country] (find-countries-by-iso-3166-alpha-2 (:iso-3166-alpha-2 country))))))
+    (is (= [country] (find-all-countries-by-name (:name country))))
+    (is (= [country] (find-all-countries-by-iso-3166-alpha-2 (:iso-3166-alpha-2 country))))))
 
 ;; (dstest test-def-make-key-fn-without-parent
 ;;   (def-make-key-fn nil continent iso-3166-alpha-2)
