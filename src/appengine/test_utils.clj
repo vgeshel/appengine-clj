@@ -5,6 +5,10 @@
     (com.google.appengine.api.datastore.dev LocalDatastoreService)
     (com.google.apphosting.api ApiProxy)))
 
+(defn refer-private [ns]
+  (doseq [[symbol var] (ns-interns ns)]
+    (when (:private (meta var))
+      (intern *ns* symbol var))))
 
 (defn ds-setup []
   (let [proxy-factory (doto (ApiProxyLocalFactory.) (.setApplicationDirectory (java.io.File. ".")))
