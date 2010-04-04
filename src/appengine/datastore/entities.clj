@@ -28,26 +28,31 @@
       (ds/find-all
        (filter-query entity property property-val operator)))))
 
-(defmacro def-property-finder [name doc-string entity [property operator] & [result-fn]]
+(defmacro def-property-finder [entity name doc-string [property operator] & [result-fn]]
   (let [property# property]
     `(defn ~(symbol name) ~doc-string
        [~property#]
        (~(or result-fn 'identity)
-        (ds/find-all (filter-query '~entity '~property# ~property# ~operator))))))
+        ((filter-fn '~entity '~property# ~operator) ~property#)))))
 
 (defmacro def-finder-fn [entity & properties]
   (let [entity# entity]
     `(do
        ~@(for [property# properties]
            `(do
-              (def-property-finder
-                ~(find-entities-fn-name entity# property#)
+              (def-property-finder ~entity#
+                ~(symbol (find-entities-fn-name entity# property#))
                 ~(find-entities-fn-doc entity# property#)
-                ~entity# (~property#))
-              (def-property-finder
-                ~(find-entity-fn-name entity# property#)
+                (~property#))
+              (def-property-finder ~entity#
+                ~(symbol (find-entity-fn-name entity# property#))
                 ~(find-entity-fn-doc entity# property#)
-                ~entity# (~property#) first))))))
+                (~property#) first))))))
+
+;; (def-finder-fn country
+;;   iso-3166-alpha-2
+;;   iso-3166-alpha-3
+;;   name)
 
 ;; (def-finder-fn country
 ;;   iso-3166-alpha-2

@@ -18,8 +18,8 @@
 (deftest test-find-entities-fn-name
   (is (= (find-entities-fn-name 'country 'iso-3166-alpha-2)
          "find-all-countries-by-iso-3166-alpha-2"))
-    (is (= (find-entities-fn-name 'sheep 'color)
-           "find-all-sheep-by-color")))
+  (is (= (find-entities-fn-name 'sheep 'color)
+         "find-all-sheep-by-color")))
 
 (deftest test-find-entity-fn-doc
   (is (= (find-entity-fn-doc 'country 'iso-3166-alpha-2)
@@ -30,8 +30,8 @@
 (deftest test-find-entity-fn-name
   (is (= (find-entity-fn-name 'country 'iso-3166-alpha-2)
          "find-country-by-iso-3166-alpha-2"))
-    (is (= (find-entity-fn-name 'sheep 'color)
-           "find-sheep-by-color")))
+  (is (= (find-entity-fn-name 'sheep 'color)
+         "find-sheep-by-color")))
 
 (dstest test-filter-query
   (let [country (create-country "Spain")]
@@ -54,7 +54,7 @@
 (dstest test-find-country-by-name
   (def-property-finder find-country-by-name
     "Find all countries by name."
-     country (name) first)
+    country (name) first)
   (let [country (create-country "Spain")]
     (is (= country (find-country-by-name (:name country))))))
 
@@ -65,6 +65,15 @@
     (is (= country (find-country-by-iso-3166-alpha-2 (:iso-3166-alpha-2 country))))    
     (is (= [country] (find-all-countries-by-name (:name country))))
     (is (= [country] (find-all-countries-by-iso-3166-alpha-2 (:iso-3166-alpha-2 country))))))
+
+(dstest test-property-finder
+  (def-property-finder country find-all-countries-by-name
+    "Find all countries by name." (name))
+  (is (= (:doc (meta ('find-all-countries-by-name (ns-interns *ns*))))
+         "Find all countries by name."))
+  (is (fn? find-all-countries-by-name))
+  (let [country (create-country "Spain" "es")]
+    (is (= [country] (find-all-countries-by-name (:name country))))))
 
 ;; (dstest test-def-make-key-fn-without-parent
 ;;   (def-make-key-fn nil continent iso-3166-alpha-2)
