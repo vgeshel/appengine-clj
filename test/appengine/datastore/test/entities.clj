@@ -45,14 +45,14 @@
     (is (= [country] ((filter-fn "country" "name") "Spain")))))
 
 (dstest test-find-all-countries-by-name
-  (def-property-finder find-all-countries-by-name
+  (deffilter find-all-countries-by-name
     "Find all countries by name."
     country (name))
   (let [country (create-country "Spain")]
     (is (= [country] (find-all-countries-by-name (:name country))))))
 
 (dstest test-find-country-by-name
-  (def-property-finder find-country-by-name
+  (deffilter find-country-by-name
     "Find all countries by name."
     country (name) first)
   (let [country (create-country "Spain")]
@@ -67,7 +67,7 @@
     (is (= [country] (find-all-countries-by-iso-3166-alpha-2 (:iso-3166-alpha-2 country))))))
 
 (dstest test-property-finder
-  (def-property-finder country find-all-countries-by-name
+  (deffilter country find-all-countries-by-name
     "Find all countries by name." (name))
   (is (= (:doc (meta ('find-all-countries-by-name (ns-interns *ns*))))
          "Find all countries by name."))

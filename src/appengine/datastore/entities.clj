@@ -28,7 +28,7 @@
       (ds/find-all
        (filter-query entity property property-val operator)))))
 
-(defmacro def-property-finder [entity name doc-string [property operator] & [result-fn]]
+(defmacro deffilter [entity name doc-string [property operator] & [result-fn]]
   (let [property# property]
     `(defn ~(symbol name) ~doc-string
        [~property#]
@@ -40,11 +40,11 @@
     `(do
        ~@(for [property# properties]
            `(do
-              (def-property-finder ~entity#
+              (deffilter ~entity#
                 ~(symbol (find-entities-fn-name entity# property#))
                 ~(find-entities-fn-doc entity# property#)
                 (~property#))
-              (def-property-finder ~entity#
+              (deffilter ~entity#
                 ~(symbol (find-entity-fn-name entity# property#))
                 ~(find-entity-fn-doc entity# property#)
                 (~property#) first))))))
