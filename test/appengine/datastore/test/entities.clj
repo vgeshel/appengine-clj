@@ -45,16 +45,15 @@
     (is (= [country] ((filter-fn "country" "name") "Spain")))))
 
 (dstest test-find-all-countries-by-name
-  (deffilter find-all-countries-by-name
+  (deffilter country find-all-countries-by-name
     "Find all countries by name."
-    country (name))
+    (name))
   (let [country (create-country "Spain")]
     (is (= [country] (find-all-countries-by-name (:name country))))))
 
 (dstest test-find-country-by-name
-  (deffilter find-country-by-name
-    "Find all countries by name."
-    country (name) first)
+  (deffilter country find-country-by-name
+    "Find all countries by name." (name) first)
   (let [country (create-country "Spain")]
     (is (= country (find-country-by-name (:name country))))))
 
