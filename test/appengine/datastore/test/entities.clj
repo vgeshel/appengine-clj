@@ -65,6 +65,103 @@
     (is (= [country] (find-all-countries-by-name (:name country))))
     (is (= [country] (find-all-countries-by-iso-3166-alpha-2 (:iso-3166-alpha-2 country))))))
 
+(deftest test-key-fn-name
+  (is (= (key-fn-name 'continent) "make-continent-key")))
+
+(dstest test-make-continent-key
+  (def-key-fn continent (:iso-3166-alpha-2))
+  (let [key (make-continent-key {:iso-3166-alpha-2 "eu"})]
+    (is (= (class key) com.google.appengine.api.datastore.Key))
+    (is (.isComplete key))
+    (is (nil? (.getParent key)))    
+    (is (= (.getKind key) "continent"))
+    (is (= (.getId key) 0))
+    (is (= (.getName key) "eu"))))
+
+(dstest test-make-country-key
+  (def-key-fn country (:iso-3166-alpha-2) continent)
+  (let [continent {:key (ds/create-key "continent" "eu")}
+        key (make-country-key continent {:iso-3166-alpha-2 "es"})]
+    (is (= (class key) com.google.appengine.api.datastore.Key))
+    (is (.isComplete key))
+    (is (= (.getParent key) (:key continent)))    
+    (is (= (.getKind key) "country"))
+    (is (= (.getId key) 0))
+    (is (= (.getName key) "es"))))
+
+(dstest test-create-continent
+  (def-key-fn continent (:iso-3166-alpha-2))
+  (def-make-fn continent)
+  (def-create-fn continent)
+  (let [continent (create-continent {:iso-3166-alpha-2 "eu" :name "Europe"})]
+    (let [key (:key continent)]
+      (is (= (class key) com.google.appengine.api.datastore.Key))
+      (is (.isComplete key))
+      (is (nil? (.getParent key)))    
+      (is (= (.getKind key) "continent"))
+      (is (= (.getId key) 0))
+      (is (= (.getName key) "eu")))
+    (is (= (:kind continent) "continent"))
+    (is (= (:iso-3166-alpha-2 continent) "eu"))
+    (is (= (:name continent) "Europe"))))
+
+;; (def-create-fn continent)
+;; (def-create-fn country continent)
+
+;; (dstest test-create-country
+;;   (def-key-fn continent (:iso-3166-alpha-2))
+;;   (def-make-fn continent)
+;;   (def-create-fn continent)
+
+;;   (def-key-fn country (:iso-3166-alpha-2) continent)
+;;   (def-make-fn country continent)
+;;   (def-create-fn country continent)
+;;     (let [continent (create-continent {:iso-3166-alpha-2 "eu" :name "Europe"})
+;;         country (create-country continent {:iso-3166-alpha-2 "es" :name "Spain"})]
+;;     (let [key (:key country)]
+;;       (is (= (class key) com.google.appengine.api.datastore.Key))
+;;       (is (.isComplete key))
+;;       (is (= (.getParent key) (:key continent)))    
+;;       (is (= (.getKind key) "country"))
+;;       (is (= (.getId key) 0))
+;;       (is (= (.getName key) "es")))
+;;     (is (= (:kind country) "country"))
+;;     (is (= (:iso-3166-alpha-2 country) "es"))
+;;     (is (= (:name country) "Spain"))
+;;     )
+
+;;   )
+
+(dstest test-make-continent
+  (def-make-fn continent)
+  (let [continent (make-continent {:iso-3166-alpha-2 "eu" :name "Europe"})]
+    (let [key (:key continent)]
+      (is (= (class key) com.google.appengine.api.datastore.Key))
+      (is (.isComplete key))
+      (is (nil? (.getParent key)))    
+      (is (= (.getKind key) "continent"))
+      (is (= (.getId key) 0))
+      (is (= (.getName key) "eu")))
+    (is (= (:kind continent) "continent"))
+    (is (= (:iso-3166-alpha-2 continent) "eu"))
+    (is (= (:name continent) "Europe"))))
+
+(dstest test-make-country
+  (def-make-fn continent)
+  (def-make-fn country continent)
+  (let [continent (make-continent {:iso-3166-alpha-2 "eu" :name "Europe"})
+        country (make-country continent {:iso-3166-alpha-2 "es" :name "Spain"})]
+    (let [key (:key country)]
+      (is (= (class key) com.google.appengine.api.datastore.Key))
+      (is (.isComplete key))
+      (is (= (.getParent key) (:key continent)))    
+      (is (= (.getKind key) "country"))
+      (is (= (.getId key) 0))
+      (is (= (.getName key) "es")))
+    (is (= (:kind country) "country"))
+    (is (= (:iso-3166-alpha-2 country) "es"))
+    (is (= (:name country) "Spain"))))
+
 (dstest test-property-finder
   (deffilter country find-all-countries-by-name
     "Find all countries by name." (name))
@@ -74,8 +171,9 @@
   (let [country (create-country "Spain" "es")]
     (is (= [country] (find-all-countries-by-name (:name country))))))
 
-;; (dstest test-def-make-key-fn-without-parent
-;;   (def-make-key-fn nil continent iso-3166-alpha-2)
+
+;; (dstest test-def-key-fn-without-parent
+;;   (def-key-fn nil continent iso-3166-alpha-2)
 ;;   (let [key (make-continent-key {:iso-3166-alpha-2 "eu"})]
 ;;     (is (= (.getParent key) nil))
 ;;     (is (= (.getKind key) "continent"))
@@ -83,8 +181,8 @@
 ;;     (is (= (.getId key) 0))
 ;;     (is (.isComplete key))))
 
-;; (dstest test-def-make-key-fn-with-parent
-;;   (def-make-key-fn continent country iso-3166-alpha-2)
+;; (dstest test-def-key-fn-with-parent
+;;   (def-key-fn continent country iso-3166-alpha-2)
 ;;   (let [continent {:key (ds/create-key "continent" "eu")}
 ;;         key (make-country-key continent {:iso-3166-alpha-2 "de"})]
 ;;     (is (= (.getParent key) (:key continent)))
@@ -93,8 +191,8 @@
 ;;     (is (= (.getId key) 0))
 ;;     (is (.isComplete key))))
 
-;; (dstest test-def-make-key-fn-with-compound-key
-;; ;  (def-make-key-fn continent country iso-3166-alpha-2 name)
+;; (dstest test-def-key-fn-with-compound-key
+;; ;  (def-key-fn continent country iso-3166-alpha-2 name)
 ;;   (let [continent {:key (ds/create-key "continent" "eu")}
 ;;         key (make-country-key continent {:iso-3166-alpha-2 "de" :name "Germany"})]
 ;;     (println key)

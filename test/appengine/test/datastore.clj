@@ -18,7 +18,8 @@
     (is (nil? (.getParent key)))    
     (is (= (.getKind key) "person"))
     (is (= (.getId key) 1))
-    (is (nil? (.getName key)))))
+    (is (nil? (.getName key)))
+    ))
 
 (dstest test-create-key-with-string
   (let [key (ds/create-key "country" "de")]
