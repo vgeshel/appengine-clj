@@ -1,7 +1,8 @@
 (ns appengine.test-utils
   (:require [clojure.contrib.test-is :as test-is])
   (:import
-    (com.google.appengine.tools.development ApiProxyLocalFactory)
+    (com.google.appengine.tools.development ApiProxyLocalFactory
+					    LocalServerEnvironment)
     (com.google.appengine.api.datastore.dev LocalDatastoreService)
     (com.google.apphosting.api ApiProxy)))
 
@@ -11,15 +12,20 @@
       (intern *ns* symbol var))))
 
 (defn ds-setup []
-  (let [proxy-factory (doto (ApiProxyLocalFactory.) (.setApplicationDirectory (java.io.File. ".")))
-        api-proxy     (doto (.create proxy-factory) (.setProperty LocalDatastoreService/NO_STORAGE_PROPERTY "true"))]
+  (let [proxy-factory (ApiProxyLocalFactory.)
+	environment 
+	(proxy [LocalServerEnvironment] [] 
+	  (getAppDir [] (java.io.File. "."))) 
+	api-proxy (.create proxy-factory environment)]
+    (.setProperty api-proxy LocalDatastoreService/NO_STORAGE_PROPERTY
+		  "true")
     (ApiProxy/setDelegate api-proxy))
   (ApiProxy/setEnvironmentForCurrentThread
-    (proxy [com.google.apphosting.api.ApiProxy$Environment] []
-      (getAppId [] "test")
-      (getVersionId [] "1.0")
-      (getRequestNamespace [] "")
-      (getAttributes [] (java.util.HashMap.)))))
+   (proxy [com.google.apphosting.api.ApiProxy$Environment] []
+     (getAppId [] "test")
+     (getVersionId [] "1.0")
+     (getRequestNamespace [] "")
+     (getAttributes [] (java.util.HashMap.)))))
 
 (defn ds-teardown []
   (ApiProxy/clearEnvironmentForCurrentThread)

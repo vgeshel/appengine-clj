@@ -1,5 +1,7 @@
 (ns appengine.datastore
-  (:import (com.google.appengine.api.datastore DatastoreConfig DatastoreServiceFactory Entity Key Query KeyFactory))
+  (:import (com.google.appengine.api.datastore DatastoreConfig 
+					       DatastoreServiceFactory 
+					       Entity Key Query KeyFactory))
   (:refer-clojure :exclude [get]))
 
 (defn create-key
@@ -21,28 +23,37 @@ configuration."
   [key] (KeyFactory/keyToString key))
 
 (defn string->key
-  "Converts a String-representation of a Key into the Key instance it represents."
+  "Converts a String-representation of a Key into the Key instance 
+   it represents."
   [string] (KeyFactory/stringToKey string))
 
 (defn entity->map
   "Converts an instance of com.google.appengine.api.datastore.Entity
   to a PersistentHashMap with properties stored under keyword keys,
-  plus the entity's kind stored under :kind and key stored under :key."
+  plus the entity's kind stored under :kind, key stored under :key, 
+  the entity object itself under :entity, and the key of the entity's
+  parent, if any, under :parent."
   [#^Entity entity]
   (reduce #(assoc %1 (keyword (key %2)) (val %2))
-    {:kind (.getKind entity) :key (.getKey entity)}
-    (.entrySet (.getProperties entity))))
+	  (merge {:kind (.getKind entity) :key (.getKey entity)
+		  :entity entity}
+		 (if (.. entity getKey getParent)
+		   {:parent (.. entity getKey getParent)} {}))
+	   (.entrySet (.getProperties entity))))
 
 (declare properties)
 
 (defn map->entity
   "Converts a PersistentHashMap or struct into a Entity instance. The
-map must have the key or kind of the entity stored under the :key or
-a :kind keywords."
+   map must have the key or kind of the entity stored under the :key or
+   a :kind keywords.  If the map has a :parent Key, the Entity instance
+   will be a child of the Entity with the :parent Key."
   [map]
   (reduce #(do (.setProperty %1 (name (first %2)) (second %2)) %1)
-          (Entity. (or (:key map) (:kind map)))
-          (properties map)))
+		       (if (and (:kind map) (:parent map))
+			 (Entity. (:kind map) (:parent map))
+			 (Entity. (or (:key map) (:kind map))))		    
+		       (properties map)))
 
 (defmulti properties
   "Returns the properties of the given record as a map."
@@ -52,12 +63,14 @@ a :kind keywords."
   (properties (entity->map entity)))
 
 (defmethod properties :default [map]
-  (dissoc (merge {} map) :key :kind))
+  (dissoc (merge {} map) :key :kind :entity :parent))
 
 (defmulti get
   "Retrieves a PersistentHashMap of an Entity in the datastore. The
-  entity can be retrieved by an instance of Key, Entity or a
-  PersistentHashMap with a :key keyword."
+  entity can be retrieved by an instance of Key, Entity, a
+  PersistentHashMap with a :key keyword, or an ISeq of keys, in which 
+  case a PersistentHashMap of appengine Keys to PersistentHashmaps of
+  Entities is returned."
   class)
 
 (defmethod get Entity [#^Entity entity]
@@ -65,6 +78,10 @@ a :kind keywords."
 
 (defmethod get Key [key]
   (entity->map (.get (datastore) key)))
+
+(defmethod get clojure.lang.ISeq [keys]
+  (into {} (for [[key entity] (.get (datastore) keys)] 
+	     [key (entity->map entity)])))
 
 (defmethod get :default [map]
   (if-let [key (:key map)]
