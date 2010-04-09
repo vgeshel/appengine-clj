@@ -1,6 +1,7 @@
 (ns appengine.test.datastore
   (:require [appengine.datastore :as ds])
   (:use clojure.contrib.test-is
+	appengine.datastore.entities
         appengine.test-utils)
   (:import (com.google.appengine.api.datastore
             DatastoreServiceFactory
@@ -180,7 +181,8 @@
                 (.setProperty "foo" "Foo")
                 (.setProperty "bar" "Bar"))]
     (.put (DatastoreServiceFactory/getDatastoreService) entity)
-    (is (= {:foo "Foo" :bar "Bar" :kind "MyKind" :key (.getKey entity)}
+    (is (= {:foo "Foo" :bar "Bar" :kind "MyKind" :key (.getKey entity)
+	    :entity entity}
            (ds/entity->map entity)))))
 
 (dstest find-all-runs-given-query
@@ -210,3 +212,23 @@
 (dstest get-given-a-key-returns-a-mapified-entity
   (let [key (:key (ds/create {:kind "Person" :name "cliff"}))]
     (is (= "cliff" ((ds/get key) :name)))))
+
+;; test for :parent and :entity modifications
+(dstest make-entity-and-check-map-entity-keyword
+  (let [record (ds/create {:kind "Person" :name "Andy" :age 31})
+	entity1 (ds/get record)
+	entity2 (ds/get record)]
+    (is (= entity1 entity2))
+    (is (= (:entity entity1) (:entity entity2)))
+    (is (= (:entity record) (:entity entity1)))
+))
+
+(dstest make-entity-with-parent
+  (let [parent (ds/create {:kind "Person" :name "Andy" :age 31})
+	child1 (ds/create {:kind "Child" :name "Liz" :age 5 
+			   :parent (:key parent)})
+	child2 (ds/create {:kind "Child" :name "Jane" :age 5
+			   :parent (:key parent)})]
+    (is (= (:parent child1) (:key parent)))
+    (is (= (:parent child2) (:key parent)))
+    (is (= (.getParent (:entity child1)) (:key parent)))))
