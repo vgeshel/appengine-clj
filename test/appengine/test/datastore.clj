@@ -1,6 +1,6 @@
 (ns appengine.test.datastore
   (:require [appengine.datastore :as ds])
-  (:use clojure.contrib.test-is
+  (:use clojure.test
 	appengine.datastore.entities
         appengine.test-utils)
   (:import (com.google.appengine.api.datastore
@@ -220,8 +220,7 @@
 	entity2 (ds/get record)]
     (is (= entity1 entity2))
     (is (= (:entity entity1) (:entity entity2)))
-    (is (= (:entity record) (:entity entity1)))
-))
+    (is (= (:entity record) (:entity entity1)))))
 
 (dstest make-entity-with-parent
   (let [parent (ds/create {:kind "Person" :name "Andy" :age 31})
