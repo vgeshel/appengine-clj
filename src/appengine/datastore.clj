@@ -31,27 +31,25 @@ configuration."
   "Converts an instance of com.google.appengine.api.datastore.Entity
   to a PersistentHashMap with properties stored under keyword keys,
   plus the entity's kind stored under :kind, key stored under :key, 
-  the entity object itself under :entity, and the key of the entity's
-  parent, if any, under :parent."
+  and the key of the entity's parent, if any, under :parent-key."
   [#^Entity entity]
   (reduce #(assoc %1 (keyword (key %2)) (val %2))
-	  (merge {:kind (.getKind entity) :key (.getKey entity)
-		  :entity entity}
+	  (merge {:kind (.getKind entity) :key (.getKey entity)}
 		 (if (.. entity getKey getParent)
-		   {:parent (.. entity getKey getParent)} {}))
-	   (.entrySet (.getProperties entity))))
+		   {:parent-key (.. entity getKey getParent)} {}))
+	  (.entrySet (.getProperties entity))))
 
 (declare properties)
 
 (defn map->entity
   "Converts a PersistentHashMap or struct into a Entity instance. The
    map must have the key or kind of the entity stored under the :key or
-   a :kind keywords.  If the map has a :parent Key, the Entity instance
-   will be a child of the Entity with the :parent Key."
+   a :kind keywords.  If the map has a :parent-key Key, the Entity instance
+   will be a child of the Entity with the :parent-key Key."
   [map]
   (reduce #(do (.setProperty %1 (name (first %2)) (second %2)) %1)
-		       (if (and (:kind map) (:parent map))
-			 (Entity. (:kind map) (:parent map))
+		       (if (and (:kind map) (:parent-key map))
+			 (Entity. (:kind map) (:parent-key map))
 			 (Entity. (or (:key map) (:kind map))))		    
 		       (properties map)))
 
@@ -63,7 +61,14 @@ configuration."
   (properties (entity->map entity)))
 
 (defmethod properties :default [map]
-  (dissoc (merge {} map) :key :kind :entity :parent))
+  (dissoc (merge {} map) :key :kind :parent-key))
+
+(defn filter-keys [keys]
+  "Takes a sequences and returns a sequence of Key objects, doing
+   conversions from Entity or map (with a :key), if possible."
+  (remove nil? (map #(cond (instance? Key %) %
+			   (instance? Entity %) (.getKey %)
+			   (instance? Key (:key %)) (:key %)) keys)))
 
 (defmulti get
   "Retrieves a PersistentHashMap of an Entity in the datastore. The
@@ -79,9 +84,12 @@ configuration."
 (defmethod get Key [key]
   (entity->map (.get (datastore) key)))
 
+(defmethod get clojure.lang.PersistentVector [keys]
+  (get (seq keys)))
+
 (defmethod get clojure.lang.ISeq [keys]
-  (into {} (for [[key entity] (.get (datastore) keys)] 
-	     [key (entity->map entity)])))
+  (into {} (for [[key entity] (.get (datastore) (filter-keys keys))] 
+		 [key (entity->map entity)])))
 
 (defmethod get :default [map]
   (if-let [key (:key map)]
@@ -136,12 +144,17 @@ configuration."
 
 (defmulti update
   "Updates the record with the given properites. The record must be an
-  instance of Entity, Key or PersistentHashMap."
+  instance of Entity, Key or PersistentHashMap. If one of the attributes'
+  values is :remove, then the correponding property name is removed 
+  from that entity.  If one of the attributes't values is nil, then the 
+  corresponding property name is set to Java's null for that property."
   (fn [record attributes] (class record)))
 
 (defmethod update Entity [#^Entity entity attributes]
   (doseq [[attribute value] attributes]
-    (.setProperty entity (name attribute) value))
+    (if (not= value :remove)
+      (.setProperty entity (name attribute) value)
+      (.removeProperty entity (name attribute))))
   (put entity))
 
 (defmethod update Key [#^Key key attributes]
@@ -150,8 +163,23 @@ configuration."
 (defmethod update :default [map attributes]
   (update (map->entity map) attributes))
 
-(defn delete
-  "Deletes the identified entities."
-  [& #^Key keys]
-  (.delete (datastore) keys))
+(defmulti delete class)
+
+(defmethod delete Entity [#^Entity entity]
+  (delete (.getKey entity)))
+
+(defmethod delete Key [key]
+  (.delete (datastore) (into-array [key])))
+
+(defmethod delete clojure.lang.PersistentVector [keys]
+  (delete (seq keys)))
+
+(defmethod delete clojure.lang.ISeq [keys]
+  (.delete (datastore) (filter-keys keys)))
+
+(defmethod delete :default [map]
+  (if-let [key (:key map)]
+    (delete key)))
+
+
 

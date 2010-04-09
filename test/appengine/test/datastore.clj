@@ -142,7 +142,7 @@
 (dstest delete-with-multiple-keys
   (let [key1 (:key (ds/create {:kind "person" :name "Alice"}))
         key2 (:key (ds/create {:kind "person" :name "Bob"}))]
-    (ds/delete key1 key2)
+    (ds/delete [key1 key2])
     (are (thrown? EntityNotFoundException (ds/get _1))
          key1 key2)))
 
@@ -181,8 +181,7 @@
                 (.setProperty "foo" "Foo")
                 (.setProperty "bar" "Bar"))]
     (.put (DatastoreServiceFactory/getDatastoreService) entity)
-    (is (= {:foo "Foo" :bar "Bar" :kind "MyKind" :key (.getKey entity)
-	    :entity entity}
+    (is (= {:foo "Foo" :bar "Bar" :kind "MyKind" :key (.getKey entity)}
            (ds/entity->map entity)))))
 
 (dstest find-all-runs-given-query
@@ -213,21 +212,60 @@
   (let [key (:key (ds/create {:kind "Person" :name "cliff"}))]
     (is (= "cliff" ((ds/get key) :name)))))
 
-;; test for :parent and :entity modifications
-(dstest make-entity-and-check-map-entity-keyword
-  (let [record (ds/create {:kind "Person" :name "Andy" :age 31})
-	entity1 (ds/get record)
-	entity2 (ds/get record)]
-    (is (= entity1 entity2))
-    (is (= (:entity entity1) (:entity entity2)))
-    (is (= (:entity record) (:entity entity1)))))
-
+;; test for :parent-key
 (dstest make-entity-with-parent
   (let [parent (ds/create {:kind "Person" :name "Andy" :age 31})
 	child1 (ds/create {:kind "Child" :name "Liz" :age 5 
-			   :parent (:key parent)})
+			   :parent-key (:key parent)})
 	child2 (ds/create {:kind "Child" :name "Jane" :age 5
-			   :parent (:key parent)})]
-    (is (= (:parent child1) (:key parent)))
-    (is (= (:parent child2) (:key parent)))
-    (is (= (.getParent (:entity child1)) (:key parent)))))
+			   :parent-key (:key parent)})]
+    (is (= (:parent-key child1) (:key parent)))
+    (is (= (:parent-key child2) (:key parent)))))
+
+;; test for getting multiple keys at once from ds
+(dstest get-multiple-keys-from-ds
+  (let [e1 (ds/create {:kind "E" :name "e1" })
+	e2 (ds/create {:kind "E" :name "e2" })
+	e3 (ds/create {:kind "E" :name "e3" })
+	entities (ds/get (map :key [e1 e2 e3]))]
+    (is (= (get entities (:key e1)) e1))
+    (is (= (get entities (:key e2)) e2))
+    (is (= (get entities (:key e3)) e3))
+    (ds/delete (map :key [e1 e2 e3]))
+    (let [entities (ds/get (map :key [e1 e2 e3]))]
+      (is (= 0 (reduce count 0 entities))))))
+
+
+(dstest update-remove-attribute
+  (let [e (ds/create {:kind "E" :a "a" :b "b" :c "c"})
+	e-updated (ds/update e {:c nil})
+	e-updated2 (ds/update e {:c :remove})]
+    (is (contains? e :c))
+    (is (contains? e-updated :c))
+    (is (not (contains? e-updated2 :c)))))
+
+(dstest delete-multimethod
+  (let [key (:key (ds/create {:kind "E" :a "a"}))
+	entity-as-map (ds/create {:kind "E" :b "b"})
+	entity-as-entity (ds/map->entity (ds/create {:kind "E" :c "c"}))
+	e1 (ds/create {:kind "E" :name "e1"})
+	e2 (ds/create {:kind "E" :name "e2"})]
+    (ds/delete key)
+    (ds/delete entity-as-map)
+    (ds/delete entity-as-entity)
+    (ds/delete (map :key [e1 e2]))
+    (are [record] (thrown? EntityNotFoundException (ds/get record))
+	 key entity-as-map entity-as-entity e1 e2)))
+
+(dstest delete-multimethod-with-multiple-deletes
+  (let [e1 (ds/create {:kind "E" :name "e1"})
+	e2 (ds/create {:kind "E" :name "e2"})
+	e3 (ds/create {:kind "E" :name "e3"})
+	e4 (ds/create {:kind "E" :name "e4"})
+	e5 (ds/create {:kind "E" :name "e5"})
+	e6 (ds/create {:kind "E" :name "e6"})]
+    (ds/delete [e1 nil e2])
+    (ds/delete (map :key [e3 e4 {:a :b}]))
+    (ds/delete (merge (map ds/map->entity [e5 e6]) {:a :b}))
+    (are [record] (thrown? EntityNotFoundException (ds/get record))
+	 e1 e2 e3 e4 e5 e6)))
