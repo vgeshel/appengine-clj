@@ -14,9 +14,8 @@
 ;; only create one testhelper for all tests, which we repeatedly
 ;; clear using AppEngine setup/teardown semantics
 (def test-helper 
-     (let [helper (LocalServiceTestHelper. 
-		   (into-array [(LocalDatastoreServiceTestConfig.)]))]
-       helper))
+     (LocalServiceTestHelper. 
+      (into-array [(LocalDatastoreServiceTestConfig.)])))
 
 ;; use the hereunder as opposed to (.tearDown test-helper)
 ;; because the latter hangs the test framework from lein test 
