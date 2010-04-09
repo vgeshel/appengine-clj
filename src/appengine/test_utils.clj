@@ -1,40 +1,34 @@
 (ns appengine.test-utils
-  (:require [clojure.contrib.test-is :as test-is])
-  (:import
-    (com.google.appengine.tools.development ApiProxyLocalFactory
-					    LocalServerEnvironment)
-    (com.google.appengine.api.datastore.dev LocalDatastoreService)
-    (com.google.apphosting.api ApiProxy)))
+  (:use clojure.test)
+  (:import 
+   (com.google.appengine.tools.development.testing 
+    LocalDatastoreServiceTestConfig
+    LocalServiceTestHelper)
+   (com.google.apphosting.api ApiProxy)))
 
 (defn refer-private [ns]
   (doseq [[symbol var] (ns-interns ns)]
     (when (:private (meta var))
       (intern *ns* symbol var))))
 
-(defn ds-setup []
-  (let [proxy-factory (ApiProxyLocalFactory.)
-	environment 
-	(proxy [LocalServerEnvironment] [] 
-	  (getAppDir [] (java.io.File. "."))) 
-	api-proxy (.create proxy-factory environment)]
-    (.setProperty api-proxy LocalDatastoreService/NO_STORAGE_PROPERTY
-		  "true")
-    (ApiProxy/setDelegate api-proxy))
-  (ApiProxy/setEnvironmentForCurrentThread
-   (proxy [com.google.apphosting.api.ApiProxy$Environment] []
-     (getAppId [] "test")
-     (getVersionId [] "1.0")
-     (getRequestNamespace [] "")
-     (getAttributes [] (java.util.HashMap.)))))
+;; only create one testhelper for all tests, which we repeatedly
+;; clear using AppEngine setup/teardown semantics
+(def test-helper 
+     (let [helper (LocalServiceTestHelper. 
+		   (into-array [(LocalDatastoreServiceTestConfig.)]))]
+       helper))
 
-(defn ds-teardown []
+;; use the hereunder as opposed to (.tearDown test-helper)
+;; because the latter hangs the test framework from lein test 
+(defn teardown []
   (ApiProxy/clearEnvironmentForCurrentThread)
   (.stop (ApiProxy/getDelegate)))
 
 (defmacro dstest [name & body]
-  `(test-is/deftest ~name
-    (ds-setup)
-    (try
-      ~@body
-      (finally (ds-teardown)))))
+  `(deftest ~name
+     (try (.setUp test-helper)
+	  ~@body
+	  (finally (teardown)))))
+
+
 

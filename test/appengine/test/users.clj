@@ -1,6 +1,6 @@
 (ns appengine.test.users
   (:require [appengine.users :as users])
-  (:use clojure.contrib.test-is))
+  (:use clojure.test))
 
 (deftest user-info-given-request
   (let [user-info-map {:user "instance of User" :user-service "instance of UserService"}
