@@ -102,32 +102,25 @@
     (is (= (:iso-3166-alpha-2 continent) "eu"))
     (is (= (:name continent) "Europe"))))
 
-;; ;; (def-create-fn continent)
-;; ;; (def-create-fn country continent)
-
-;; (dstest test-create-country
-;;   (def-key-fn continent (:iso-3166-alpha-2))
-;;   (def-make-fn continent)
-;;   (def-create-fn continent)
-
-;;   (def-key-fn country (:iso-3166-alpha-2) continent)
-;;   (def-make-fn country continent)
-;;   (def-create-fn country continent)
-;;     (let [continent (create-continent {:iso-3166-alpha-2 "eu" :name "Europe"})
-;;         country (create-country continent {:iso-3166-alpha-2 "es" :name "Spain"})]
-;;     (let [key (:key country)]
-;;       (is (= (class key) com.google.appengine.api.datastore.Key))
-;;       (is (.isComplete key))
-;;       (is (= (.getParent key) (:key continent)))    
-;;       (is (= (.getKind key) "country"))
-;;       (is (= (.getId key) 0))
-;;       (is (= (.getName key) "es")))
-;;     (is (= (:kind country) "country"))
-;;     (is (= (:iso-3166-alpha-2 country) "es"))
-;;     (is (= (:name country) "Spain"))
-;;     )
-
-;;   )
+(dstest test-create-country
+  (def-key-fn continent (:iso-3166-alpha-2))
+  (def-make-fn continent)
+  (def-create-fn continent)
+  (def-key-fn country (:iso-3166-alpha-2) continent)
+  (def-make-fn country continent)
+  (def-create-fn country continent)
+    (let [continent (create-continent {:iso-3166-alpha-2 "eu" :name "Europe"})
+          country (create-country continent {:iso-3166-alpha-2 "es" :name "Spain"})]
+    (let [key (:key country)]
+      (is (= (class key) com.google.appengine.api.datastore.Key))
+      (is (.isComplete key))
+      (is (= (.getParent key) (:key continent)))    
+      (is (= (.getKind key) "country"))
+      (is (= (.getId key) 0))
+      (is (= (.getName key) "es")))
+    (is (= (:kind country) "country"))
+    (is (= (:iso-3166-alpha-2 country) "es"))
+    (is (= (:name country) "Spain"))))
 
 (dstest test-make-continent
   (def-make-fn continent)
