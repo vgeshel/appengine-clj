@@ -48,6 +48,8 @@
 ;; FILTER 
 
 (defn filter-query [entity property value & [operator]]
+  "Returns a query, where the value of the property matches using the
+operator."
   (doto (Query. (str entity))
     (.addFilter
      (str property)
@@ -55,12 +57,15 @@
      (if (map? value) ((keyword value) value) value))))
 
 (defn filter-fn [entity property & [operator]]
+  "Returns a filter function that returns all entities, where the
+property matches the operator."
   (let [operator (or operator Query$FilterOperator/EQUAL)]
     (fn [property-val]
       (ds/find-all
        (filter-query entity property property-val operator)))))
 
 (defmacro deffilter [entity name doc-string [property operator] & [result-fn]]
+  "Defines a finder function for the entity."
   (let [property# property]
     `(defn ~(symbol name) ~doc-string
        [~property#]
@@ -68,6 +73,7 @@
         ((filter-fn '~entity '~property# ~operator) ~property#)))))
 
 (defmacro def-finder-fn [entity & properties]
+  "Defines finder functions the entity."
   (let [entity# entity]
     `(do
        ~@(for [property# properties]
@@ -80,6 +86,13 @@
                 ~(symbol (find-entity-fn-name entity# property#))
                 ~(find-entity-fn-doc entity# property#)
                 (~property#) first))))))
+
+(defmacro def-update-fn [entity]
+  "Defines an update function for the entity."
+  (let [entity# entity]
+    `(defn ~(symbol (str "update-" entity#)) [~entity# & ~'properties]
+       (ds/update-entity ~entity (apply hash-map ~'properties)))))
+
 
 ;; (def-finder-fn country
 ;;   iso-3166-alpha-2
@@ -96,18 +109,17 @@
 ;;   (iso-3166-alpha-3)
 ;;   (name))
 
-(defmacro def-update-fn [entity]
-  (let [entity# entity]
-    `(defn ~(symbol (str "update-" entity#)) [~entity# properties]
-       (ds/update ~entity properties))))
-
 (defmacro defentity [entity parent & properties]
   (let [entity# entity parent# parent properties# properties]
     `(do
        (def-finder-fn ~entity ~@(map first properties))
-       (def-update-fn ~entity))))
+       (def-update-fn ~entity)
+       )))
 
-;; (def-entity-kind continent)
+;; (def-update-fn continent)
+;; (defentity continent ()
+;;   (iso-3166-alpha-2)
+;;   )
 
 ;; (def-create-fn nil continent)
 ;; (def-create-fn continent country )
