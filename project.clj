@@ -1,4 +1,4 @@
-(defproject appengine-clj "0.0.1-SNAPSHOT"
+(defproject appengine "0.0.1-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.1.0"]
 		 [inflections "0.2"]]
   :dev-dependencies [[lein-clojars "0.5.0-SNAPSHOT"]
