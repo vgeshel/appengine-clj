@@ -116,30 +116,11 @@ configuration."
         results (.asIterable (.prepare data-service query))]
     (map entity->map results)))
 
-;; (defn create
-;;   "Takes a map of keyword-value pairs or struct and puts a new Entity in the Datastore.
-;;   The map or struct must include a :kind String.
-;;   Returns the saved Entity converted with entity->map (which will include the assigned :key)."
-;;   ([item] (create item nil))
-;;   ([item #^Key parent-key]
-;;     (let [kind (item :kind)
-;;           properties (dissoc (merge {} item) :kind) ; converts struct to map
-;;           entity (if parent-key (Entity. kind parent-key) (Entity. kind))]
-;;       (doseq [[prop-name value] properties]
-;;         (.setProperty entity (name prop-name) value))
-;;       (let [key (.put (datastore) entity)]
-;;         (assoc (entity->map entity) :key key)))))
-
-;; (defn create
-;;   "Takes a map of keyword-value pairs or struct and puts a new Entity in the Datastore.
-;;   The map or struct must include a :kind String.
-;;   Returns the saved Entity converted with entity->map (which will include the assigned :key)."
-;;   ([item] (create item nil))
-;;   ([item #^Key parent-key]
-;;      (put (assoc item :key (if parent-key (Entity. (:kind item)
-;;   parent-key) (Entity. (:kind item)))))))
-
 (defn create [record]
+  "Takes a map of keyword-value pairs or struct and puts a new Entity in the Datastore.
+  The map or struct must include a :kind String.  Returns the saved
+  Entity converted with entity->map (which will include the
+  assigned :key)."
   (put record))
 
 (defmulti update
