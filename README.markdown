@@ -25,7 +25,7 @@ Example:
 ### appengine.datastore.entities
 
 A convenience API for the appengine.datastore namespace. Entity helper
-functions can be generated with the defentity macro.
+functions can be generated with the <code>defentity</code> macro.
 
 Examples:
 
