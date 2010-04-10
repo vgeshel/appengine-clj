@@ -1,5 +1,5 @@
 (ns appengine.datastore.test.entities
-  (:require [appengine.datastore :as ds])
+  (:require [appengine.datastore.core :as ds])
   (:use appengine.datastore.entities
         appengine.test-utils
         clojure.test))
