@@ -86,7 +86,7 @@
     (is (= (.getId key) 0))
     (is (= (.getName key) "es"))))
 
-(dstest test-create-continent
+(dstest test-def-create-fn-with-continent
   (def-key-fn continent (:iso-3166-alpha-2))
   (def-make-fn continent)
   (def-create-fn continent)
@@ -102,7 +102,7 @@
     (is (= (:iso-3166-alpha-2 continent) "eu"))
     (is (= (:name continent) "Europe"))))
 
-(dstest test-create-country
+(dstest test-def-create-fn-with-create-country
   (def-key-fn continent (:iso-3166-alpha-2))
   (def-make-fn continent)
   (def-create-fn continent)
@@ -122,7 +122,7 @@
     (is (= (:iso-3166-alpha-2 country) "es"))
     (is (= (:name country) "Spain"))))
 
-(dstest test-make-continent
+(dstest test-def-make-fn-continent-with-continent
   (def-make-fn continent)
   (let [continent (make-continent {:iso-3166-alpha-2 "eu" :name "Europe"})]
     (let [key (:key continent)]
@@ -136,7 +136,7 @@
     (is (= (:iso-3166-alpha-2 continent) "eu"))
     (is (= (:name continent) "Europe"))))
 
-(dstest test-make-country
+(dstest test-def-make-fn-with-country
   (def-make-fn continent)
   (def-make-fn country continent)
   (let [continent (make-continent {:iso-3166-alpha-2 "eu" :name "Europe"})
