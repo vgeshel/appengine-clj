@@ -3,12 +3,7 @@
 	    EntityNotFoundException Query Query$FilterOperator))
   (:require [appengine.datastore :as ds])
   (:use [clojure.contrib.str-utils2 :only (join)]
-	inflections))
-
-(defn compact [seq]
-  (remove nil? seq))
-
-;; DEFINE THE ENTITY KEY
+        appengine.utils	inflections))
 
 (defn- key-fn-name [entity]
   "Returns the name of the key builder fn for the given entity."
@@ -37,8 +32,6 @@
         args# (compact [parent# 'attributes])]
     `(defn ~(symbol (str "create-" entity#)) [~@args#]
        (ds/create (~(symbol (str "make-" entity#)) ~@args#)))))
-
-;; FINDER FUNCTION NAMES
 
 (defn- find-entities-fn-doc [entity property]
   (str "Find all " (pluralize (str entity)) " by " property "."))
@@ -73,8 +66,6 @@
        [~property#]
        (~(or result-fn 'identity)
         ((filter-fn '~entity '~property# ~operator) ~property#)))))
-
-;; FINDER
 
 (defmacro def-finder-fn [entity & properties]
   (let [entity# entity]
