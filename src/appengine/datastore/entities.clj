@@ -3,7 +3,15 @@
 	    EntityNotFoundException Query Query$FilterOperator))
   (:require [appengine.datastore.core :as ds])
   (:use [clojure.contrib.str-utils2 :only (join)]
+        [clojure.contrib.seq-utils :only (includes?)]
         appengine.utils	inflections))
+
+(defn- entity-key? [entity-specs]
+  (let [[attribute & options] entity-specs]
+    (= (:key (apply hash-map options)) true)))
+
+(defn- entity-keys [entity-specs]
+  (map first (filter #(entity-key? %) entity-specs)))
 
 (defn- key-fn-name [entity]
   "Returns the name of the key builder fn for the given entity."
@@ -15,7 +23,7 @@
        (ds/create-key
         (:key ~parent#)
         ~(str entity#)
-        (join "-" [~@(map #(list % 'attributes) entity-keys#)])))))
+        (join "-" [~@(map #(list (if (keyword? %) % (keyword %)) 'attributes) entity-keys#)])))))
 
 (defmacro def-make-fn [entity & [parent]]
   "Defines a funktion to build entity hashes."
@@ -31,7 +39,7 @@
   (let [entity# entity parent# parent
         args# (compact [parent# 'attributes])]
     `(defn ~(symbol (str "create-" entity#)) [~@args#]
-       (ds/create (~(symbol (str "make-" entity#)) ~@args#)))))
+       (ds/create-entity (~(symbol (str "make-" entity#)) ~@args#)))))
 
 (defn- find-entities-fn-doc [entity property]
   (str "Find all " (pluralize (str entity)) " by " property "."))
@@ -45,9 +53,7 @@
 (defn- find-entity-fn-name [entity property]
   (str "find-" entity "-by-" property))
 
-;; FILTER 
-
-(defn filter-query [entity property value & [operator]]
+(defn- filter-query [entity property value & [operator]]
   "Returns a query, where the value of the property matches using the
 operator."
   (doto (Query. (str entity))
@@ -93,103 +99,12 @@ property matches the operator."
     `(defn ~(symbol (str "update-" entity#)) [~entity# & ~'properties]
        (ds/update-entity ~entity (apply hash-map ~'properties)))))
 
-
-;; (def-finder-fn country
-;;   iso-3166-alpha-2
-;;   iso-3166-alpha-3
-;;   name)
-
-;; (def-finder-fn country
-;;   iso-3166-alpha-2
-;;   iso-3166-alpha-3
-;;   name)
-
-;; (defentity continent ()  
-;;   (iso-3166-alpha-2)
-;;   (iso-3166-alpha-3)
-;;   (name))
-
 (defmacro defentity [entity parent & properties]
   (let [entity# entity parent# parent properties# properties]
     `(do
-       (def-finder-fn ~entity ~@(map first properties))
-       (def-update-fn ~entity)
+       (def-key-fn ~entity# ~(entity-keys properties) ~@parent#)
+       (def-make-fn ~entity# ~@parent#)
+       (def-create-fn ~entity# ~@parent#)
+       (def-finder-fn ~entity# ~@(map first properties#))
+       (def-update-fn ~entity#)
        )))
-
-;; (def-update-fn continent)
-;; (defentity continent ()
-;;   (iso-3166-alpha-2)
-;;   )
-
-;; (def-create-fn nil continent)
-;; (def-create-fn continent country )
-
-;; (def-make-fn continent)
-
-;; (defn make-key-fn [parent entity & [property]]
-;;   (fn [& args]    
-;;     (ds/create-key
-;;      (if parent (:key (first args)))
-;;      (str entity)
-;;      (if (property) ((keyword property) entity)))))
-
-;; (defmacro def-key-fn [parent entity key]
-;;   (let [entity# entity parent# parent properties# properties]
-;;     `(defn ~(symbol (str "make-" entity# "-key")) [~@(compact [(if parent# 'parent) 'entity])]
-;;        (ds/create-key ~(if parent# '(:key parent)) ~(str entity#)
-;;                       (str ~(let [keys (map (fn [property] (list (keyword property) 'entity)) properties#)]
-;;                            (if (= (count keys) 1)
-;;                              (first keys)
-;;                              keys)))))))
-
-;; (def-key-fn nil country iso-3166-alpha-2)
-;(def-key-fn continent country iso-3166-alpha-2)
-
-;; (defn make-country-key [parent properties]
-;;   (ds/create-key (:key parent) "country" (:iso-3166-alpha-2 properties)))
-
-;; (defn make-country-key [continent attributes]
-;;   (ds/create-key (:key continent) *country-kind* (:iso-3166-alpha-2
-;;   attributes)))
-
-;; (def-key-fn continent (:iso-3166-alpha-2 :name))
-
-;; (make-continent-key {:iso-3166-alpha-2 "eu" :name "Europe"})
-
-;; (def-key-fn country (:iso-3166-alpha-2) continent planet)
-
-;; (def-key-fn country (:iso-3166-alpha-2 :name) continent)
-
-
-;; (make-country-key )
-
-;; (defn make-country [continent attributes]
-;;   (assoc attributes
-;;     :key (make-country-key continent attributes)
-;;     :kind *country-kind*))
-
-;; (defn create-country [continent attributes]
-;;   (ds/create (make-country continent attributes)))
-
-
-;; (defentity continent ()
-;;   (name)
-;;   (iso-3166-alpha-2 :key true))
-
-;; (defentity country (continent)
-;;   (name)
-;;   (iso-3166-alpha-2 :key true)
-;;   (iso-3166-alpha-3))
-
-
-;;  ;; DEFINE THE ENTITY KIND
-
-;; (defn- entity-kind-binding-name [entity]
-;;   "Returns the name of the entity kind binding."
-;;   (str "*" (str entity) "-kind*"))
-
-;; (defmacro def-entity-kind [entity]
-;;   "Binds the name of the entity to *entity-kind*."
-;;   (let [entity# entity]
-;;     `(def ~(symbol (entity-kind-binding-name entity#))
-;;           ~(str entity#))))
