@@ -123,6 +123,7 @@
     (is (= (:name country) "Spain"))))
 
 (dstest test-def-make-fn-continent-with-continent
+  (def-key-fn continent (:iso-3166-alpha-2))
   (def-make-fn continent)
   (let [continent (make-continent {:iso-3166-alpha-2 "eu" :name "Europe"})]
     (let [key (:key continent)]
@@ -151,6 +152,13 @@
     (is (= (:kind country) "country"))
     (is (= (:iso-3166-alpha-2 country) "es"))
     (is (= (:name country) "Spain"))))
+
+(dstest test-def-update-fn-with-continent
+  (def-finder-fn continent name)
+  (def-update-fn continent)
+  (let [continent (ds/create {:kind "continent" :name "unknown"})]
+    (is (= (update-continent continent :name "Europe")
+           (find-continent-by-name "Europe")))))
 
 (dstest test-property-finder
   (deffilter continent find-all-continents-by-name
