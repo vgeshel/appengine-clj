@@ -114,7 +114,7 @@ configuration."
         results (.asIterable (.prepare data-service query))]
     (map entity->map results)))
 
-(defn create [record]
+(defn create-entity [record]
   "Takes a map of keyword-value pairs or struct and puts a new Entity in the Datastore.
   The map or struct must include a :kind String.  Returns the saved
   Entity converted with entity->map (which will include the

@@ -23,11 +23,14 @@
   (ApiProxy/clearEnvironmentForCurrentThread)
   (.stop (ApiProxy/getDelegate)))
 
+(defmacro with-local-datastore [& body]
+  `(try (.setUp test-helper)
+        ~@body
+        (finally (teardown))))
+
 (defmacro dstest [name & body]
   `(deftest ~name
-     (try (.setUp test-helper)
-	  ~@body
-	  (finally (teardown)))))
+     (with-local-datastore ~@body)))
 
 
 

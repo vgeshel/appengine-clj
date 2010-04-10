@@ -80,15 +80,15 @@
     (is (nil? (.. entity getKey getName)))
     (is (= (. entity getProperty "name") "Bob"))))
 
-(dstest create-with-struct
+(dstest test-create-entity-with-struct
   (defstruct country :name :kind)
-  (let [country (ds/create (struct country "Germany" "country"))]
+  (let [country (ds/create-entity (struct country "Germany" "country"))]
     (is (not (nil? (:key country))))
     (is (= (:name country) "Germany"))
     (is (= (:kind country) "country"))))
 
-(dstest test-create-with-int-key
-  (let [person (ds/create {:kind "person" :name "Bob"})]
+(dstest test-create-entity-with-int-key
+  (let [person (ds/create-entity {:kind "person" :name "Bob"})]
     (is (= (class person) clojure.lang.PersistentArrayMap))
     (is (.isComplete (:key person)))
     (is (= (.getKind (:key person)) "person"))
@@ -97,8 +97,8 @@
     (is (= (:kind person)) "person")
     (is (= (:name person) "Bob"))))
 
-(dstest test-create-with-string-key
-  (let [country (ds/create {:key (ds/create-key "country" "de") :name "Germany"})]
+(dstest test-create-entity-with-string-key
+  (let [country (ds/create-entity {:key (ds/create-key "country" "de") :name "Germany"})]
     (is (= (class country) clojure.lang.PersistentArrayMap))
     (is (.isComplete (:key country)))
     (is (= (.getKind (:key country)) "country"))
@@ -111,15 +111,15 @@
   (is (nil? (ds/get-entity nil)))
   (is (nil? (ds/get-entity {}))))
 
-(dstest test-get-with-int-key
-  (let [person (ds/create {:kind "person" :name "Bob"})]
+(dstest test-get-entity-with-int-key
+  (let [person (ds/create-entity {:kind "person" :name "Bob"})]
     (is (= (class person) clojure.lang.PersistentArrayMap))
     (is (= ((ds/get-entity person) person)))
     (is (= ((ds/get-entity (:key person)) person)))
     (is (= ((ds/get-entity (ds/map->entity person)) person)))))
 
 (dstest test-get-with-string-key
-  (let [country (ds/create {:key (ds/create-key "country" "de") :name "Germany"})]
+  (let [country (ds/create-entity {:key (ds/create-key "country" "de") :name "Germany"})]
     (is (= (class country) clojure.lang.PersistentArrayMap))
     (is (= ((ds/get-entity country) country)))
     (is (= ((ds/get-entity (:key country)) country)))
@@ -134,13 +134,13 @@
     (is (= (:name country) "Germany"))))
 
 (dstest delete-entity-with-key
-  (let [key (:key (ds/create {:kind "person" :name "Bob"}))]
+  (let [key (:key (ds/create-entity {:kind "person" :name "Bob"}))]
     (ds/delete-entity key)
     (is (thrown? EntityNotFoundException (ds/get-entity key)))))
 
 (dstest delete-entity-with-multiple-keys
-  (let [key1 (:key (ds/create {:kind "person" :name "Alice"}))
-        key2 (:key (ds/create {:kind "person" :name "Bob"}))]
+  (let [key1 (:key (ds/create-entity {:kind "person" :name "Alice"}))
+        key2 (:key (ds/create-entity {:kind "person" :name "Bob"}))]
     (ds/delete-entity [key1 key2])
     (are (thrown? EntityNotFoundException (ds/get-entity _1))
          key1 key2)))
@@ -162,8 +162,8 @@
 ;; (dstest test-create-with-string-key
 ;;   (println "AAAAAAAAAAAAAAAAAAAAAA")
 ;;   (let [country (ds/put-entity {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})]
-;;     ;; (ds/create {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})
-;;     ;; (ds/create {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})
+;;     ;; (ds/create-entity {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})
+;;     ;; (ds/create-entity {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})
 ;;     (println "AAAAAAAAAAAAAAAAAAAAAA")
 ;;     (println country)
 ;;     (println (:key country))
@@ -194,7 +194,7 @@
   (is (= ["jan"] (map :name (ds/find-all (doto (Query. "B") (.addFilter "code" Query$FilterOperator/EQUAL 1)))))))
 
 (dstest create-saves-and-returns-item-with-a-key
-  (let [created-item (ds/create {:kind "MyKind" :name "hume" :age 31})]
+  (let [created-item (ds/create-entity {:kind "MyKind" :name "hume" :age 31})]
     (is (not (nil? (created-item :key))))
     (let [created-entity (.get (DatastoreServiceFactory/getDatastoreService) (created-item :key))]
       (is (= "MyKind" (.getKind created-entity)))
@@ -202,30 +202,30 @@
       (is (= 31 (.getProperty created-entity "age"))))))
 
 ;; (dstest create-can-create-a-child-entity-from-a-parent-key
-;;   (let [parent (ds/create {:kind "Mother" :name "mama"})
-;;         child (ds/create {:kind "Child" :name "baby"} (parent :key))]
+;;   (let [parent (ds/create-entity {:kind "Mother" :name "mama"})
+;;         child (ds/create-entity {:kind "Child" :name "baby"} (parent :key))]
 ;;     (is (= (parent :key) (.getParent (child :key))))
 ;;     (is (= [child] (ds/find-all (doto (Query. "Child" (parent :key))))))))
 
 (dstest get-given-a-key-returns-a-mapified-entity
-  (let [key (:key (ds/create {:kind "Person" :name "cliff"}))]
+  (let [key (:key (ds/create-entity {:kind "Person" :name "cliff"}))]
     (is (= "cliff" ((ds/get-entity key) :name)))))
 
 ;; test for :parent-key
 (dstest make-entity-with-parent
-  (let [parent (ds/create {:kind "Person" :name "Andy" :age 31})
-	child1 (ds/create {:kind "Child" :name "Liz" :age 5 
+  (let [parent (ds/create-entity {:kind "Person" :name "Andy" :age 31})
+	child1 (ds/create-entity {:kind "Child" :name "Liz" :age 5 
 			   :parent-key (:key parent)})
-	child2 (ds/create {:kind "Child" :name "Jane" :age 5
+	child2 (ds/create-entity {:kind "Child" :name "Jane" :age 5
 			   :parent-key (:key parent)})]
     (is (= (:parent-key child1) (:key parent)))
     (is (= (:parent-key child2) (:key parent)))))
 
 ;; test for getting multiple keys at once from ds
 (dstest get-multiple-keys-from-ds
-  (let [e1 (ds/create {:kind "E" :name "e1" })
-	e2 (ds/create {:kind "E" :name "e2" })
-	e3 (ds/create {:kind "E" :name "e3" })
+  (let [e1 (ds/create-entity {:kind "E" :name "e1" })
+	e2 (ds/create-entity {:kind "E" :name "e2" })
+	e3 (ds/create-entity {:kind "E" :name "e3" })
 	entities (ds/get-entity (map :key [e1 e2 e3]))]
     (is (= (get entities (:key e1)) e1))
     (is (= (get entities (:key e2)) e2))
@@ -236,7 +236,7 @@
 
 
 (dstest update-remove-attribute
-  (let [e (ds/create {:kind "E" :a "a" :b "b" :c "c"})
+  (let [e (ds/create-entity {:kind "E" :a "a" :b "b" :c "c"})
 	e-updated (ds/update-entity e {:c nil})
 	e-updated2 (ds/update-entity e {:c :remove})]
     (is (contains? e :c))
@@ -244,11 +244,11 @@
     (is (not (contains? e-updated2 :c)))))
 
 (dstest delete-entity-multimethod
-  (let [key (:key (ds/create {:kind "E" :a "a"}))
-	entity-as-map (ds/create {:kind "E" :b "b"})
-	entity-as-entity (ds/map->entity (ds/create {:kind "E" :c "c"}))
-	e1 (ds/create {:kind "E" :name "e1"})
-	e2 (ds/create {:kind "E" :name "e2"})]
+  (let [key (:key (ds/create-entity {:kind "E" :a "a"}))
+	entity-as-map (ds/create-entity {:kind "E" :b "b"})
+	entity-as-entity (ds/map->entity (ds/create-entity {:kind "E" :c "c"}))
+	e1 (ds/create-entity {:kind "E" :name "e1"})
+	e2 (ds/create-entity {:kind "E" :name "e2"})]
     (ds/delete-entity key)
     (ds/delete-entity entity-as-map)
     (ds/delete-entity entity-as-entity)
@@ -257,12 +257,12 @@
 	 key entity-as-map entity-as-entity e1 e2)))
 
 (dstest delete-entity-multimethod-with-multiple-deletes
-  (let [e1 (ds/create {:kind "E" :name "e1"})
-	e2 (ds/create {:kind "E" :name "e2"})
-	e3 (ds/create {:kind "E" :name "e3"})
-	e4 (ds/create {:kind "E" :name "e4"})
-	e5 (ds/create {:kind "E" :name "e5"})
-	e6 (ds/create {:kind "E" :name "e6"})]
+  (let [e1 (ds/create-entity {:kind "E" :name "e1"})
+	e2 (ds/create-entity {:kind "E" :name "e2"})
+	e3 (ds/create-entity {:kind "E" :name "e3"})
+	e4 (ds/create-entity {:kind "E" :name "e4"})
+	e5 (ds/create-entity {:kind "E" :name "e5"})
+	e6 (ds/create-entity {:kind "E" :name "e6"})]
     (ds/delete-entity [e1 nil e2])
     (ds/delete-entity (map :key [e3 e4 {:a :b}]))
     (ds/delete-entity (merge (map ds/map->entity [e5 e6]) {:a :b}))
