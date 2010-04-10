@@ -1,15 +1,18 @@
 # Clojure library for Google App Engine
 
-This library is based on John Hume's
-[appengine-clj](http://github.com/duelinmarkers/appengine-clj), with
+
+This library is a Clojure API for [Google App
+Engine](http://code.google.com/appengine). It is based on John Hume's
+[appengine-clj](http://github.com/duelinmarkers/appengine-clj) and has
 some enhancements. It is heavily refactored, so don't expect
-compatibility with the original library. 
+compatibility with the original library.
 
 ### appengine.datastore.core
 
-A convenience API for the com.google.appengine.api.datastore package
-providing access to Google's schema-free datastore. It allows you to
-work with immutable data structures instead of mutable Entity
+A convenience API for the
+[com.google.appengine.api.datastore](http://code.google.com/appengine/docs/java/javadoc/index.html?com/google/appengine/api/datastore/package-tree.html)
+package providing access to Google's schema-free datastore. It allows
+you to work with immutable data structures instead of mutable Entity
 instances.
 
 Example:
@@ -59,7 +62,9 @@ Examples:
 
 ### appengine.users
 
-Convenience API for the com.google.appengine.api.users package.
+Convenience API for the
+[com.google.appengine.api.users](http://code.google.com/appengine/docs/java/javadoc/index.html?com/google/appengine/api/datastore/package-tree.html)
+package.
 
 The <code>user-info</code> function can be called from anywhere to get
 the current user and a UserService.  For a more functional approach, a
