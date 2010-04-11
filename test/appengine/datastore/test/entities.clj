@@ -175,6 +175,12 @@
     (is (= (:iso-3166-alpha-2 country) "es"))
     (is (= (:name country) "Spain"))))
 
+(dstest test-def-delete-fn
+  (def-delete-fn continent)
+  (let [continent (ds/create-entity {:kind "continent" :name "Europe"})]
+    (delete-continent continent)
+    (is (nil? (find-continent-by-name "Europe")))))
+
 (dstest test-def-update-fn-with-continent
   (def-finder-fn continent name)
   (def-update-fn continent)

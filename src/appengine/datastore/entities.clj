@@ -93,6 +93,12 @@ property matches the operator."
                 ~(find-entity-fn-doc entity# property#)
                 (~property#) first))))))
 
+(defmacro def-delete-fn [entity]
+  "Defines a delete function for the entity."
+  (let [entity# entity]
+    `(defn ~(symbol (str "delete-" entity#)) [& ~'args]
+       (ds/delete-entity ~'args))))
+
 (defmacro def-update-fn [entity]
   "Defines an update function for the entity."
   (let [entity# entity]
@@ -107,4 +113,5 @@ property matches the operator."
        (def-create-fn ~entity# ~@parent#)
        (def-finder-fn ~entity# ~@(map first properties#))
        (def-update-fn ~entity#)
+       (def-delete-fn ~entity#)
        )))
