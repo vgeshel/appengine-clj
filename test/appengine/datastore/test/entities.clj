@@ -191,11 +191,22 @@
     (is (= (find-continents) [continent]))))
 
 (dstest test-def-update-fn-with-continent
-  (def-find-first-by-property-fns continent name)
-  (def-update-fn continent)
   (let [continent (ds/create-entity {:kind "continent" :name "unknown"})]
     (is (= (update-continent continent {:name "Europe"})
-           (find-continent-by-name "Europe")))))
+           (find-continent-by-name "Europe")))
+    (update-continent continent {:name "Europe"})
+    (is (= (count (find-continents)) 1))))
+
+(dstest test-def-update-fn-with-country
+  (let [continent (create-continent {:name "Europe" :iso-3166-alpha-2 "eu"})
+        country (create-country continent {:name "unknown" :iso-3166-alpha-2 "es"})]
+    (is (= (update-country country {:name "Spain"})
+           (find-country-by-name "Spain")))
+    (update-country country {:name "Spain"})
+    ;; (is (= (count (find-countries)) 1))
+    ;; (println (count (find-countries)))
+    ;; (println (find-countries))
+))
 
 (dstest test-property-finder
   (deffilter continent find-all-continents-by-name
