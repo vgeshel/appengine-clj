@@ -78,8 +78,8 @@ property matches the operator."
        (~(or result-fn 'identity)
         ((filter-fn '~entity '~property# ~operator) ~property#)))))
 
-(defmacro def-finder-fn [entity & properties]
-  "Defines finder functions the entity."
+(defmacro def-find-all-by-property-fns [entity & properties]
+  "Defines a function for each property, that find all entities by a property."
   (let [entity# entity]
     `(do
        ~@(for [property# properties]
@@ -87,7 +87,14 @@ property matches the operator."
               (deffilter ~entity#
                 ~(symbol (find-entities-fn-name entity# property#))
                 ~(find-entities-fn-doc entity# property#)
-                (~property#))
+                (~property#)))))))
+
+(defmacro def-find-first-by-property-fns [entity & properties]
+  "Defines a function for each property, that finds the first entitiy by a property."
+  (let [entity# entity]
+    `(do
+       ~@(for [property# properties]
+           `(do
               (deffilter ~entity#
                 ~(symbol (find-entity-fn-name entity# property#))
                 ~(find-entity-fn-doc entity# property#)
@@ -98,6 +105,12 @@ property matches the operator."
   (let [entity# entity]
     `(defn ~(symbol (str "delete-" entity#)) [& ~'args]
        (ds/delete-entity ~'args))))
+
+(defmacro def-find-all-fn [entity]
+  "Defines a function that returns all entities."
+  (let [entity# entity]
+    `(defn ~(symbol (str "find-" (pluralize (str entity#)))) []
+       (ds/find-all (Query. ~(str entity#))))))
 
 (defmacro def-update-fn [entity]
   "Defines an update function for the entity."
@@ -111,7 +124,8 @@ property matches the operator."
        (def-key-fn ~entity# ~(entity-keys properties) ~@parent#)
        (def-make-fn ~entity# ~@parent#)
        (def-create-fn ~entity# ~@parent#)
-       (def-finder-fn ~entity# ~@(map first properties#))
+       (def-find-all-fn ~entity#)
+       (def-find-all-by-property-fns ~entity# ~@(map first properties#))
+       (def-find-first-by-property-fns ~entity# ~@(map first properties#))
        (def-update-fn ~entity#)
-       (def-delete-fn ~entity#)
-       )))
+       (def-delete-fn ~entity#))))

@@ -76,13 +76,17 @@
   (let [continent (ds/create-entity {:kind "continent" :name "Europe"})]
     (is (= continent (find-continent-by-name (:name continent))))))
 
-(dstest test-def-finder-fn
-  (def-finder-fn continent name iso-3166-alpha-2)
+(dstest test-def-find-all-by-property-fns
+  (def-find-all-by-property-fns continent name iso-3166-alpha-2)
   (let [continent (ds/create-entity {:kind "continent" :name "Europe" :iso-3166-alpha-2 "eu"})]
-    (is (= continent (find-continent-by-name (:name continent))))
-    (is (= continent (find-continent-by-iso-3166-alpha-2 (:iso-3166-alpha-2 continent))))    
     (is (= [continent] (find-all-continents-by-name (:name continent))))
     (is (= [continent] (find-all-continents-by-iso-3166-alpha-2 (:iso-3166-alpha-2 continent))))))
+
+(dstest test-def-find-first-by-property-fns
+  (def-find-first-by-property-fns continent name iso-3166-alpha-2)
+  (let [continent (ds/create-entity {:kind "continent" :name "Europe" :iso-3166-alpha-2 "eu"})]
+    (is (= continent (find-continent-by-name (:name continent))))
+    (is (= continent (find-continent-by-iso-3166-alpha-2 (:iso-3166-alpha-2 continent))))))
 
 (deftest test-key-fn-name
   (is (= (key-fn-name 'continent) "make-continent-key")))
@@ -181,8 +185,13 @@
     (delete-continent continent)
     (is (nil? (find-continent-by-name "Europe")))))
 
+(dstest test-def-find-all-fn
+  (def-find-all-fn continent)
+  (let [continent (ds/create-entity {:kind "continent" :name "Europe"})]
+    (is (= (find-continents) [continent]))))
+
 (dstest test-def-update-fn-with-continent
-  (def-finder-fn continent name)
+  (def-find-first-by-property-fns continent name)
   (def-update-fn continent)
   (let [continent (ds/create-entity {:kind "continent" :name "unknown"})]
     (is (= (update-continent continent :name "Europe")
