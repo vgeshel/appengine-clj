@@ -194,7 +194,7 @@
   (def-find-first-by-property-fns continent name)
   (def-update-fn continent)
   (let [continent (ds/create-entity {:kind "continent" :name "unknown"})]
-    (is (= (update-continent continent :name "Europe")
+    (is (= (update-continent continent {:name "Europe"})
            (find-continent-by-name "Europe")))))
 
 (dstest test-property-finder

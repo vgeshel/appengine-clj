@@ -115,8 +115,8 @@ property matches the operator."
 (defmacro def-update-fn [entity]
   "Defines an update function for the entity."
   (let [entity# entity]
-    `(defn ~(symbol (str "update-" entity#)) [~entity# & ~'properties]
-       (ds/update-entity ~entity (apply hash-map ~'properties)))))
+    `(defn ~(symbol (str "update-" entity#)) [~entity# ~'properties]
+       (ds/update-entity ~entity ~'properties))))
 
 (defmacro defentity [entity parent & properties]
   "Defines helper functions for the entity."
