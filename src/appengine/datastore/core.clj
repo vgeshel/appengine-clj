@@ -53,7 +53,7 @@ Examples:
   (string->key \"agR0ZXN0chELEgljb250aW5lbnQiAmV1DA\")
   ; => #<Key country(\"de\")>
 
-  (key->string \"agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA\")
+  (string->key \"agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA\")
   ; => #<Key continent(\"eu\")/country(\"de\")>
 "
   [string] (KeyFactory/stringToKey string))
