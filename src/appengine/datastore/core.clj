@@ -3,12 +3,21 @@
             DatastoreConfig DatastoreServiceFactory Entity Key Query KeyFactory)))
 
 (defn create-key
-  "Creates a new Key from the given kind and id. If a parent key is given
-the new key will be a child of the parent key."
+  "Creates a new Key using the given kind and id. If the parent-key is
+given, the new key will be a child of the parent-key.
+
+Examples:
+
+  (create-key \"country\" \"de\")
+  ; => #<Key country(\"de\")>
+
+  (create-key (create-key \"continent\" \"eu\") \"country\" \"de\")
+  ; => #<Key continent(\"eu\")/country(\"de\")>
+" 
   ([kind id]
      (create-key nil kind id))
-  ([#^Key parent kind id]
-     (KeyFactory/createKey parent kind (if (integer? id) (Long/valueOf (str id)) (str id)))))
+  ([#^Key parent-key kind id]
+     (KeyFactory/createKey parent-key kind (if (integer? id) (Long/valueOf (str id)) (str id)))))
 
 (defn datastore
   "Creates a DatastoreService using the default or the provided
