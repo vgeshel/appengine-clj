@@ -62,37 +62,34 @@ Examples:
 
 ### appengine.datastore.transactions
 
-Transaction and retry support based on AppEngine semantics (see [DatastoreService low-level API for details](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/datastore/DatastoreService.html).
+Transaction and retry support based on AppEngine semantics (see [DatastoreService low-level API for details](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/datastore/DatastoreService.html)).
+
+<code>dotransaction</code> executes its body in a transaction.  In case of a DatastoreFailureException or a ConcurrentModificationException dotransaction automatically retries the transaction *transaction-retries* times.  Beware that if the retry-count is reached and an exception is thrown within the body of the transaction, the transaction is thrown out of the <code>(dotransaction...)</code>.
 
 Examples:
+
 <pre><code>
-
-;; dotransaction encompasses all forms in its body in a transaction.
-;; In case of a DatastoreFailureException or a ConcurrentModificationException
-;; dotransaction retries the transaction (limit set by *transaction-retries*)
-
-;; Creates both entities (or none if too many datastore exceptions) and
-;; returns the same entity
+;; Either creates both entities or none if too many datastore exceptions).
+;; returns the second entity, as expected.
 (dotransaction
   (let [parent (ds/create-entity {:kind "Person" :name "jane"})]
     (ds/create-entity {:kind "Person" :name "bob" 
 	               :parent-key (:key parent)})))
 
 ;; You can set the number of retries to deviate from the default (4)
-(doretries 2 (dotransaction ... ))
+(doretries 2 (dotransaction ... ))</code></pre>
 
-;; Transactions automatically rollback as per the low-level API specs.  
-;; There is also support for manual rollback using (rollback-transaction).
-;; You can also check whether the current transaction is active using
-;; (is-transaction-active?).  These can be used together to get
-;; consistent snapshots of parts of the datastore.
+Transactions automatically rollback as per the low-level API specs.  Additionally, appengine-clj supports manual rollback using <code>(rollback-transaction)</code>.  Within a <code>(dotransaction ...)</code>, you may check whether the current transaction is active through <code>(is-transaction-active?)</code>.  These can be used together to get consistent snapshots of parts of the datastore.
+
+<pre><code>
 (dotransaction
-  ... get
-  (if something-went-wrong
-    (rollback-transaction)))
+  ...
+  (if (and something-went-wrong (is-transaction-active?))
+    (rollback-transaction)))</code></pre>
 
-;; You can nest transactions when working with two entity groups, but
-;; there is no correlation between one transaction succeeding and the other
+You can nest transactions when working with two entity groups, but each transaction's success is independent of the other.
+
+<pre><code>
 (dotransaction ;; group1
   (let [parent-group1 (ds/create-entity {:kind "Person" :name "jane"})
         child-group1 (ds/create-entity {:kind "Child" :name "tamara"
@@ -102,14 +99,11 @@ Examples:
             child-group2 (ds/create-entity {:kind "Child" :name "eric"
 	             		       	:parent-key (:key parent-group2)})]
         ...
-	))))
+	))))</code></pre>
 
-;; You can do operations in their own atomic transaction 
-;; outside of the current transaction.
-;; Note: notransaction does no retries and should typically be
-;;       surrounded by a (try ... (catch ...)) so that any datastore
-;;       or other errors in it do not inadvertently affect the surrounding
-;;       transaction
+You can execute datastore operations outside of the current transaction through <code>(notransaction)</code>.  Note: <code>(nnotransaction)</code> has no retry semantics and should typically be surrounded by a (try ... (catch ...)) so that errors do not affect the surrounding transaction.
+
+<pre><code>
 (dotransaction
   ...
   (try {
@@ -117,10 +111,7 @@ Examples:
       (ds/create-entity {:kind "Person" :name "andy"}))
     (catch ...))
   ...
-)
-
-
-</code></pre>
+)</code></pre>
 
 ### appengine.users
 
