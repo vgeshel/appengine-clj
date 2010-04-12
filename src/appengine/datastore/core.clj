@@ -1,7 +1,7 @@
 (ns appengine.datastore.core
   (:import (com.google.appengine.api.datastore
             DatastoreConfig DatastoreServiceFactory 
-	    Entity Key Query KeyFactory)))
+	    Entity Key Query KeyFactory Transaction)))
 
 ;; Bound per-thread as part of the dotransaction macro using binding
 ;; Do not change this value directly except if you know what you are
@@ -81,55 +81,57 @@ the new key will be a child of the parent key."
   PersistentHashMap with a :key keyword, or an ISeq of keys, in which 
   case a PersistentHashMap of appengine Keys to PersistentHashmaps of
   Entities is returned."
-    (fn [& args] (class (if (second args) (second args) (first args)))))
+  (fn [& args] (if (second args) (class (second args)) false)))
 
-(defmethod get-entity Entity 
-  ([#^Entity entity] (get-entity *thread-local-transaction* entity))
-  ([transaction #^Entity entity]
-     (get-entity transaction (.getKey entity))))
+(defmethod get-entity false
+  [identifier] (get-entity *thread-local-transaction* (if (nil? identifier) 
+							{} identifier)))
 
-(defmethod get-entity Key 
-  ([key] (get-entity *thread-local-transaction* key))
-  ([transaction key]
-     (entity->map (.get (datastore) transaction key))))
+(defmethod get-entity Entity
+  [transaction #^Entity entity]
+  (get-entity transaction (.getKey entity)))
 
-(defmethod get-entity clojure.lang.PersistentVector 
-  ([keys] (get-entity *thread-local-transaction* keys))
-  ([transaction keys]
-     (get-entity transaction (seq keys))))
+(defmethod get-entity Key
+  [transaction key]
+  (entity->map (.get (datastore) transaction key)))
+
+(defmethod get-entity clojure.lang.PersistentVector
+  [transaction keys]
+  (get-entity transaction (seq keys)))
 
 (defmethod get-entity clojure.lang.ISeq 
-  ([keys] (get-entity *thread-local-transaction* keys))
-  ([transaction keys]
-     (into {} (for [[key entity] (.get (datastore) transaction 
-				       (filter-keys keys))] 
-		[key (entity->map entity)]))))
+  [transaction keys]
+  (into {} (for [[key entity] (.get (datastore) transaction 
+				    (filter-keys keys))] 
+	     [key (entity->map entity)])))
 
 (defmethod get-entity :default 
-  ([map] (get-entity *thread-local-transaction* map))
-  ([transaction map]
-     (if-let [key (:key map)]
-    (entity->map (.get (datastore) transaction key)))))
+  [transaction map]
+  (if-let [key (:key map)]
+    (entity->map (.get (datastore) transaction key))))
 
 (defmulti put-entity
   "Puts the given record into the datastore and returns a
   PersistentHashMap of the record. The record must be an instance of
   Entity or PersistentHashMap."
-  (fn [& args] (class (if (second args) (second args) (first args))))) 
+  (fn [& args] (if (second args) (class (second args)) false)))
+
+(defmethod put-entity false
+   [identifier] (put-entity *thread-local-transaction* (if (nil? identifier) 
+							 {} identifier)))
 
 (defmethod put-entity Entity 
-  ([#^Entity entity] (put-entity *thread-local-transaction* entity))
-  ([transaction #^Entity entity]
-     (let [key (.put (datastore) transaction entity)]
-       (assoc (entity->map entity) :key key))))
+  [transaction #^Entity entity]
+  (let [key (.put (datastore) transaction entity)]
+    (assoc (entity->map entity) :key key)))
 
 (defmethod put-entity :default 
-  ([map] (put-entity *thread-local-transaction* map))
-  ([transaction map] (put-entity transaction (map->entity map))))
+  [transaction map] (put-entity transaction (map->entity map)))
 
 (defn find-all
   "Executes the given com.google.appengine.api.datastore.Query
-  and returns the results as a lazy sequence of items converted with entity->map."
+  and returns the results as a lazy sequence of items converted 
+  with entity->map."
   ([#^Query query] (find-all *thread-local-transaction* query))
   ([transaction #^Query query]
      (let [data-service (datastore)
@@ -152,59 +154,57 @@ the new key will be a child of the parent key."
   values is :remove, then the correponding property name is removed 
   from that entity.  If one of the attributes't values is nil, then the 
   corresponding property name is set to Java's null for that property."
-  (fn [arg & args] (class (if (second args) (first args) arg))))
+  (fn [arg & args] (if (second args) (class (first args)) false)))
+
+(defmethod update-entity false
+  [identifier attributes] (update-entity *thread-local-transaction*
+					 (if (nil? identifier) {} identifier)
+					 attributes))
 
 (defmethod update-entity Entity 
-  ([#^Entity entity attributes] 
-     (update-entity *thread-local-transaction* entity attributes))
-  ([transaction #^Entity entity attributes]
-     (doseq [[attribute value] attributes]
-       (if (not= value :remove)
-	 (.setProperty entity (name attribute) value)
-	 (.removeProperty entity (name attribute))))
-     (put-entity transaction entity)))
+  [transaction #^Entity entity attributes]
+  (doseq [[attribute value] attributes]
+    (if (not= value :remove)
+      (.setProperty entity (name attribute) value)
+      (.removeProperty entity (name attribute))))
+  (put-entity transaction entity))
 
 (defmethod update-entity Key 
-  ([key attributes] 
-     (update-entity *thread-local-transaction* key attributes))
-  ([transaction key attributes]
-     (update-entity transaction (get-entity transaction key) attributes)))
+  [transaction key attributes]
+  (update-entity transaction (get-entity transaction key) attributes))
 
 (defmethod update-entity :default 
-  ([map attributes]
-     (update-entity *thread-local-transaction* map attributes))
-  ([transaction map attributes]
-     (update-entity transaction (map->entity map) attributes)))
+  [transaction map attributes]
+  (update-entity transaction (map->entity map) attributes))
 
 (defmulti delete-entity 
   "Deletes the record."
-  (fn [& args] (class (if (second args) (second args) (first args)))))
+  (fn [& args] (if (second args) (class (second args)) false)))
+
+(defmethod delete-entity false
+  [identifier] (delete-entity *thread-local-transaction* (if (nil? identifier) 
+							   {} identifier)))
 
 (defmethod delete-entity Entity 
-  ([#^Entity entity] (delete-entity *thread-local-transaction* entity))
-  ([transaction #^Entity entity]
-     (delete-entity transaction (.getKey entity))))
+  [transaction #^Entity entity]
+  (delete-entity transaction (.getKey entity)))
 
 (defmethod delete-entity Key 
-  ([key] (delete-entity *thread-local-transaction* key))
-  ([transaction key]
-     (.delete (datastore) transaction (into-array [key]))))
+  [transaction key]
+  (.delete (datastore) transaction (into-array [key])))
 
 (defmethod delete-entity clojure.lang.PersistentVector 
-  ([keys] (delete-entity *thread-local-transaction* keys))
-  ([transaction keys]
-     (delete-entity transaction (seq keys))))
+  [transaction keys]
+  (delete-entity transaction (seq keys)))
 
 (defmethod delete-entity clojure.lang.ISeq 
-  ([keys] (delete-entity *thread-local-transaction* keys))
-  ([transaction keys]
-     (.delete (datastore) transaction (filter-keys keys))))
+  [transaction keys]
+  (.delete (datastore) transaction (filter-keys keys)))
 
 (defmethod delete-entity :default 
-  ([map] (delete-entity *thread-local-transaction* map))
-  ([transaction map]
+  [transaction map]
      (if-let [key (:key map)]
-       (delete-entity transaction key))))
+       (delete-entity transaction key)))
 
 
 
