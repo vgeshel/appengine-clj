@@ -124,7 +124,7 @@ property matches the operator."
    if no property is qualified by :key true, then the data
    store will create a unique key for this object.  However
    note that the result of calling make-*entity*-key for any 
-   such object is nil and not a correctly key."
+   such object is nil and not a proper key."
 (let [entity# entity parent# parent properties# properties]
     `(do
        (def-key-fn ~entity# ~(entity-keys properties) ~@parent#)

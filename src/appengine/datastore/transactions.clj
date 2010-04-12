@@ -1,15 +1,16 @@
 (ns appengine.datastore.transactions
   (:require [appengine.datastore.core :as ds]
 	    [clojure.zip :as zip])
-  (:import (com.google.appengine.api.datastore DatastoreFailureException)))
+  (:import (com.google.appengine.api.datastore DatastoreFailureException)
+	   (java.util ConcurrentModificationException)))
 
 ;; WARNING: Currently
-;; Be careful when doing calls to the ds through over functions in 
-;; a transaction.  Use *thread-local-transaction* at run-time when
-;; designing new functions to get the current transaction for the
-;; current thread (may be nil, but the datastore treats passing in
+;; Be careful when doing calls to the ds through other functions.  
+;; Use *thread-local-transaction* when designing new functions 
+;; to get the current transaction for the current thread 
+;; (may be nil; the datastore treats passing in
 ;; a nil transaction as a request to create a new transaction for 
-;; that request only.
+;; that request only).
 ;;
 ;; See http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/datastore/DatastoreService.html
 ;; and
@@ -51,7 +52,10 @@
   `(binding [*transaction-retries* ~num] (do ~@body)))
 
 (defmacro notransaction
-  "Used to do no-transaction operations from within a transaction"
+  "Used to do no-transaction operations from within a transaction.
+   Should be used within a try to catch any DatastoreFailureException
+   or ConcurrentModificationException or other exceptions so that 
+   these do not interfere with the encompassing transaction."
   [& body]
   `(binding [ds/*thread-local-transaction* nil] (do ~@body)))
 
@@ -76,6 +80,10 @@
 		  (.commit ds/*thread-local-transaction*))
 		[true result#])
 	      (catch DatastoreFailureException e# 
+		(if (zero? retries-left#) 
+		  (throw e#)
+		  [false nil]))
+	      (catch ConcurrentModificationException e# 
 		(if (zero? retries-left#) 
 		  (throw e#)
 		  [false nil]))))]

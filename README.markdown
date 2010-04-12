@@ -60,6 +60,68 @@ Examples:
 
 </code></pre>
 
+### appengine.datastore.transactions
+
+Transaction and retry support based on AppEngine semantics (see [DatastoreService low-level API for details](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/datastore/DatastoreService.html).
+
+Examples:
+<pre><code>
+
+;; dotransaction encompasses all forms in its body in a transaction.
+;; In case of a DatastoreFailureException or a ConcurrentModificationException
+;; dotransaction retries the transaction (limit set by *transaction-retries*)
+
+;; Creates both entities (or none if too many datastore exceptions) and
+;; returns the same entity
+(dotransaction
+  (let [parent (ds/create-entity {:kind "Person" :name "jane"})]
+    (ds/create-entity {:kind "Person" :name "bob" 
+	               :parent-key (:key parent)})))
+
+;; You can set the number of retries to deviate from the default (4)
+(doretries 2 (dotransaction ... ))
+
+;; Transactions automatically rollback as per the low-level API specs.  
+;; There is also support for manual rollback using (rollback-transaction).
+;; You can also check whether the current transaction is active using
+;; (is-transaction-active?).  These can be used together to get
+;; consistent snapshots of parts of the datastore.
+(dotransaction
+  ... get
+  (if something-went-wrong
+    (rollback-transaction)))
+
+;; You can nest transactions when working with two entity groups, but
+;; there is no correlation between one transaction succeeding and the other
+(dotransaction ;; group1
+  (let [parent-group1 (ds/create-entity {:kind "Person" :name "jane"})
+        child-group1 (ds/create-entity {:kind "Child" :name "tamara"
+	             		       	:parent-key (:key parent-group1)})]
+    (dotransaction ;; nested group2
+      (let [parent-group2 (ds/create-entity {:kind "Person" :name "berni"})
+            child-group2 (ds/create-entity {:kind "Child" :name "eric"
+	             		       	:parent-key (:key parent-group2)})]
+        ...
+	))))
+
+;; You can do operations in their own atomic transaction 
+;; outside of the current transaction.
+;; Note: notransaction does no retries and should typically be
+;;       surrounded by a (try ... (catch ...)) so that any datastore
+;;       or other errors in it do not inadvertently affect the surrounding
+;;       transaction
+(dotransaction
+  ...
+  (try {
+    (notransaction 
+      (ds/create-entity {:kind "Person" :name "andy"}))
+    (catch ...))
+  ...
+)
+
+
+</code></pre>
+
 ### appengine.users
 
 Convenience API for the
