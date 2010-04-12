@@ -1,4 +1,5 @@
 *.swp
+autodoc
 lib/*.jar
 appengine-clj.jar
 classes
