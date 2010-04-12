@@ -64,13 +64,14 @@ Examples:
 
 Transaction and retry support based on AppEngine semantics (see [DatastoreService low-level API for details](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/datastore/DatastoreService.html)).
 
-<code>dotransaction</code> executes its body in a transaction.  In case of a DatastoreFailureException or a ConcurrentModificationException dotransaction automatically retries the transaction *transaction-retries* times.  Beware that if the retry-count is reached and an exception is thrown within the body of the transaction, the transaction is thrown out of the <code>(dotransaction...)</code>.
+<code>(dotransaction ...)</code> executes its body in a transaction.  In case of a DatastoreFailureException or a ConcurrentModificationException, the body's execution is retried *transaction-retries* times.  Beware that if the retry-count is reached and an exception is thrown within the body of the transaction, the transaction is thrown out of the <code>(dotransaction...)</code>.
+
+The transaction functionality works with both appengine.datastore.core and appengine.datastore.entities.
 
 Examples:
 
-<pre><code>
-;; Either creates both entities or none if too many datastore exceptions).
-;; returns the second entity, as expected.
+<pre><code>;; Either creates both entities or neither if too many datastore exceptions.
+;; Returns the second entity, as expected.
 (dotransaction
   (let [parent (ds/create-entity {:kind "Person" :name "jane"})]
     (ds/create-entity {:kind "Person" :name "bob" 
@@ -81,16 +82,14 @@ Examples:
 
 Transactions automatically rollback as per the low-level API specs.  Additionally, appengine-clj supports manual rollback using <code>(rollback-transaction)</code>.  Within a <code>(dotransaction ...)</code>, you may check whether the current transaction is active through <code>(is-transaction-active?)</code>.  These can be used together to get consistent snapshots of parts of the datastore.
 
-<pre><code>
-(dotransaction
+<pre><code>(dotransaction
   ...
   (if (and something-went-wrong (is-transaction-active?))
     (rollback-transaction)))</code></pre>
 
 You can nest transactions when working with two entity groups, but each transaction's success is independent of the other.
 
-<pre><code>
-(dotransaction ;; group1
+<pre><code>(dotransaction ;; group1
   (let [parent-group1 (ds/create-entity {:kind "Person" :name "jane"})
         child-group1 (ds/create-entity {:kind "Child" :name "tamara"
 	             		       	:parent-key (:key parent-group1)})]
@@ -101,10 +100,9 @@ You can nest transactions when working with two entity groups, but each transact
         ...
 	))))</code></pre>
 
-You can execute datastore operations outside of the current transaction through <code>(notransaction)</code>.  Note: <code>(nnotransaction)</code> has no retry semantics and should typically be surrounded by a (try ... (catch ...)) so that errors do not affect the surrounding transaction.
+You can execute datastore operations outside of the current transaction through <code>(notransaction)</code>.  Note: <code>(notransaction)</code> has no retry semantics and should typically be surrounded by a (try ... (catch ...)) so that errors do not affect the surrounding transaction.
 
-<pre><code>
-(dotransaction
+<pre><code>(dotransaction
   ...
   (try {
     (notransaction 
