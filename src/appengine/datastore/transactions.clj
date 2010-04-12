@@ -105,8 +105,8 @@
 	   (try 
 	    (binding [ds/*thread-local-transaction* (new-transaction)]
 	      (let [result# (do ~@body)]
+		;; check there has not been a user rollback/commit
 		(if (.isActive ds/*thread-local-transaction*) 
-		  ;; check there has not been a user rollback/commit
 		  (.commit ds/*thread-local-transaction*))
 		[true result#])
 	      (catch DatastoreFailureException e# 
