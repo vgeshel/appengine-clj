@@ -191,11 +191,22 @@
     (is (= (find-continents) [continent]))))
 
 (dstest test-def-update-fn-with-continent
-  (def-find-first-by-property-fns continent name)
-  (def-update-fn continent)
   (let [continent (ds/create-entity {:kind "continent" :name "unknown"})]
-    (is (= (update-continent continent :name "Europe")
-           (find-continent-by-name "Europe")))))
+    (is (= (update-continent continent {:name "Europe"})
+           (find-continent-by-name "Europe")))
+    (update-continent continent {:name "Europe"})
+    (is (= (count (find-continents)) 1))))
+
+(dstest test-def-update-fn-with-country
+  (let [continent (create-continent {:name "Europe" :iso-3166-alpha-2 "eu"})
+        country (create-country continent {:name "unknown" :iso-3166-alpha-2 "es"})]
+    (is (= (update-country country {:name "Spain"})
+           (find-country-by-name "Spain")))
+    (update-country country {:name "Spain"})
+    ;; (is (= (count (find-countries)) 1))
+    ;; (println (count (find-countries)))
+    ;; (println (find-countries))
+))
 
 (dstest test-property-finder
   (deffilter continent find-all-continents-by-name
@@ -211,3 +222,29 @@
 ;;     (println continent)
 ;;     (println country)
 ;;     (println region)))
+
+;; note: if you don't set the :key, let the datastore set it for us
+(defentity testuser ()
+  (name)
+  (job))
+
+(dstest entities-without-key-param
+  ;; create two of the same -- yet they are different because
+  ;; the appengine will give each its own unique key
+  (let [user (create-testuser {:name "liz" :job "entrepreneur"})
+	user2 (create-testuser {:name "liz" :job "entrepreneur"})]
+    (is (= (:name user) (:name user2)))
+    (is (= (:job user) (:job user2)))
+    (is (not= user user2))
+    ;; can't make a key from an entity without a :key in its definition
+    (is (nil? (make-testuser-key {:name "liz" :job "entrepreneur"})))
+    (is (= (make-testuser {:name "liz" :job "entrepreneur"})
+	   {:kind "testuser" :name "liz" :job "entrepreneur"}))
+    (update-testuser user2 {:name "bob"})
+    ;; can still do queries, make sure both users come
+    ;; back as entrepreneurs
+    (let [entrepreneurs (find-all-testusers-by-job "entrepreneur")]
+      (is (= [true true] (reduce 
+			  #(vector (or (= (:name %2) "liz") (first %1))
+				   (or (= (:name %2) "bob") (second %1)))
+			  [false false] entrepreneurs))))))

@@ -40,6 +40,38 @@
     (is (= (.getId country) 0))
     (is (= (.getName country) "de"))))
 
+(dstest test-entity->map
+  (let [continent (ds/entity->map (doto (Entity. "continent") (.setProperty "name" "Europe")))]
+    (let [key (:key continent)]
+      (is (not (.isComplete key)))
+      (is (nil? (.getParent key)))
+      (is (= (.getKind key) "continent"))
+      (is (= (.getId key) 0))
+      (is (nil? (.getName key)))
+      (is (= (class key) com.google.appengine.api.datastore.Key)))
+    (is (= (:kind continent) "continent"))
+    (is (= (:name continent) "Europe")))
+  (let [continent (ds/entity->map (doto (Entity. (ds/create-key "continent" "eu")) (.setProperty "name" "Europe")))]
+    (let [key (:key continent)]
+      (is (.isComplete key))
+      (is (nil? (.getParent key)))
+      (is (= (.getKind key) "continent"))
+      (is (= (.getId key) 0))
+      (is (= (.getName key) "eu"))
+      (is (= (class key) com.google.appengine.api.datastore.Key)))
+    (is (= (:kind continent) "continent"))
+    (is (= (:name continent) "Europe"))
+    (let [country (ds/entity->map (doto (Entity. (ds/create-key (:key continent) "country" "es")) (.setProperty "name" "Spain")))]
+      (let [key (:key country)]
+        (is (.isComplete key))
+        (is (= (.getParent key) (:key continent)))
+        (is (= (.getKind key) "country"))
+        (is (= (.getId key) 0))
+        (is (= (.getName key) "es"))
+        (is (= (class key) com.google.appengine.api.datastore.Key)))
+      (is (= (:kind country) "country"))
+      (is (= (:name country) "Spain")))))
+
 (dstest test-key->string  
   (is (= (ds/key->string (ds/create-key "person" 1)) "agR0ZXN0cgwLEgZwZXJzb24YAQw"))
   (is (= (ds/key->string (ds/create-key "country" "de")) "agR0ZXN0cg8LEgdjb3VudHJ5IgJkZQw"))
@@ -126,12 +158,36 @@
     (is (= ((ds/get-entity (ds/map->entity country)) country)))))
 
 (dstest test-put-entity
-  (let [person (ds/put-entity {:name "Bob" :kind "person"})]
-    (is (= (:key person) (ds/create-key "person" 1)))
-    (is (= (:name person) "Bob")))
-  (let [country (ds/put-entity {:key (ds/create-key "country" "de") :name "Germany"})]
-    (is (= (:key country) (ds/create-key "country" "de")))
-    (is (= (:name country) "Germany"))))
+  (let [continent (ds/put-entity {:name "Europe" :key (ds/create-key "continent" "eu")})]
+    (is (= (count (ds/find-all (Query. "continent"))) 1))
+    (let [key (:key continent)]
+      (is (.isComplete key))
+      (is (= (.getKind key) "continent"))
+      (is (= (.getId key) 0))
+      (is (= (.getName key) "eu")))
+    (is (= (:name continent) "Europe"))
+    (ds/put-entity continent)
+    (is (= (count (ds/find-all (Query. "continent"))) 1))
+    (let [country (ds/put-entity {:name "Germany" :key (ds/create-key (:key continent) "country" "de")})]
+      (is (= (count (ds/find-all (Query. "country"))) 1))
+      (let [key (:key country)]
+        (is (.isComplete key))
+        (is (= (.getParent key) (:key continent)))
+        (is (= (.getKind key) "country"))
+        (is (= (.getId key) 0))
+        (is (= (.getName key) "de")))
+      ;; (is (= (:name country) "Germany"))
+      ;; (println (ds/put-entity country))
+      ;; (println (ds/put-entity country))
+      ;; (is (= (count (ds/find-all (Query. "country"))) 1))
+      )))
+
+;; (with-local-datastore
+;;   (let [continent (ds/put-entity {:name "Europe" :key (ds/create-key "continent" "eu")})
+;;         country (ds/put-entity {:name "Germany" :key (ds/create-key (:key continent) "country" "de")})])
+;;   ;; (println (ds/put-entity country))
+;;   ;; (println (ds/put-entity country))
+;;   )
 
 (dstest delete-entity-with-key
   (let [key (:key (ds/create-entity {:kind "person" :name "Bob"}))]
@@ -143,42 +199,45 @@
         key2 (:key (ds/create-entity {:kind "person" :name "Bob"}))]
     (ds/delete-entity [key1 key2])
     (are (thrown? EntityNotFoundException (ds/get-entity _1))
-         key1 key2)))
+      key1 key2)))
 
 (dstest test-update-entity
   (let [country (ds/put-entity {:key (ds/create-key "country" "de") :name "Deutschland"})]
     (let [country (ds/update-entity country {:name "Germany"})]
-      (is (= (:name country) "Germany")))
+      (is (= (:name country) "Germany"))
+      (is (= (count (ds/find-all (Query. "country"))) 1)))
     (let [country (ds/update-entity (:key country) {:name "Germany"})]
-      (is (= (:name country) "Germany")))
+      (is (= (:name country) "Germany"))
+      (is (= (count (ds/find-all (Query. "country"))) 1)))
     (let [country (ds/update-entity (ds/map->entity country) {:name "Germany"})]
-      (is (= (:name country) "Germany")))))
+      (is (= (:name country) "Germany"))
+      (is (= (count (ds/find-all (Query. "country"))) 1)))))
+
+;; (dstest test-update-entity-having-parent
+;;   (let [continent (ds/put-entity {:key (ds/create-key "continent" "eu") :name "Europe"})
+;;         country (ds/put-entity {:key (ds/create-key (:key continent) "country" "de") :name "Deutschland"})]
+;;     (let [country (ds/update-entity country {:name "Germany"})]
+;;       (is (= (:name country) "Germany"))
+;;       (is (= (count (ds/find-all (Query. "country"))) 1)))
+;;     ))
+
+;; (with-local-datastore
+;;   (let [continent (ds/put-entity {:key (ds/create-key "continent" "eu") :name "Europe"})
+;;         country (ds/put-entity {:key (ds/create-key (:key continent) "country" "de") :name "Deutschland"})]
+;;     (println country)
+;;     (let [country (ds/update-entity country {:name "Germany"})]
+;;       (ds/find-all (Query. "country")) 1)
+;;     ))
 
 (dstest test-properties
   (let [record {:key (ds/create-key "person" 1) :name "Bob"}]
     (is (= (ds/properties record) {:name "Bob"}))
     (is (= (ds/properties (ds/map->entity record)) {:name "Bob"}))))
 
-;; (dstest test-create-with-string-key
-;;   (println "AAAAAAAAAAAAAAAAAAAAAA")
-;;   (let [country (ds/put-entity {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})]
-;;     ;; (ds/create-entity {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})
-;;     ;; (ds/create-entity {:key (ds/create-key "country" "de") :kind "country" :name "Germany"})
-;;     (println "AAAAAAAAAAAAAAAAAAAAAA")
-;;     (println country)
-;;     (println (:key country))
-;;     ;; (println (:key country))
-;;     ;; (println (.getKind(:key country)))
-;;     ;; (println (.getId(:key country)))
-;;     ;; (println (.getName(:key country)))
-;;     (println (ds/get-entity (:key country)))
-;;     ))
-
-
 (dstest entity-to-map-converts-to-persistent-map
   (let [entity (doto (Entity. "MyKind")
-                (.setProperty "foo" "Foo")
-                (.setProperty "bar" "Bar"))]
+                 (.setProperty "foo" "Foo")
+                 (.setProperty "bar" "Bar"))]
     (.put (DatastoreServiceFactory/getDatastoreService) entity)
     (is (= {:foo "Foo" :bar "Bar" :kind "MyKind" :key (.getKey entity)}
            (ds/entity->map entity)))))
@@ -215,9 +274,9 @@
 (dstest make-entity-with-parent
   (let [parent (ds/create-entity {:kind "Person" :name "Andy" :age 31})
 	child1 (ds/create-entity {:kind "Child" :name "Liz" :age 5 
-			   :parent-key (:key parent)})
+                                  :parent-key (:key parent)})
 	child2 (ds/create-entity {:kind "Child" :name "Jane" :age 5
-			   :parent-key (:key parent)})]
+                                  :parent-key (:key parent)})]
     (is (= (:parent-key child1) (:key parent)))
     (is (= (:parent-key child2) (:key parent)))))
 
@@ -233,7 +292,6 @@
     (ds/delete-entity (map :key [e1 e2 e3]))
     (let [entities (ds/get-entity (map :key [e1 e2 e3]))]
       (is (= 0 (reduce count 0 entities))))))
-
 
 (dstest update-remove-attribute
   (let [e (ds/create-entity {:kind "E" :a "a" :b "b" :c "c"})
