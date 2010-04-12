@@ -21,24 +21,54 @@ Examples:
 
 (defn datastore
   "Creates a DatastoreService using the default or the provided
-configuration."
+configuration.
+
+Examples:
+
+  (datastore)
+  ; => #<DatastoreServiceImpl com.google.appengine.api.datastore.DatastoreServiceImpl@a7b68a>
+"
   ([] (datastore DatastoreConfig/DEFAULT))
   ([configuration] (DatastoreServiceFactory/getDatastoreService configuration)))
 
 (defn key->string
-  "Converts the given Key into a websafe string."
+  "Returns a \"websafe\" string from the given Key.
+
+Examples:
+
+  (key->string (create-key \"continent\" \"eu\"))
+  ; => \"agR0ZXN0chELEgljb250aW5lbnQiAmV1DA\"
+
+  (key->string (create-key (create-key \"continent\" \"eu\") \"country\" \"de\")
+  ; => \"agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA\"
+
+"
   [key] (KeyFactory/keyToString key))
 
 (defn string->key
-  "Converts a String-representation of a Key into the Key instance 
-   it represents."
+  "Returns a Key from the given \"websafe\" string.
+
+Examples:
+
+  (string->key \"agR0ZXN0chELEgljb250aW5lbnQiAmV1DA\")
+  ; => #<Key country(\"de\")>
+
+  (key->string \"agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA\")
+  ; => #<Key continent(\"eu\")/country(\"de\")>
+"
   [string] (KeyFactory/stringToKey string))
 
 (defn entity->map
-  "Converts an instance of com.google.appengine.api.datastore.Entity
-  to a PersistentHashMap with properties stored under keyword keys,
-  plus the entity's kind stored under :kind, key stored under :key, 
-  and the key of the entity's parent, if any, under :parent-key."
+  "Converts an instance of com.google.appengine.api.datastore. Entity
+to a PersistentHashMap with properties stored under keyword keys, plus
+the entity's kind stored under :kind, key stored under :key, and the
+key of the entity's parent, if any, under :parent-key.
+
+Examples:
+
+  (entity->map (doto (Entity. \"continent\") (.setProperty \"name\" \"Europe\")))
+  ; => {:name \"Europe\", :kind \"continent\", :key #<Key continent(no-id-yet)>}
+"
   [#^Entity entity]
   (reduce #(assoc %1 (keyword (key %2)) (val %2))
 	  (merge {:kind (.getKind entity) :key (.getKey entity)}
@@ -50,9 +80,16 @@ configuration."
 
 (defn map->entity
   "Converts a PersistentHashMap or struct into a Entity instance. The
-   map must have the key or kind of the entity stored under the :key or
-   a :kind keywords.  If the map has a :parent-key Key, the Entity instance
-   will be a child of the Entity with the :parent-key Key."
+map must have the key or kind of the entity stored under the :key or
+a :kind keywords.  If the map has a :parent-key Key, the Entity
+instance will be a child of the Entity with the :parent-key Key.
+
+Examples:
+
+  (map->entity {:key \"continent\" :name \"Europe\"})
+  ; => #<Entity <Entity [continent(no-id-yet)]:
+  ;      name = Europe
+"
   [map]
   (reduce #(do (.setProperty %1 (name (first %2)) (second %2)) %1)
 		       (if (and (:kind map) (:parent-key map))
