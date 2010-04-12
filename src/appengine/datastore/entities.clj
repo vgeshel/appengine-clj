@@ -55,16 +55,17 @@ property matches the operator."
         (join "-" [~@(map #(list (if (keyword? %) % (keyword %)) 'attributes) entity-keys#)])))))
 
 (defmacro def-make-fn [entity & [parent]]
-  "Defines a funktion to build entity hashes."
+  "Defines a function to build entity hashes."
   (let [entity# entity parent# parent
         args# (compact [parent# 'attributes])]
     `(defn ~(symbol (str "make-" entity#)) [~@args#]
-       (assoc ~'attributes
-         :key (~(symbol (key-fn-name entity)) ~@args#)
-         :kind ~(str entity#)))))
+       (merge (assoc ~'attributes
+		:kind ~(str entity#))
+	      (let [key# (~(symbol (key-fn-name entity)) ~@args#)]
+		(if-not (nil? key#) {:key key#} {}))))))
 
 (defmacro def-create-fn [entity & [parent]]
-  "Defines a funktion to build and save entity hashes."
+  "Defines a function to build and save entity hashes."
   (let [entity# entity parent# parent
         args# (compact [parent# 'attributes])]
     `(defn ~(symbol (str "create-" entity#)) [~@args#]
@@ -119,8 +120,12 @@ property matches the operator."
        (ds/update-entity ~entity ~'properties))))
 
 (defmacro defentity [entity parent & properties]
-  "Defines helper functions for the entity."
-  (let [entity# entity parent# parent properties# properties]
+  "Defines helper functions for the entity. Note that
+   if no property is qualified by :key true, then the data
+   store will create a unique key for this object.  However
+   note that the result of calling make-*entity*-key for any 
+   such object is nil and not a correctly key."
+(let [entity# entity parent# parent properties# properties]
     `(do
        (def-key-fn ~entity# ~(entity-keys properties) ~@parent#)
        (def-make-fn ~entity# ~@parent#)

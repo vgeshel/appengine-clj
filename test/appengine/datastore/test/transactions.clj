@@ -1,6 +1,7 @@
 (ns appengine.datastore.test.transactions
   (:require [appengine.datastore.core :as ds]
-	    [appengine.datastore.transactions :as tr])
+	    [appengine.datastore.transactions :as tr]
+	    [appengine.datastore.entities :as en])
   (:use clojure.test
 	appengine.test-utils)
   (:import (com.google.appengine.api.datastore EntityNotFoundException
@@ -119,11 +120,72 @@
      (ds/delete-entity entity)
      (is (thrown? IllegalArgumentException (ds/delete-entity entity2))))
     (is (thrown? EntityNotFoundException (ds/get-entity (:key entity))))
-    (is (= "Entity2" (:name entity2)))
+    (is (= "Entity2" (:name (ds/get-entity (:key entity2)))))
     (tr/dotransaction
      (ds/delete-entity entity2)
      (tr/rollback-transaction))
-    (is (= "Entity2" (:name entity2)))
+    (is (= "Entity2" (:name (ds/get-entity (:key entity2)))))
     (tr/dotransaction
      (ds/delete-entity entity2))
     (is (thrown? EntityNotFoundException (ds/get-entity (:key entity2))))))
+
+;; We can also do transactions manually if we so wish
+(dstest manual-transactions
+  (let [transaction (.beginTransaction (ds/datastore)) ;; manually create tr
+	entity (ds/create-entity transaction {:kind "Person" :name "Entity"})
+	entity2 (ds/create-entity transaction {:kind "Person" :name "Entity2"
+					       :parent-key (:key entity)})
+    ;; transaction not committed so these should not be in ds yet
+	[entity1?] (ds/find-all
+		    (doto (Query. "Person")
+		      (.addFilter "name" 
+				  Query$FilterOperator/EQUAL "Entity")))
+	[entity2?] (ds/find-all
+		    (doto (Query. "Person")
+		      (.addFilter "name" 
+				  Query$FilterOperator/EQUAL "Entity2")))]
+    (is (nil? entity1?))
+    (is (nil? entity2?))
+    ;; now commit
+    (.commit transaction)
+    (let [[entity1?] (ds/find-all
+		      (doto (Query. "Person")
+			(.addFilter "name" 
+				    Query$FilterOperator/EQUAL "Entity")))
+	  [entity2?] (ds/find-all
+		      (doto (Query. "Person")
+			(.addFilter "name" 
+				   Query$FilterOperator/EQUAL "Entity2")))]
+      ;; post-commit we find the entities
+      (is (= "Entity" (:name entity1?)))
+      (is (= "Entity2" (:name entity2?))))))
+
+;just to show doretries was tested manually
+;(dstest doretry-transaction-manual-test
+;  (tr/doretries 2
+;		(try (tr/dotransaction
+;		      (always-fails)) (catch Exception e (prn "error")))
+;		(try (tr/dotransaction
+;		      (always-fails)) (catch Exception e (prn "error")))))
+
+;; appengine.datastore/entities
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(en/defentity testuser ()
+  (name :key true)
+  (job))
+
+;; it's the same deal as entities.clj relies on core.clj which
+;; support transactions
+(dstest entities-macros-and-transactions
+  (tr/dotransaction
+   (let [user (create-testuser {:name "liz" :job "entrepreneur"})]
+     (create-testuser {:name "robert" :job "secretary"
+		       :parent-key (:key user)})))
+  (let [an-entrepreneur (find-testuser-by-job "entrepreneur")
+	bob (find-testuser-by-name "robert")]
+    (is (= "secretary" (:job bob)))
+    (is (= "liz" (:name an-entrepreneur)))))
+
+
+  

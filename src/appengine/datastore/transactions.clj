@@ -17,25 +17,9 @@
 
 (def 
 #^{:doc 
-  "Total number of of times to try a transaction in case a 
-   DatastoreFailureException is thrown."}
-   *transaction-retries* 8)
-
-;(def 
-; #^{:doc 
-;  "List of functions for which a transaction argument is added 
-;  as part of the dotransaction macro. Note: there is no namespace check,
-;  only a simple string-compare with the names hereunder.  Be wary of 
-;  conflicts with other modules."}
-; *transaction-functions*
-; '("get-entity"
-;   "put-entity"
-;   "update-entity"
-;   "delete-entity"
-;   "find-all"
-;   "rollback-transaction"
-;   "is-transaction-active?"
-;   "create-entity"))
+  "Total number of of times to retry a transaction beyond the first
+   attempt in case a DatastoreFailureException is thrown."}
+   *transaction-retries* 4)
 
 (defn new-transaction 
   "Returns a new GAE transaction object"
@@ -60,26 +44,11 @@
   ([] (is-transaction-active? ds/*thread-local-transaction*))
   ([transaction] (.isActive transaction)))
 
-;(defn- add-transaction? 
-;  "Returns true if the function name passed in is one that supports
-;  GAE transactions"
-;  [function-name]
-;  (let [interim (some #(.endsWith (str function-name) %) *transaction-functions*)]
-;    (prn function-name " " interim)
-;    interim))
-
-;(defn- arg-adder 
-;  "Takes a zipper that refers to a syntax tree, and adds
-;  a transaction as the first argument of any functions that support
-;  GAE transactions (i.e., all the functions in *transaction-functions*)"
-;  [loc]
-;  (if (zip/end? loc)
-;    loc
-;    (if (and 
-;	 (add-transaction? (zip/node loc))
-;	 (not (zip/branch? loc)) (= nil (zip/left loc)))
-;      (recur (zip/next (zip/insert-right loc `*thread-local-transaction*)))
-;      (recur (zip/next loc)))))
+(defmacro doretries
+  "Set the number of retries for any transactions within do retries's body.
+  The first argument is the number of retries desired."
+  [num & body]
+  `(binding [*transaction-retries* ~num] (do ~@body)))
 
 (defmacro notransaction
   "Used to do no-transaction operations from within a transaction"
@@ -87,24 +56,21 @@
   `(binding [ds/*thread-local-transaction* nil] (do ~@body)))
 
 (defmacro dotransaction 
-  "Takes a body of forms (do is implied), modifies the syntax-tree
-   at compile-time to take a transaction argument for 
-   any function that supports it (see list in *transaction-functions)),
-   at runtime executes the functions with a newly created transaction
+  "Takes a body of forms (do is implied) and at runtime executes 
+   the body of forms with a newly created transaction
    (one per thread per dotransaction).  In case of a 
    DatastoreFailureException which is not caught by the user's code,
-   retry the transaction a total of *transaction-retries* times 
+   retry the transaction *transaction-retries* times 
    and throw the last DatastoreFailureException in case of 
    ultimate failure despite the retries.  Returns the value of the
-   last form passed in in case of success."
+   result of the last form."
   [& body]
-;  (let [form-zipper (zip/seq-zip body)
-;	new-form (zip/root (arg-adder form-zipper))] 
   `(loop [retries-left# *transaction-retries*]
      (let [status-and-result# 
 	   (try 
 	    (binding [ds/*thread-local-transaction* (new-transaction)]
-	      (let [result# (do ~@body)]
+	      (let [result# (do 
+			      ~@body)]
 		;; check there has not been a user rollback/commit
 		(if (.isActive ds/*thread-local-transaction*) 
 		  (.commit ds/*thread-local-transaction*))
