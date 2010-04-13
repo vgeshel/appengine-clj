@@ -28,11 +28,19 @@
 
 (defn rollback-transaction 
   "Can be used optionally to rollback a transaction.  
-  Use only within with-transaction. E.g., pseudo-code:
-  (with-transaction (try .... (catch ConcurrentModificationException e
-                             (if (is-transaction-active?)
-                                (rollback-transaction) 
-                                (throw (CustomException.))))))
+  Use only within with-transaction.
+
+  (let [[k1 k2] (tr/with-transaction
+		 (let [forget1 (ds/create-entity 
+				{:kind \"Person\" :name \"ForgetMe1\"})
+		       forget2 (ds/create-entity 
+				{:kind \"Person\" :name \"ForgetMe2\"
+				 :parent-key (:key forget1)})]
+		   (tr/rollback-transaction)
+		   [(:key forget1) (:key forget2)]))]
+    (is (thrown? EntityNotFoundException (ds/get-entity k1)))
+    (is (thrown? EntityNotFoundException (ds/get-entity k2)))))
+
   Note that the correct transaction is substituted in by the 
   with-transaction macro."
   ([] (rollback-transaction ds/*thread-local-transaction*))
@@ -47,7 +55,16 @@
 
 (defmacro with-retries
   "Set the number of retries for any transactions within do retries's body.
-  The first argument is the number of retries desired."
+  The first argument is the number of retries desired.  Must be used
+  outside of the with-transaction macro.
+
+  ;; try to create parent and child a maximum of three times
+  (tr/with-retries 2
+    (tr/with-transaction
+      (let [parent (ds/create-entity {:kind \"Person\" :name \"Jennifer\"})
+            child (ds/create-entity {:kind \"Person\" :name \"Robert\"
+                                     :parent-key (:key parent)})]
+       [parent child])))"  
   [num & body]
   `(binding [*transaction-retries* ~num] (do ~@body)))
 
@@ -55,7 +72,18 @@
   "Used to do no-transaction operations from within a transaction.
    Should be used within a try to catch any DatastoreFailureException
    or ConcurrentModificationException or other exceptions so that 
-   these do not interfere with the encompassing transaction."
+   these do not interfere with the encompassing transaction.
+
+   (with-transaction
+     (let [parent (ds/create-entity {:kind \"Person\" :name \"Jennifer\"})
+           stranger (try 
+                      (without-transaction
+                        (ds/create-entity {:kind \"Person\" :name \"Chris\"}))
+                      (catch Exception e nil))
+           child (ds/create-entity {:kind \"Person\" :name \"Robert\"
+                                    :parent-key (:key parent)})]
+     ... do something with parent, stranger, child ...
+    ))"
   [& body]
   `(binding [ds/*thread-local-transaction* nil] (do ~@body)))
 
@@ -67,7 +95,13 @@
    retry the transaction *transaction-retries* times 
    and throw the last DatastoreFailureException in case of 
    ultimate failure despite the retries.  Returns the value of the
-   result of the last form."
+   result of the last form.
+
+   (with-transaction
+     (let [parent (ds/create-entity {:kind \"Person\" :name \"Jennifer\"})
+           child (ds/create-entity {:kind \"Person\" :name \"Robert\"
+                                    :parent-key (:key parent)})]
+       [parent child]))"
   [& body]
   `(loop [retries-left# *transaction-retries*]
      (let [status-and-result# 

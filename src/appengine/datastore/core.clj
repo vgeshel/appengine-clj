@@ -127,9 +127,9 @@
   PersistentHashMap with a :key keyword, or an ISeq of keys, in which 
   case a PersistentHashMap of appengine Keys to PersistentHashmaps of
   Entities is returned."
-  (fn [& args] (if (second args) (class (second args)) false)))
+  (fn [& args] (if (second args) (class (second args)) :add-transaction)))
 
-(defmethod get-entity false
+(defmethod get-entity :add-transaction
   [identifier] (get-entity *thread-local-transaction* (if (nil? identifier) 
 							{} identifier)))
 
@@ -160,9 +160,9 @@
   "Puts the given record into the datastore and returns a
   PersistentHashMap of the record. The record must be an instance of
   Entity or PersistentHashMap."
-  (fn [& args] (if (second args) (class (second args)) false)))
+  (fn [& args] (if (second args) (class (second args)) :add-transaction)))
 
-(defmethod put-entity false
+(defmethod put-entity :add-transaction
    [identifier] (put-entity *thread-local-transaction* (if (nil? identifier) 
 							 {} identifier)))
 
@@ -200,9 +200,9 @@
   values is :remove, then the correponding property name is removed 
   from that entity.  If one of the attributes't values is nil, then the 
   corresponding property name is set to Java's null for that property."
-  (fn [arg & args] (if (second args) (class (first args)) false)))
+  (fn [arg & args] (if (second args) (class (first args)) :add-transaction)))
 
-(defmethod update-entity false
+(defmethod update-entity :add-transaction
   [identifier attributes] (update-entity *thread-local-transaction*
 					 (if (nil? identifier) {} identifier)
 					 attributes))
@@ -225,7 +225,7 @@
 
 (defmulti delete-entity 
   "Deletes the record."
-  (fn [& args] (if (second args) (class (second args)) false)))
+  (fn [& args] (if (second args) (class (second args)) :add-transaction)))
 
 ;; Uses the boolean value false from the multimethod to catch
 ;; all calls where no transaction has been specified. Set
@@ -234,7 +234,7 @@
 ;; as a request to create a per-request-only transaction.
 ;;
 ;; same basic principle behind update, put, create, etc. 
-(defmethod delete-entity false
+(defmethod delete-entity :add-transaction
   [identifier] (delete-entity *thread-local-transaction* (if (nil? identifier) 
 							   {} identifier)))
 

@@ -25,8 +25,7 @@
 				     Query$FilterOperator/EQUAL "jane"))))))))
 
 (dstest do-rollback-in-transaction
-  (ds/create-entity {:kind "Person" :name "Keep"})
-  (let [[k1 k2] (tr/with-transaction
+   (let [[k1 k2] (tr/with-transaction
 		 (let [forget1 (ds/create-entity 
 				{:kind "Person" :name "ForgetMe1"})
 		       forget2 (ds/create-entity 
