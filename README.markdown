@@ -60,6 +60,57 @@ Examples:
 
 </code></pre>
 
+### appengine.datastore.transactions
+
+Transaction and retry support based on AppEngine semantics (see [DatastoreService low-level API for details](http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/datastore/DatastoreService.html)).
+
+<code>(with-transaction ...)</code> executes its body in a transaction.  In case of a DatastoreFailureException or a ConcurrentModificationException, the body's execution is retried *transaction-retries* times.  Beware that if the retry-count is reached and an exception is thrown within the body of the transaction, the transaction is thrown out of the <code>(with-transaction...)</code>.
+
+The transaction functionality works with both appengine.datastore.core and appengine.datastore.entities.
+
+Examples:
+
+<pre><code>;; Either creates both entities or neither if too many datastore exceptions.
+;; Returns the second entity, as expected.
+(with-transaction
+  (let [parent (ds/create-entity {:kind "Person" :name "jane"})]
+    (ds/create-entity {:kind "Person" :name "bob" 
+	               :parent-key (:key parent)})))
+
+;; You can set the number of retries to deviate from the default (4)
+(with-retries 2 (with-transaction ... ))</code></pre>
+
+Transactions automatically rollback as per the low-level API specs.  Additionally, appengine-clj supports manual rollback using <code>(rollback-transaction)</code>.  Within a <code>(with-transaction ...)</code>, you may check whether the current transaction is active through <code>(is-transaction-active?)</code>.  These can be used together to get consistent snapshots of parts of the datastore.
+
+<pre><code>(with-transaction
+  ...
+  (if (and something-went-wrong (is-transaction-active?))
+    (rollback-transaction)))</code></pre>
+
+You can nest transactions when working with two entity groups, but each transaction's success is independent of the other.
+
+<pre><code>(with-transaction ;; group1
+  (let [parent-group1 (ds/create-entity {:kind "Person" :name "jane"})
+        child-group1 (ds/create-entity {:kind "Child" :name "tamara"
+	             		       	:parent-key (:key parent-group1)})]
+    (with-transaction ;; nested group2
+      (let [parent-group2 (ds/create-entity {:kind "Person" :name "berni"})
+            child-group2 (ds/create-entity {:kind "Child" :name "eric"
+	             		       	:parent-key (:key parent-group2)})]
+        ...
+	))))</code></pre>
+
+You can execute datastore operations outside of the current transaction through <code>(without-transaction)</code>.  Note: <code>(without-transaction)</code> has no retry semantics and should typically be surrounded by a (try ... (catch ...)) so that errors do not affect the surrounding transaction.
+
+<pre><code>(with-transaction
+  ...
+  (try {
+    (without-transaction 
+      (ds/create-entity {:kind "Person" :name "andy"}))
+    (catch ...))
+  ...
+)</code></pre>
+
 ### appengine.users
 
 Convenience API for the
@@ -82,7 +133,7 @@ each test.
 
 ---
 
-Copyright (c) 2009, 2010 John D. Hume, Roman Scherer.
+Copyright (c) 2009, 2010 John D. Hume, Roman Scherer, Jean-Denis Greze.
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
