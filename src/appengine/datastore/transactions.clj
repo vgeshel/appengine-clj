@@ -28,30 +28,30 @@
 
 (defn rollback-transaction 
   "Can be used optionally to rollback a transaction.  
-  Use only within dotransaction. E.g., pseudo-code:
-  (dotransaction (try .... (catch ConcurrentModificationException e
+  Use only within with-transaction. E.g., pseudo-code:
+  (with-transaction (try .... (catch ConcurrentModificationException e
                              (if (is-transaction-active?)
                                 (rollback-transaction) 
                                 (throw (CustomException.))))))
   Note that the correct transaction is substituted in by the 
-  dotransaction macro."
+  with-transaction macro."
   ([] (rollback-transaction ds/*thread-local-transaction*))
   ([transaction] (.rollback transaction)))
 
 (defn is-transaction-active?
   "Returns whether the current transaction is active. As with
-  rollback-transaction, should only be used from within dotransaction.
+  rollback-transaction, should only be used from within with-transaction.
   See doc of rollback-transaction for an example"
   ([] (is-transaction-active? ds/*thread-local-transaction*))
   ([transaction] (.isActive transaction)))
 
-(defmacro doretries
+(defmacro with-retries
   "Set the number of retries for any transactions within do retries's body.
   The first argument is the number of retries desired."
   [num & body]
   `(binding [*transaction-retries* ~num] (do ~@body)))
 
-(defmacro notransaction
+(defmacro without-transaction
   "Used to do no-transaction operations from within a transaction.
    Should be used within a try to catch any DatastoreFailureException
    or ConcurrentModificationException or other exceptions so that 
@@ -59,10 +59,10 @@
   [& body]
   `(binding [ds/*thread-local-transaction* nil] (do ~@body)))
 
-(defmacro dotransaction 
+(defmacro with-transaction 
   "Takes a body of forms (do is implied) and at runtime executes 
    the body of forms with a newly created transaction
-   (one per thread per dotransaction).  In case of a 
+   (one per thread per with-transaction).  In case of a 
    DatastoreFailureException which is not caught by the user's code,
    retry the transaction *transaction-retries* times 
    and throw the last DatastoreFailureException in case of 

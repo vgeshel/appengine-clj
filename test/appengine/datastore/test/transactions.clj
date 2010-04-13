@@ -10,10 +10,10 @@
 ;; appengine.datastore/core tests
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (dstest create-entity-in-transaction
-  (let [entity (tr/dotransaction 
+  (let [entity (tr/with-transaction 
 		(ds/create-entity {:kind "Person" :name "liz"}))]
     (is (= "liz" (:name entity))))
-  (let [child (tr/dotransaction
+  (let [child (tr/with-transaction
 		(let [parent (ds/create-entity {:kind "Person" :name "jane"})]
 		  (ds/create-entity {:kind "Person" :name "bob" 
 				     :parent-key (:key parent)})))]
@@ -26,7 +26,7 @@
 
 (dstest do-rollback-in-transaction
   (ds/create-entity {:kind "Person" :name "Keep"})
-  (let [[k1 k2] (tr/dotransaction
+  (let [[k1 k2] (tr/with-transaction
 		 (let [forget1 (ds/create-entity 
 				{:kind "Person" :name "ForgetMe1"})
 		       forget2 (ds/create-entity 
@@ -42,12 +42,12 @@
 
 (dstest multiple-tries-in-transaction
   (is (thrown? DatastoreFailureException
-	       (tr/dotransaction
+	       (tr/with-transaction
 		(always-fails)))))
 
 (dstest non-transaction-datastore-operations-within-transactions
   (let [[k1 k2 k3 k4] 
-	(tr/dotransaction
+	(tr/with-transaction
 	 (let [entity (ds/create-entity {:kind "Person" :name "Entity"})
 	       same-entity-group-as-entity (ds/create-entity 
 					    {:kind "Person" 
@@ -58,7 +58,7 @@
 					   :name "WrongEntityGroup"})))
 	   (map :key 
 		[entity same-entity-group-as-entity
-		 (tr/notransaction  ;; do atomic request via macro
+		 (tr/without-transaction  ;; do atomic request via macro
 		  (ds/create-entity {:kind "Person" 
 				     :name "DifferentEntityGroup"}))
 		 (ds/create-entity nil ;; do atomic request manually
@@ -71,14 +71,14 @@
 
 (dstest nested-transactions
   (let [[k1 k2 k3 k4]
-	(tr/dotransaction ;; transaction for first entity group
+	(tr/with-transaction ;; transaction for first entity group
 	 (let [entity (ds/create-entity {:kind "Person" :name "Entity"})
 	       same-entity-group-as-entity (ds/create-entity 
 					    {:kind "Person" 
 					     :name "SameEntityGroupAsEntity"
 					     :parent-key (:key entity)})
 	       [entity2 same-entity-group-as-entity2]
-		(tr/dotransaction ;; nested for a second entity group
+		(tr/with-transaction ;; nested for a second entity group
 		 (let [entity2 (ds/create-entity {:kind "Person" 
 						  :name "Entity2"})
 		       same-entity-group-as-entity2 (ds/create-entity 
@@ -95,7 +95,7 @@
 
 (dstest updates-with-transactions
   (let [entity (ds/create-entity {:kind "Person" :name "Entity"})]
-    (tr/dotransaction
+    (tr/with-transaction
      (is (= "Entity" (:name entity)))
      (ds/update-entity entity {:day-job "hacker" :favorite-sport "beach volley"})
      (ds/update-entity entity {:day-job "entrepreneur" :night-job "hacker++"})))
@@ -116,16 +116,16 @@
 (dstest deletes-with-transactions
   (let [entity (ds/create-entity {:kind "Person" :name "Entity"})
 	entity2 (ds/create-entity {:kind "Person" :name "Entity2"})]
-    (tr/dotransaction
+    (tr/with-transaction
      (ds/delete-entity entity)
      (is (thrown? IllegalArgumentException (ds/delete-entity entity2))))
     (is (thrown? EntityNotFoundException (ds/get-entity (:key entity))))
     (is (= "Entity2" (:name (ds/get-entity (:key entity2)))))
-    (tr/dotransaction
+    (tr/with-transaction
      (ds/delete-entity entity2)
      (tr/rollback-transaction))
     (is (= "Entity2" (:name (ds/get-entity (:key entity2)))))
-    (tr/dotransaction
+    (tr/with-transaction
      (ds/delete-entity entity2))
     (is (thrown? EntityNotFoundException (ds/get-entity (:key entity2))))))
 
@@ -160,12 +160,12 @@
       (is (= "Entity" (:name entity1?)))
       (is (= "Entity2" (:name entity2?))))))
 
-;just to show doretries was tested manually
+;just to show with-retries was tested manually
 ;(dstest doretry-transaction-manual-test
-;  (tr/doretries 2
-;		(try (tr/dotransaction
+;  (tr/with-retries 2
+;		(try (tr/with-transaction
 ;		      (always-fails)) (catch Exception e (prn "error")))
-;		(try (tr/dotransaction
+;		(try (tr/with-transaction
 ;		      (always-fails)) (catch Exception e (prn "error")))))
 
 ;; appengine.datastore/entities
@@ -178,7 +178,7 @@
 ;; it's the same deal as entities.clj relies on core.clj which
 ;; support transactions
 (dstest entities-macros-and-transactions
-  (tr/dotransaction
+  (tr/with-transaction
    (let [user (create-testuser {:name "liz" :job "entrepreneur"})]
      (create-testuser {:name "robert" :job "secretary"
 		       :parent-key (:key user)})))
