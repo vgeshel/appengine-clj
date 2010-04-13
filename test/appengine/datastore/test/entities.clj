@@ -222,3 +222,29 @@
 ;;     (println continent)
 ;;     (println country)
 ;;     (println region)))
+
+;; note: if you don't set the :key, let the datastore set it for us
+(defentity testuser ()
+  (name)
+  (job))
+
+(dstest entities-without-key-param
+  ;; create two of the same -- yet they are different because
+  ;; the appengine will give each its own unique key
+  (let [user (create-testuser {:name "liz" :job "entrepreneur"})
+	user2 (create-testuser {:name "liz" :job "entrepreneur"})]
+    (is (= (:name user) (:name user2)))
+    (is (= (:job user) (:job user2)))
+    (is (not= user user2))
+    ;; can't make a key from an entity without a :key in its definition
+    (is (nil? (make-testuser-key {:name "liz" :job "entrepreneur"})))
+    (is (= (make-testuser {:name "liz" :job "entrepreneur"})
+	   {:kind "testuser" :name "liz" :job "entrepreneur"}))
+    (update-testuser user2 {:name "bob"})
+    ;; can still do queries, make sure both users come
+    ;; back as entrepreneurs
+    (let [entrepreneurs (find-all-testusers-by-job "entrepreneur")]
+      (is (= [true true] (reduce 
+			  #(vector (or (= (:name %2) "liz") (first %1))
+				   (or (= (:name %2) "bob") (second %1)))
+			  [false false] entrepreneurs))))))
