@@ -47,68 +47,77 @@ property matches the operator."
   (str "make-" (str entity) "-key"))
 
 (defmacro def-key-fn [entity entity-keys & [parent]]
-  `(defn ~(symbol (key-fn-name entity)) [~@(compact [parent]) ~'attributes]
-     (ds/create-key
-      (:key ~parent)
-      ~(str entity)
-      (join "-" [~@(map #(list (if (keyword? %) % (keyword %)) 'attributes) entity-keys)]))))
+  (let [entity# entity entity-keys# entity-keys parent# parent]
+    `(defn ~(symbol (key-fn-name entity#)) [~@(compact [parent#]) ~'attributes]
+       (ds/create-key
+        (:key ~parent#)
+        ~(str entity#)
+        (join "-" [~@(map #(list (if (keyword? %) % (keyword %)) 'attributes) entity-keys#)])))))
 
 (defmacro def-make-fn [entity & [parent]]
   "Defines a function to build entity hashes."
-  (let [args (compact [parent 'attributes])]
-    `(defn ~(symbol (str "make-" entity)) [~@args]
+  (let [entity# entity parent# parent
+        args# (compact [parent# 'attributes])]
+    `(defn ~(symbol (str "make-" entity#)) [~@args#]
        (merge (assoc ~'attributes
-		:kind ~(str entity))
-	      (let [key# (~(symbol (key-fn-name entity)) ~@args)]
+		:kind ~(str entity#))
+	      (let [key# (~(symbol (key-fn-name entity)) ~@args#)]
 		(if-not (nil? key#) {:key key#} {}))))))
 
 (defmacro def-create-fn [entity & [parent]]
   "Defines a function to build and save entity hashes."
-  (let [args (compact [parent 'attributes])]
-    `(defn ~(symbol (str "create-" entity)) [~@args]
-       (ds/create-entity (~(symbol (str "make-" entity)) ~@args)))))
+  (let [entity# entity parent# parent
+        args# (compact [parent# 'attributes])]
+    `(defn ~(symbol (str "create-" entity#)) [~@args#]
+       (ds/create-entity (~(symbol (str "make-" entity#)) ~@args#)))))
 
 (defmacro deffilter [entity name doc-string [property operator] & [result-fn]]
   "Defines a finder function for the entity."
-  `(defn ~(symbol name) ~doc-string
-     [~property]
-     (~(or result-fn 'identity)
-      ((filter-fn '~entity '~property ~operator) ~property))))
+  (let [property# property]
+    `(defn ~(symbol name) ~doc-string
+       [~property#]
+       (~(or result-fn 'identity)
+        ((filter-fn '~entity '~property# ~operator) ~property#)))))
 
 (defmacro def-find-all-by-property-fns [entity & properties]
   "Defines a function for each property, that find all entities by a property."
-  `(do
-     ~@(for [property# properties]
-	 `(do
-	    (deffilter ~entity
-	      ~(symbol (find-entities-fn-name entity property#))
-	      ~(find-entities-fn-doc entity property#)
-	      (~property#))))))
+  (let [entity# entity]
+    `(do
+       ~@(for [property# properties]
+           `(do
+              (deffilter ~entity#
+                ~(symbol (find-entities-fn-name entity# property#))
+                ~(find-entities-fn-doc entity# property#)
+                (~property#)))))))
 
 (defmacro def-find-first-by-property-fns [entity & properties]
   "Defines a function for each property, that finds the first entitiy by a property."
-  `(do
-     ~@(for [property# properties]
-	 `(do
-	    (deffilter ~entity
-	      ~(symbol (find-entity-fn-name entity property#))
-	      ~(find-entity-fn-doc entity property#)
-	      (~property#) first)))))
+  (let [entity# entity]
+    `(do
+       ~@(for [property# properties]
+           `(do
+              (deffilter ~entity#
+                ~(symbol (find-entity-fn-name entity# property#))
+                ~(find-entity-fn-doc entity# property#)
+                (~property#) first))))))
 
 (defmacro def-delete-fn [entity]
   "Defines a delete function for the entity."
-  `(defn ~(symbol (str "delete-" entity)) [& ~'args]
-     (ds/delete-entity ~'args)))
+  (let [entity# entity]
+    `(defn ~(symbol (str "delete-" entity#)) [& ~'args]
+       (ds/delete-entity ~'args))))
 
 (defmacro def-find-all-fn [entity]
   "Defines a function that returns all entities."
-  `(defn ~(symbol (str "find-" (pluralize (str entity)))) []
-     (ds/find-all (Query. ~(str entity)))))
+  (let [entity# entity]
+    `(defn ~(symbol (str "find-" (pluralize (str entity#)))) []
+       (ds/find-all (Query. ~(str entity#))))))
 
 (defmacro def-update-fn [entity]
   "Defines an update function for the entity."
-  `(defn ~(symbol (str "update-" entity)) [~entity ~'properties]
-     (ds/update-entity ~entity ~'properties)))
+  (let [entity# entity]
+    `(defn ~(symbol (str "update-" entity#)) [~entity# ~'properties]
+       (ds/update-entity ~entity ~'properties))))
 
 (defmacro defentity [entity parent & properties]
   "Defines helper functions for the entity. Note that
@@ -116,12 +125,13 @@ property matches the operator."
    store will create a unique key for this object.  However
    note that the result of calling make-*entity*-key for any 
    such object is nil and not a proper key."
-  `(do
-     (def-key-fn ~entity ~(entity-keys properties) ~@parent)
-     (def-make-fn ~entity ~@parent)
-     (def-create-fn ~entity ~@parent)
-     (def-delete-fn ~entity)
-     (def-find-all-by-property-fns ~entity ~@(map first properties))
-     (def-find-all-fn ~entity)
-     (def-find-first-by-property-fns ~entity ~@(map first properties))
-     (def-update-fn ~entity)))
+  (let [entity# entity parent# parent properties# properties]
+    `(do
+       (def-key-fn ~entity# ~(entity-keys properties) ~@parent#)
+       (def-make-fn ~entity# ~@parent#)
+       (def-create-fn ~entity# ~@parent#)
+       (def-delete-fn ~entity#)
+       (def-find-all-by-property-fns ~entity# ~@(map first properties#))
+       (def-find-all-fn ~entity#)
+       (def-find-first-by-property-fns ~entity# ~@(map first properties#))
+       (def-update-fn ~entity#))))
