@@ -47,12 +47,15 @@ property matches the operator."
   (str "make-" (str entity) "-key"))
 
 (defmacro def-key-fn [entity entity-keys & [parent]]
+  "Defines a function to build a key from the entity-keys
+propertoes. If entity-keys is empty the fn returns nil."
   (let [entity# entity entity-keys# entity-keys parent# parent]
     `(defn ~(symbol (key-fn-name entity#)) [~@(compact [parent#]) ~'attributes]
-       (ds/create-key
-        (:key ~parent#)
-        ~(str entity#)
-        (join "-" [~@(map #(list (if (keyword? %) % (keyword %)) 'attributes) entity-keys#)])))))
+       ~(if-not (empty? entity-keys#)
+          `(ds/create-key
+            (:key ~parent#)
+            ~(str entity#)
+            (join "-" [~@(map #(list (if (keyword? %) % (keyword %)) 'attributes) entity-keys#)]))))))
 
 (defmacro def-make-fn [entity & [parent]]
   "Defines a function to build entity hashes."

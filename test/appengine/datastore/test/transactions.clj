@@ -5,7 +5,7 @@
   (:use clojure.test
 	appengine.test-utils)
   (:import (com.google.appengine.api.datastore EntityNotFoundException
-	    Query DatastoreFailureException Query$FilterOperator)))
+                                               Query DatastoreFailureException Query$FilterOperator)))
 
 ;; appengine.datastore/core tests
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

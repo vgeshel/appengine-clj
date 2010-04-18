@@ -112,6 +112,10 @@
     (is (= (.getId key) 0))
     (is (= (.getName key) "es"))))
 
+(dstest test-make-key-fn-without-keys
+  (def-key-fn planet [])
+  (= (nil? (make-planet-key "Earth"))))
+
 (dstest test-def-create-fn-with-continent
   (def-key-fn continent (:iso-3166-alpha-2))
   (def-make-fn continent)
@@ -203,10 +207,7 @@
     (is (= (update-country country {:name "Spain"})
            (find-country-by-name "Spain")))
     (update-country country {:name "Spain"})
-    ;; (is (= (count (find-countries)) 1))
-    ;; (println (count (find-countries)))
-    ;; (println (find-countries))
-))
+    (is (= (count (find-countries)) 1))))
 
 (dstest test-property-finder
   (deffilter continent find-all-continents-by-name
@@ -214,14 +215,6 @@
   (is (fn? find-all-continents-by-name))
   (let [continent (ds/create-entity {:kind "continent" :name "Europe"})]
     (is (= [continent] (find-all-continents-by-name (:name continent))))))
-
-;; (with-local-datastore
-;;   (let [continent (create-continent {:name "Europe" :iso-3166-alpha-2 "eu"})
-;;         country (create-country continent {:name "Spain" :iso-3166-alpha-2 "es"})
-;;         region (create-region country {:name "Galicia" :code "SP58"})]
-;;     (println continent)
-;;     (println country)
-;;     (println region)))
 
 ;; note: if you don't set the :key, let the datastore set it for us
 (defentity testuser ()

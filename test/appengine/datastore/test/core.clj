@@ -1,8 +1,6 @@
 (ns appengine.datastore.test.core
   (:require [appengine.datastore.core :as ds])
-  (:use clojure.test
-	appengine.datastore.entities
-        appengine.test-utils)
+  (:use clojure.test appengine.datastore.entities appengine.test-utils)
   (:import (com.google.appengine.api.datastore
             DatastoreServiceFactory
             Entity
@@ -93,11 +91,11 @@
   (let [continent (ds/create-entity {:key (ds/create-key "continent" "eu") :name "Europe"})
         country (ds/entity->map (ds/map->entity (ds/create-entity {:key (ds/create-key (:key continent) "country" "es") :name "Spain"})))]
     (let [key (:key country)]
-      ;; (is (.isComplete key))
+      (is (.isComplete key))
       (is (= (.getParent key) (:key continent)))
       (is (= (.getKind key) "country"))
       (is (= (.getId key) 0))
-      ;; (is (= (.getName key) "es"))
+      (is (= (.getName key) "es"))
       (is (= (class key) com.google.appengine.api.datastore.Key)))
     (is (= (:kind continent) "continent"))
     (is (= (:name continent) "Europe"))))
@@ -127,26 +125,27 @@
       (is (= (.getId parent) 0))
       (is (= (.getName parent) "eu")))))
 
-(dstest test-map->entity
-  (let [entity (ds/map->entity {:key "country" :name "Germany"})]
+(dstest test-map->entity-with-kind
+  (let [entity (ds/map->entity {:kind "continent" :name "Europe"})]
     (is (= (class entity) Entity))
-    (is (= (.getKind entity) "country"))
-    (is (= (.. entity getKey getKind) "country"))
+    (is (= (.getKind entity) "continent"))
+    (is (= (.. entity getKey getKind) "continent"))
     (is (= (.. entity getKey getId) 0))
     (is (nil? (.. entity getKey getName)))
-    (is (= (. entity getProperty "name") "Germany"))))
+    (is (= (. entity getProperty "name") "Europe"))))
 
 (dstest test-map->entity-with-key
-  (let [entity (ds/map->entity {:key (ds/create-key "country" "de") :name "Germany"})]
+  (let [entity (ds/map->entity {:key (ds/create-key "continent" "eu") :name "Europe"})]
     (is (= (class entity) Entity))
-    (is (= (.getKind entity) "country"))
-    (is (= (.. entity getKey getKind) "country"))
+    (is (= (.getKind entity) "continent"))
+    (is (= (.. entity getKey getKind) "continent"))
     (is (= (.. entity getKey getId) 0))
-    (is (= (.. entity getKey getName) "de"))
-    (is (= (. entity getProperty "name") "Germany"))))
+    (is (= (.. entity getKey getName) "eu"))
+    (is (= (. entity getProperty "name") "Europe"))))
 
-(dstest test-map->entity-with-existing
-  (let [continent (ds/map->entity (ds/create-entity {:key (ds/create-key "continent" "eu") :name "Europe"}))]
+(dstest test-map->entity-with-existing-entity
+  (let [continent (ds/create-entity {:key (ds/create-key "continent" "eu") :name "Europe"})
+        continent (ds/map->entity continent)]
     (let [key (.getKey continent)]
       (is (.isComplete key))
       (is (= (.getParent key) (:key continent)))
@@ -157,15 +156,28 @@
     (is (= (.getKind continent) "continent"))
     (is (= (. continent getProperty "name") "Europe"))))
 
-(dstest test-map->entity-with-existing-and-parent
+(dstest test-map->entity-with-parent-key
   (let [continent (ds/create-entity {:key (ds/create-key "continent" "eu") :name "Europe"})
-        country (ds/map->entity (ds/create-entity {:key (ds/create-key (:key continent) "country" "es") :name "Spain"}))]
+        country (ds/map->entity (ds/create-entity {:parent-key (:key continent) :kind "country" :name "Spain"}))]
     (let [key (.getKey country)]
-      ;; (is (.isComplete key))
+      (is (not (.isComplete key)))
       (is (= (.getParent key) (:key continent)))
       (is (= (.getKind key) "country"))
       (is (= (.getId key) 0))
-      ;; (is (= (.getName key) "es"))
+      (is (nil? (.getName key)))
+      (is (= (class key) com.google.appengine.api.datastore.Key)))
+    (is (= (.getKind country) "country"))
+    (is (= (. country getProperty "name") "Spain"))))
+
+(dstest test-map->entity-with-parent-and-key
+  (let [continent (ds/create-entity {:key (ds/create-key "continent" "eu") :name "Europe"})
+        country (ds/map->entity (ds/create-entity {:key (ds/create-key (:key continent) "country" "es") :name "Spain"}))]
+    (let [key (.getKey country)]
+      (is (.isComplete key))
+      (is (= (.getParent key) (:key continent)))
+      (is (= (.getKind key) "country"))
+      (is (= (.getId key) 0))
+      (is (= (.getName key) "es"))
       (is (= (class key) com.google.appengine.api.datastore.Key)))
     (is (= (.getKind country) "country"))
     (is (= (. country getProperty "name") "Spain"))))
@@ -236,15 +248,7 @@
         (is (= (.getName key) "de")))
       (is (= (:name country) "Germany"))
       (ds/put-entity country)
-      ;; (is (= (count (ds/find-all (Query. "country"))) 1))
-      )))
-
-;; (with-local-datastore
-;;   (let [continent (ds/put-entity {:name "Europe" :key (ds/create-key "continent" "eu")})
-;;         country (ds/put-entity {:name "Germany" :key (ds/create-key (:key continent) "country" "de")})])
-;;   ;; (println (ds/put-entity country))
-;;   ;; (println (ds/put-entity country))
-;;   )
+      (is (= (count (ds/find-all (Query. "country"))) 1)))))
 
 (dstest delete-entity-with-key
   (let [key (:key (ds/create-entity {:kind "person" :name "Bob"}))]
@@ -270,21 +274,12 @@
       (is (= (:name country) "Germany"))
       (is (= (count (ds/find-all (Query. "country"))) 1)))))
 
-;; (dstest test-update-entity-having-parent
-;;   (let [continent (ds/put-entity {:key (ds/create-key "continent" "eu") :name "Europe"})
-;;         country (ds/put-entity {:key (ds/create-key (:key continent) "country" "de") :name "Deutschland"})]
-;;     (let [country (ds/update-entity country {:name "Germany"})]
-;;       (is (= (:name country) "Germany"))
-;;       (is (= (count (ds/find-all (Query. "country"))) 1)))
-;;     ))
-
-;; (with-local-datastore
-;;   (let [continent (ds/put-entity {:key (ds/create-key "continent" "eu") :name "Europe"})
-;;         country (ds/put-entity {:key (ds/create-key (:key continent) "country" "de") :name "Deutschland"})]
-;;     (println country)
-;;     (let [country (ds/update-entity country {:name "Germany"})]
-;;       (ds/find-all (Query. "country")) 1)
-;;     ))
+(dstest test-update-entity-with-parent
+  (let [continent (ds/create-entity {:key (ds/create-key "continent" "eu") :name "Europe"})
+        country (ds/create-entity {:key (ds/create-key (:key continent) "country" "de") :name "Deutschland"})]
+    (let [country (ds/update-entity country {:name "Germany"})]
+      (is (= (:name country) "Germany"))
+      (is (= (count (ds/find-all (Query. "country"))) 1)))))
 
 (dstest test-properties
   (let [record {:key (ds/create-key "person" 1) :name "Bob"}]
@@ -317,27 +312,10 @@
       (is (= "hume" (.getProperty created-entity "name")))
       (is (= 31 (.getProperty created-entity "age"))))))
 
-;; (dstest create-can-create-a-child-entity-from-a-parent-key
-;;   (let [parent (ds/create-entity {:kind "Mother" :name "mama"})
-;;         child (ds/create-entity {:kind "Child" :name "baby"} (parent :key))]
-;;     (is (= (parent :key) (.getParent (child :key))))
-;;     (is (= [child] (ds/find-all (doto (Query. "Child" (parent :key))))))))
-
 (dstest get-given-a-key-returns-a-mapified-entity
   (let [key (:key (ds/create-entity {:kind "Person" :name "cliff"}))]
     (is (= "cliff" ((ds/get-entity key) :name)))))
 
-;; test for :parent-key
-(dstest make-entity-with-parent
-  (let [parent (ds/create-entity {:kind "Person" :name "Andy" :age 31})
-	child1 (ds/create-entity {:kind "Child" :name "Liz" :age 5 
-                                  :parent-key (:key parent)})
-	child2 (ds/create-entity {:kind "Child" :name "Jane" :age 5
-                                  :parent-key (:key parent)})]
-    (is (= (:parent-key child1) (:key parent)))
-    (is (= (:parent-key child2) (:key parent)))))
-
-;; test for getting multiple keys at once from ds
 (dstest get-multiple-keys-from-ds
   (let [e1 (ds/create-entity {:kind "E" :name "e1" })
 	e2 (ds/create-entity {:kind "E" :name "e2" })
