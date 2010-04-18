@@ -24,7 +24,7 @@ Examples:
   "Creates a new Key using the given kind and identifier. If parent-key is
 given, the new key will be a child of the parent-key.
   
-   Examples:
+Examples:
 
    (create-key \"country\" \"de\")
    ; => #<Key country(\"de\")>
@@ -42,7 +42,7 @@ given, the new key will be a child of the parent-key.
 (defn key->string
   "Returns a \"websafe\" string from the given Key.
 
-   Examples:
+Examples:
 
   (key->string (create-key \"continent\" \"eu\"))
   ; => \"agR0ZXN0chELEgljb250aW5lbnQiAmV1DA\"
@@ -69,7 +69,7 @@ PersistentHashMap. The properties of the entity are stored under their
 keyword names, the entity kind under :kind and the entity key
 under :key.
 
-   Examples:
+Examples:
 
    (entity->map (doto (Entity. \"continent\") (.setProperty \"name\" \"Europe\")))
    ; => {:name \"Europe\", :kind \"continent\", :key #<Key continent(no-id-yet)>}"
@@ -84,7 +84,7 @@ under :key.
   "Converts a map or struct to an Entity. The map must have the key or
 kind of the entity stored under the :key or a :kind keywords.
 
-   Examples:
+Examples:
 
    (map->entity {:key \"continent\" :name \"Europe\"})
    ; => #<Entity <Entity [continent(no-id-yet)]:
