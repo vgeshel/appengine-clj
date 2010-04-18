@@ -1,26 +1,12 @@
 (ns appengine.datastore.transactions
-  (:require [appengine.datastore.core :as ds]
-	    [clojure.zip :as zip])
+  (:require [appengine.datastore.core :as ds])
   (:import (com.google.appengine.api.datastore DatastoreFailureException)
-	   (java.util ConcurrentModificationException)))
+	   (java.util ConcurrentModificationException))
+  (:use [clojure.contrib.def :only (defvar)]))
 
-;; WARNING: Currently
-;; Be careful when doing calls to the ds through other functions.  
-;; Use *thread-local-transaction* when designing new functions 
-;; to get the current transaction for the current thread 
-;; (may be nil; the datastore treats passing in
-;; a nil transaction as a request to create a new transaction for 
-;; that request only).
-;;
-;; See http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/datastore/DatastoreService.html
-;; and
-;; http://books.google.fr/books?id=6cL_kCZ4NJ4C&pg=PA173&lpg=PA173&dq=null+transaction+google+appengine&source=bl&ots=sIibLUPUdj&sig=3Iy0rbJh4HAjbMudnWrj_RlgGtc&hl=en&ei=sHXCS4z1DYn80wT45oGnCQ&sa=X&oi=book_result&ct=result&resnum=7&ved=0CBkQ6AEwBjgK#v=onepage&q&f=false
-
-(def 
-#^{:doc 
+(defvar *transaction-retries* 4
   "Total number of of times to retry a transaction beyond the first
-   attempt in case a DatastoreFailureException is thrown."}
-   *transaction-retries* 4)
+  attempt in case a DatastoreFailureException is thrown.")
 
 (defn new-transaction 
   "Returns a new GAE transaction object"
@@ -43,14 +29,14 @@
 
   Note that the correct transaction is substituted in by the 
   with-transaction macro."
-  ([] (rollback-transaction ds/*thread-local-transaction*))
+  ([] (rollback-transaction ds/*transaction*))
   ([transaction] (.rollback transaction)))
 
 (defn is-transaction-active?
   "Returns whether the current transaction is active. As with
   rollback-transaction, should only be used from within with-transaction.
   See doc of rollback-transaction for an example"
-  ([] (is-transaction-active? ds/*thread-local-transaction*))
+  ([] (is-transaction-active? ds/*transaction*))
   ([transaction] (.isActive transaction)))
 
 (defmacro with-retries
@@ -85,7 +71,7 @@
      ... do something with parent, stranger, child ...
     ))"
   [& body]
-  `(binding [ds/*thread-local-transaction* nil] (do ~@body)))
+  `(binding [ds/*transaction* nil] (do ~@body)))
 
 (defmacro with-transaction 
   "Takes a body of forms (do is implied) and at runtime executes 
@@ -106,12 +92,12 @@
   `(loop [retries-left# *transaction-retries*]
      (let [status-and-result# 
 	   (try 
-	    (binding [ds/*thread-local-transaction* (new-transaction)]
+	    (binding [ds/*transaction* (new-transaction)]
 	      (let [result# (do 
 			      ~@body)]
 		;; check there has not been a user rollback/commit
-		(if (.isActive ds/*thread-local-transaction*) 
-		  (.commit ds/*thread-local-transaction*))
+		(if (.isActive ds/*transaction*) 
+		  (.commit ds/*transaction*))
 		[true result#])
 	      (catch DatastoreFailureException e# 
 		(if (zero? retries-left#) 

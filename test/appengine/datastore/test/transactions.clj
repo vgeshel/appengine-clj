@@ -45,7 +45,7 @@
 		(always-fails)))))
 
 (dstest non-transaction-datastore-operations-within-transactions
-  (let [[k1 k2 k3 k4] 
+  (let [[k1 k2 k3] 
 	(tr/with-transaction
 	 (let [entity (ds/create-entity {:kind "Person" :name "Entity"})
 	       same-entity-group-as-entity (ds/create-entity 
@@ -59,14 +59,10 @@
 		[entity same-entity-group-as-entity
 		 (tr/without-transaction  ;; do atomic request via macro
 		  (ds/create-entity {:kind "Person" 
-				     :name "DifferentEntityGroup"}))
-		 (ds/create-entity nil ;; do atomic request manually
-				   {:kind "Person"
-				    :name "CanDoItManuallyAsWell"})])))]
+				     :name "DifferentEntityGroup"}))])))]
     (is (= "Entity" (:name (ds/get-entity k1))))
     (is (= "SameEntityGroupAsEntity" (:name (ds/get-entity k2))))
-    (is (= "DifferentEntityGroup" (:name (ds/get-entity k3))))
-    (is (= "CanDoItManuallyAsWell" (:name (ds/get-entity k4))))))
+    (is (= "DifferentEntityGroup" (:name (ds/get-entity k3))))))
 
 (dstest nested-transactions
   (let [[k1 k2 k3 k4]
@@ -128,36 +124,36 @@
      (ds/delete-entity entity2))
     (is (thrown? EntityNotFoundException (ds/get-entity (:key entity2))))))
 
-;; We can also do transactions manually if we so wish
-(dstest manual-transactions
-  (let [transaction (.beginTransaction (ds/datastore)) ;; manually create tr
-	entity (ds/create-entity transaction {:kind "Person" :name "Entity"})
-	entity2 (ds/create-entity transaction {:kind "Person" :name "Entity2"
-					       :parent-key (:key entity)})
-    ;; transaction not committed so these should not be in ds yet
-	[entity1?] (ds/find-all
-		    (doto (Query. "Person")
-		      (.addFilter "name" 
-				  Query$FilterOperator/EQUAL "Entity")))
-	[entity2?] (ds/find-all
-		    (doto (Query. "Person")
-		      (.addFilter "name" 
-				  Query$FilterOperator/EQUAL "Entity2")))]
-    (is (nil? entity1?))
-    (is (nil? entity2?))
-    ;; now commit
-    (.commit transaction)
-    (let [[entity1?] (ds/find-all
-		      (doto (Query. "Person")
-			(.addFilter "name" 
-				    Query$FilterOperator/EQUAL "Entity")))
-	  [entity2?] (ds/find-all
-		      (doto (Query. "Person")
-			(.addFilter "name" 
-				   Query$FilterOperator/EQUAL "Entity2")))]
-      ;; post-commit we find the entities
-      (is (= "Entity" (:name entity1?)))
-      (is (= "Entity2" (:name entity2?))))))
+;; ;; We can also do transactions manually if we so wish
+;; (dstest manual-transactions
+;;   (let [transaction (.beginTransaction (ds/datastore)) ;; manually create tr
+;; 	entity (ds/create-entity transaction {:kind "Person" :name "Entity"})
+;; 	entity2 (ds/create-entity transaction {:kind "Person" :name "Entity2"
+;; 					       :parent-key (:key entity)})
+;;     ;; transaction not committed so these should not be in ds yet
+;; 	[entity1?] (ds/find-all
+;; 		    (doto (Query. "Person")
+;; 		      (.addFilter "name" 
+;; 				  Query$FilterOperator/EQUAL "Entity")))
+;; 	[entity2?] (ds/find-all
+;; 		    (doto (Query. "Person")
+;; 		      (.addFilter "name" 
+;; 				  Query$FilterOperator/EQUAL "Entity2")))]
+;;     (is (nil? entity1?))
+;;     (is (nil? entity2?))
+;;     ;; now commit
+;;     (.commit transaction)
+;;     (let [[entity1?] (ds/find-all
+;; 		      (doto (Query. "Person")
+;; 			(.addFilter "name" 
+;; 				    Query$FilterOperator/EQUAL "Entity")))
+;; 	  [entity2?] (ds/find-all
+;; 		      (doto (Query. "Person")
+;; 			(.addFilter "name" 
+;; 				   Query$FilterOperator/EQUAL "Entity2")))]
+;;       ;; post-commit we find the entities
+;;       (is (= "Entity" (:name entity1?)))
+;;       (is (= "Entity2" (:name entity2?))))))
 
 ;just to show with-retries was tested manually
 ;(dstest doretry-transaction-manual-test
