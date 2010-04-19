@@ -163,6 +163,21 @@
     (is (= (:iso-3166-alpha-2 country) "es"))
     (is (= (:name country) "Spain"))))
 
+(dstest test-def-create-fn-with-create-region
+  (let [continent (create-continent {:iso-3166-alpha-2 "eu" :name "Europe"})
+        country (create-country continent {:iso-3166-alpha-2 "es" :name "Spain"})
+        region (create-region country {:code "es.58" :name "Galicia"})]
+    (let [key (:key region)]
+      (is (= (class key) com.google.appengine.api.datastore.Key))
+      (is (.isComplete key))
+      (is (= (.getParent key) (:key country)))    
+      (is (= (.getKind key) "region"))
+      (is (= (.getId key) 0))
+      (is (= (.getName key) "es.58")))
+    (is (= (:kind region) "region"))
+    (is (= (:code region) "es.58"))
+    (is (= (:name region) "Galicia"))))
+
 (dstest test-def-make-fn-continent-with-continent
   (def-key-fn continent (:iso-3166-alpha-2))
   (def-make-fn continent)
