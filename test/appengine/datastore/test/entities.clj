@@ -112,6 +112,17 @@
     (is (= (.getId key) 0))
     (is (= (.getName key) "es"))))
 
+(dstest test-make-region-key
+  (let [continent {:key (make-continent-key {:iso-3166-alpha-2 "eu"})}
+        country {:key (make-country-key continent {:iso-3166-alpha-2 "es"})}
+        key (make-region-key country {:code "es.58"})]
+    (is (= (class key) com.google.appengine.api.datastore.Key))
+    (is (.isComplete key))
+    (is (= (.getParent key) (:key country)))    
+    (is (= (.getKind key) "region"))
+    (is (= (.getId key) 0))
+    (is (= (.getName key) "es.58"))))
+
 (dstest test-make-key-fn-without-keys
   (def-key-fn planet [])
   (= (nil? (make-planet-key "Earth"))))
