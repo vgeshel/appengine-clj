@@ -1,7 +1,7 @@
 (ns appengine.datastore.test.entities
   (:require [appengine.datastore.core :as ds])
   (:use appengine.datastore.entities
-        appengine.test-utils
+        appengine.test-utils.datastore
         clojure.test))
 
 (refer-private 'appengine.datastore.entities)

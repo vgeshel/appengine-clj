@@ -1,7 +1,7 @@
 (ns appengine.datastore.core
   (:import (com.google.appengine.api.datastore
             DatastoreConfig DatastoreServiceFactory 
-	    Entity Key Query KeyFactory Transaction))
+            Entity Key Query KeyFactory Transaction))
   (:use [clojure.contrib.def :only (defvar)]))
 
 (defvar *transaction* nil

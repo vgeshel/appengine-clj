@@ -1,11 +1,14 @@
 (ns appengine.datastore.test.transactions
   (:require [appengine.datastore.core :as ds]
-	    [appengine.datastore.transactions :as tr]
-	    [appengine.datastore.entities :as en])
+            [appengine.datastore.transactions :as tr]
+            [appengine.datastore.entities :as en])
   (:use clojure.test
-	appengine.test-utils)
-  (:import (com.google.appengine.api.datastore EntityNotFoundException
-                                               Query DatastoreFailureException Query$FilterOperator)))
+        appengine.test-utils.datastore)
+  (:import (com.google.appengine.api.datastore
+            EntityNotFoundException
+            Query
+            DatastoreFailureException
+            Query$FilterOperator)))
 
 ;; appengine.datastore/core tests
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
