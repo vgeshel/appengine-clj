@@ -47,15 +47,15 @@
 
 (defn set-value
   ([#^Key key value expiration] (put-value key value expiration :set))
-  ([#^Key key value] (set-value key value nil :set)))
+  ([#^Key key value] (set-value key value nil)))
 
 (defn add-value
   ([#^Key key value expiration] (put-value key value expiration :add))
-  ([#^Key key value] (add-value key value nil :add)))
+  ([#^Key key value] (add-value key value nil)))
 
 (defn replace-value
   ([#^Key key value expiration] (put-value key value expiration :replace))
-  ([#^Key key value] (replace-value key value nil :replace)))
+  ([#^Key key value] (replace-value key value nil)))
 
 (defn delete-value [#^Key key ms]
   (.delete (memcache) key ms))
