@@ -36,7 +36,7 @@
    (or (nil? amount) (= 0 amount)) nil
    (= (class amount) com.google.appengine.api.memcache.Expiration) amount
    (= (class amount) java.util.Date) (Expiration/onDate amount)
-   (> amount (* 86400 30)) (Expiration/onDate (java.util.Date. (* amount 1000)))
+   (> amount (* 86400 30)) (Expiration/onDate (java.util.Date. (+ (System/currentTimeMillis) (* amount 1000))))
    :else (Expiration/byDeltaMillis (* amount 1000))))
 
 (defn put-value
