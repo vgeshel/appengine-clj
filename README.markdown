@@ -118,6 +118,7 @@ A convenience API for the [com.google.appengine.api.memcache](http://code.google
 Example:
     (put-value "name" "Monkey D. Luffy") ;; save value
     (get-value "name") ;;=> "Monkey D. Luffy"
+    (delete-value "name")
     
     ;; with Expiretaion
     (put-value "bounty" 100000000 3600) ;; expire after 1h
@@ -158,7 +159,7 @@ Provides setup an local Memcache service for use in tests or from a REPL. You ca
 
 ---
 
-Copyright (c) 2009, 2010 John D. Hume, Roman Scherer, Jean-Denis Greze.
+Copyright (c) 2009, 2010 John D. Hume, Roman Scherer, Jean-Denis Greze, 深町英太郎(E.Fukamachi).
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
