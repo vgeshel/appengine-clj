@@ -111,6 +111,29 @@ You can execute datastore operations outside of the current transaction through 
   ...
 )</code></pre>
 
+### appengine.memcache
+
+A convenience API for the [com.google.appengine.api.memcache](http://code.google.com/intl/ja/appengine/docs/java/javadoc/index.html?com/google/appengine/api/memcache/package-tree.html) package providing access to Google's memcache.
+
+Example:
+    (put-value "name" "Monkey D. Luffy") ;; save value
+    (get-value "name") ;;=> "Monkey D. Luffy"
+    
+    ;; with Expiretaion
+    (put-value "bounty" 100000000 3600) ;; expire after 1h
+    (put-value "bounty" 100000000 (Date. 2010 10 3)) ;; specify expire date
+    
+    ;; with Policy
+    (add-value "ability" "GomGom") ;; add only if not present
+    (replace-value "bounty" 300000000) ;; replace only if present
+    (set-value "sex" "male") ;; set always (same as put-value)
+    
+    ;; inc/dec value
+    (put-value "member-count" 8)
+    (inc-value "member-count") ;;=> 9
+    (dec-value "member-count") ;;=> 8
+    (inc-value "member-count" 10) ;;=> 18
+
 ### appengine.users
 
 Convenience API for the
@@ -122,14 +145,16 @@ the current user and a UserService.  For a more functional approach, a
 Ring middlware function is provided to assoc the user info into every
 request under the key :appengine-clj/user-info.
 
-
-
-### appengine.test-utils
+### appengine.test-utils.datastore
 
 Provides setup and teardown of an in-memory Datastore for use in tests
 or from a REPL.  If you're using <code>clojure.contrib.test-is</code>,
 you can use the <code>dstest</code> macro to get a fresh Datastore for
 each test.
+
+### appengine.test-utils.memcache
+
+Provides setup an local Memcache service for use in tests or from a REPL. You can use the <code>mctest</code> macro to get a fresh Memcache for each tests.
 
 ---
 

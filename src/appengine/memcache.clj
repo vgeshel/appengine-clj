@@ -6,6 +6,7 @@
             MemcacheService$SetPolicy]))
 
 (defn memcache []
+  "Create a MemcacheService"
   (MemcacheServiceFactory/getMemcacheService))
 
 (defn clear-all []
@@ -21,15 +22,15 @@
        :bytes (.getTotalItemBytes stats)
        :oldest-item-age (/ (.getMaxTimeWithoutAccess stats) 1000.0)})))
 
-(defn get-value [#^Key key]
+(defn get-value [key]
   (.get (memcache) key))
 
 (defn get-native-policy [policy-keyword]
   (condp = policy-keyword
-      :add MemcacheService$SetPolicy/ADD_ONLY_IF_NOT_PRESENT
-      :replace MemcacheService$SetPolicy/REPLACE_ONLY_IF_PRESENT
-      :set MemcacheService$SetPolicy/SET_ALWAYS
-      MemcacheService$SetPolicy/SET_ALWAYS))
+    :add MemcacheService$SetPolicy/ADD_ONLY_IF_NOT_PRESENT
+    :replace MemcacheService$SetPolicy/REPLACE_ONLY_IF_PRESENT
+    :set MemcacheService$SetPolicy/SET_ALWAYS
+    MemcacheService$SetPolicy/SET_ALWAYS))
 
 (defn get-expiration [amount]
   (cond
@@ -40,21 +41,25 @@
    :else (Expiration/byDeltaMillis (* amount 1000))))
 
 (defn put-value
-  ([#^Key key value expiration policy] (.put (memcache) key value (get-expiration expiration) (get-native-policy policy)))
-  ([#^Key key value expiration] (put-value key value expiration :set))
-  ([#^Key key value] (put-value key value nil :set)))
+  "Save function for general purpose. set always when not specified policy"
+  ([key value expiration policy] (.put (memcache) key value (get-expiration expiration) (get-native-policy policy)))
+  ([key value expiration] (put-value key value expiration :set))
+  ([key value] (put-value key value nil :set)))
 
 (defn set-value
-  ([#^Key key value expiration] (put-value key value expiration :set))
-  ([#^Key key value] (set-value key value nil)))
+  "Same as put-value"
+  ([key value expiration] (put-value key value expiration :set))
+  ([key value] (set-value key value nil)))
 
 (defn add-value
-  ([#^Key key value expiration] (put-value key value expiration :add))
-  ([#^Key key value] (add-value key value nil)))
+  "Saves value only if not present"
+  ([key value expiration] (put-value key value expiration :add))
+  ([key value] (add-value key value nil)))
 
 (defn replace-value
-  ([#^Key key value expiration] (put-value key value expiration :replace))
-  ([#^Key key value] (replace-value key value nil)))
+  "Replace value only if present"
+  ([key value expiration] (put-value key value expiration :replace))
+  ([key value] (replace-value key value nil)))
 
 (defn delete-value [#^Key key ms]
   (.delete (memcache) key ms))
