@@ -3,6 +3,7 @@
   (:use clojure.test
         appengine.test-utils.memcache)
   (:import [com.google.appengine.api.memcache
+            Expiration
             MemcacheServiceFactory
             MemcacheService]))
 
@@ -47,5 +48,15 @@
   (mc/dec-value "age")
   (is (mc/get-value "age") 22))
 
-;(mctest test-expiration
-;  (mc/put-value "age" 22 )
+(mctest test-get-expiration
+  (is (= (mc/get-expiration nil) nil))
+  (is (= (mc/get-expiration 0) nil))
+  (let [exp (Expiration/byDeltaMillis 1000)]
+    (is (= (mc/get-expiration exp) exp)))
+  (let [date (java.util.Date. 2009 10 3)
+        exp (mc/get-expiration date)]
+    (is (= (.getMillisecondsValue exp) (.getTime date))))
+  (let [delay 10
+        exp (mc/get-expiration delay)]
+    (is (= (.getMillisecondsValue exp) (+ (* delay 1000) (.getTime (java.util.Date.))))))
+  (is (= (class (mc/get-expiration 10)) com.google.appengine.api.memcache.Expiration)))

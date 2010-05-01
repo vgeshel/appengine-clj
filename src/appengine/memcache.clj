@@ -1,6 +1,5 @@
 (ns appengine.memcache
-  (:import java.util.Date
-           [com.google.appengine.api.memcache
+  (:import [com.google.appengine.api.memcache
             Expiration
             MemcacheServiceFactory
             MemcacheService
@@ -35,9 +34,9 @@
 (defn get-expiration [amount]
   (cond
    (or (nil? amount) (= 0 amount)) nil
-   (= (class amount) 'Expiration) amount
-   (= (class amount) 'Date) (Expiration/onDate amount)
-   (> amount (* 86400 30)) (Expiration/onDate (Date. (* amount 1000)))
+   (= (class amount) com.google.appengine.api.memcache.Expiration) amount
+   (= (class amount) java.util.Date) (Expiration/onDate amount)
+   (> amount (* 86400 30)) (Expiration/onDate (java.util.Date. (* amount 1000)))
    :else (Expiration/byDeltaMillis (* amount 1000))))
 
 (defn put-value
