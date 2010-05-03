@@ -1,6 +1,5 @@
 # Clojure library for Google App Engine
 
-
 This library is a Clojure API for [Google App
 Engine](http://code.google.com/appengine). It is based on John Hume's
 [appengine-clj](http://github.com/duelinmarkers/appengine-clj) and has
@@ -16,11 +15,8 @@ you to work with immutable data structures instead of mutable Entity
 instances.
 
 Example:
-
-<pre><code>
-(create-entity {:kind "continent" :name "Europe"})
-=> {:kind "country" :key #<Key Person(1138)> :name "Europe"}
-</code></pre>
+    (create-entity {:kind "continent" :name "Europe"})
+    => {:kind "country" :key #<Key Person(1138)> :name "Europe"}
 
 ### appengine.datastore.entities
 
@@ -28,37 +24,32 @@ A convenience API for the appengine.datastore namespace. Entity helper
 functions can be generated with the <code>defentity</code> macro.
 
 Examples:
-
-<pre><code>
-
-(defentity continent ()
-  (iso-3166-alpha-2 :key true)
-  (name))
-
-(defentity country (continent)
-  (iso-3166-alpha-2 :key true)
-  (iso-3166-alpha-3)
-  (name))
-
-(defentity region (country)
-  (code :key true)
-  (name))
-
-(with-local-datastore
-  (let [continent (create-continent {:name "Europe" :iso-3166-alpha-2 "eu"})
-        country (create-country continent {:name "Spain" :iso-3166-alpha-2 "es"})
-        region (create-region country {:name "Galicia" :code "SP58"})]
-    (println continent)
-    (println country)
-    (println region)))
-
-; this prints: 
-
-{:name Europe, :iso-3166-alpha-2 eu, :kind continent, :key #<Key continent("eu")>}
-{:name Spain, :iso-3166-alpha-2 es, :parent-key #<Key continent("eu")>, :kind country, :key #<Key continent("eu")/country("es")>}
-{:code SP58, :name Galicia, :parent-key #<Key continent("eu")/country("es")>, :kind region, :key #<Key continent("eu")/country("es")/region("SP58")>}
-
-</code></pre>
+    (defentity continent ()
+      (iso-3166-alpha-2 :key true)
+      (name))
+     
+    (defentity country (continent)
+      (iso-3166-alpha-2 :key true)
+      (iso-3166-alpha-3)
+      (name))
+     
+    (defentity region (country)
+      (code :key true)
+      (name))
+     
+    (with-local-datastore
+      (let [continent (create-continent {:name "Europe" :iso-3166-alpha-2 "eu"})
+            country (create-country continent {:name "Spain" :iso-3166-alpha-2 "es"})
+            region (create-region country {:name "Galicia" :code "SP58"})]
+        (println continent)
+        (println country)
+        (println region)))
+     
+    ; this prints: 
+     
+    {:name Europe, :iso-3166-alpha-2 eu, :kind continent, :key #<Key continent("eu")>}
+    {:name Spain, :iso-3166-alpha-2 es, :parent-key #<Key continent("eu")>, :kind country, :key #<Key continent("eu")/country("es")>}
+    {:code SP58, :name Galicia, :parent-key #<Key continent("eu")/country("es")>, :kind region, :key #<Key continent("eu")/country("es")/region("SP58")>}
 
 ### appengine.datastore.transactions
 
@@ -69,47 +60,46 @@ Transaction and retry support based on AppEngine semantics (see [DatastoreServic
 The transaction functionality works with both appengine.datastore.core and appengine.datastore.entities.
 
 Examples:
-
-<pre><code>;; Either creates both entities or neither if too many datastore exceptions.
-;; Returns the second entity, as expected.
-(with-transaction
-  (let [parent (ds/create-entity {:kind "Person" :name "jane"})]
-    (ds/create-entity {:kind "Person" :name "bob" 
-	               :parent-key (:key parent)})))
-
-;; You can set the number of retries to deviate from the default (4)
-(with-retries 2 (with-transaction ... ))</code></pre>
+    ;; Either creates both entities or neither if too many datastore exceptions.
+    ;; Returns the second entity, as expected.
+    (with-transaction
+      (let [parent (ds/create-entity {:kind "Person" :name "jane"})]
+        (ds/create-entity {:kind "Person" :name "bob" 
+                     :parent-key (:key parent)})))
+     
+    ;; You can set the number of retries to deviate from the default (4)
+    (with-retries 2 (with-transaction ... ))
 
 Transactions automatically rollback as per the low-level API specs.  Additionally, appengine-clj supports manual rollback using <code>(rollback-transaction)</code>.  Within a <code>(with-transaction ...)</code>, you may check whether the current transaction is active through <code>(is-transaction-active?)</code>.  These can be used together to get consistent snapshots of parts of the datastore.
 
-<pre><code>(with-transaction
-  ...
-  (if (and something-went-wrong (is-transaction-active?))
-    (rollback-transaction)))</code></pre>
+    (with-transaction
+      ...
+      (if (and something-went-wrong (is-transaction-active?))
+        (rollback-transaction)))
 
 You can nest transactions when working with two entity groups, but each transaction's success is independent of the other.
 
-<pre><code>(with-transaction ;; group1
-  (let [parent-group1 (ds/create-entity {:kind "Person" :name "jane"})
-        child-group1 (ds/create-entity {:kind "Child" :name "tamara"
-	             		       	:parent-key (:key parent-group1)})]
-    (with-transaction ;; nested group2
-      (let [parent-group2 (ds/create-entity {:kind "Person" :name "berni"})
-            child-group2 (ds/create-entity {:kind "Child" :name "eric"
-	             		       	:parent-key (:key parent-group2)})]
-        ...
-	))))</code></pre>
+    (with-transaction ;; group1
+      (let [parent-group1 (ds/create-entity {:kind "Person" :name "jane"})
+            child-group1 (ds/create-entity {:kind "Child" :name "tamara"
+                   		       	:parent-key (:key parent-group1)})]
+        (with-transaction ;; nested group2
+          (let [parent-group2 (ds/create-entity {:kind "Person" :name "berni"})
+                child-group2 (ds/create-entity {:kind "Child" :name "eric"
+                   		       	:parent-key (:key parent-group2)})]
+            ...
+      ))))
 
 You can execute datastore operations outside of the current transaction through <code>(without-transaction)</code>.  Note: <code>(without-transaction)</code> has no retry semantics and should typically be surrounded by a (try ... (catch ...)) so that errors do not affect the surrounding transaction.
 
-<pre><code>(with-transaction
-  ...
-  (try {
-    (without-transaction 
-      (ds/create-entity {:kind "Person" :name "andy"}))
-    (catch ...))
-  ...
-)</code></pre>
+    (with-transaction
+      ...
+      (try {
+        (without-transaction 
+          (ds/create-entity {:kind "Person" :name "andy"}))
+        (catch ...))
+      ...
+    )
 
 ### appengine.memcache
 

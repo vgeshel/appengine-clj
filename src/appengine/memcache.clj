@@ -48,18 +48,15 @@
 
 (defn set-value
   "Same as put-value"
-  ([key value expiration] (put-value key value expiration :set))
-  ([key value] (set-value key value nil)))
+  [key value & expiration] (put-value key value (first expiration) :set))
 
 (defn add-value
   "Saves value only if not present"
-  ([key value expiration] (put-value key value expiration :add))
-  ([key value] (add-value key value nil)))
+  [key value & expiration] (put-value key value (first expiration) :add))
 
 (defn replace-value
   "Replace value only if present"
-  ([key value expiration] (put-value key value expiration :replace))
-  ([key value] (replace-value key value nil)))
+  [key value expiration] (put-value key value (first expiration) :replace))
 
 (defn delete-value [#^Key key ms]
   (.delete (memcache) key ms))

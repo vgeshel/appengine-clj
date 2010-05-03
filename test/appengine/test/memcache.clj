@@ -57,10 +57,11 @@
         exp (mc/get-expiration date)]
     (is (= (.getMillisecondsValue exp) (.getTime date))))
   (let [delay 10
-        exp (mc/get-expiration delay)]
-    (is (= (.getMillisecondsValue exp) (+ (* delay 1000) (.getTime (java.util.Date.))))))
+        exp (.getSecondsValue (mc/get-expiration delay))
+        unix (+ delay (int (/ (System/currentTimeMillis) 1000)))]
+    (is (= exp unix)))
   (let [delay (+ 10 (* 86400 30))
-        unix (+ (* delay 1000) (System/currentTimeMillis))
-        exp (mc/get-expiration delay)]
-    (is (= (.getMillisecondsValue exp) unix)))
+        exp (.getSecondsValue (mc/get-expiration delay))
+        unix (+ delay (int (/ (System/currentTimeMillis) 1000)))]
+    (is (= exp unix)))
   (is (= (class (mc/get-expiration 10)) com.google.appengine.api.memcache.Expiration)))
