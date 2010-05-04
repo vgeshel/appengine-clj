@@ -1,13 +1,9 @@
 (ns appengine.test-utils.memcache
   (:use clojure.test
         appengine.test-utils)
-  (:import [com.google.appengine.tools.development.testing
-            LocalMemcacheServiceTestConfig
-            LocalServiceTestHelper]))
+  (:import [com.google.appengine.tools.development.testing LocalMemcacheServiceTestConfig]))
 
-(def test-helper
-     (LocalServiceTestHelper.
-      (into-array [(LocalMemcacheServiceTestConfig.)])))
+(def test-helper (get-test-helper (LocalMemcacheServiceTestConfig.)))
 
 (defmacro mctest [name & body]
   `(deftest ~name

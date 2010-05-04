@@ -9,9 +9,7 @@
     (when (:private (meta var))
       (intern *ns* symbol var))))
 
-(def test-helper
-     (LocalServiceTestHelper.
-      (into-array [(LocalDatastoreServiceTestConfig.)])))
+(def test-helper (get-test-helper (LocalDatastoreServiceTestConfig.)))
 
 (defmacro dstest [name & body]
   `(deftest ~name
