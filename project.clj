@@ -1,4 +1,4 @@
-(defproject org.clojars.fukamachi/appengine "0.1"
+(defproject org.clojars.fukamachi/appengine "0.1.1"
   :author "John D. Hume, Roman Scherer, Jean-Denis Greze, 深町英太郎(E. Fukamachi)"
   :description "Clojure library for Google App Engine."
   :url "http://github.com/fukamachi/appengine-clj"

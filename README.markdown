@@ -6,10 +6,16 @@ Engine](http://code.google.com/appengine). It is based on John Hume's
 some enhancements. It is heavily refactored, so don't expect
 compatibility with the original library.
 
+### What's changed? ###
+
+* fukamachi folked from [appengine-clj](http://github.com/r0man/appengine-clj)
+* added Memcache API
+* added URLFetch API
+
 ### Install
 
 [Leiningen](http://github.com/technomancy/leiningen) usage:
-    [org.clojars.fukamachi/appengine "0.1"]
+    [org.clojars.fukamachi/appengine "0.1.1"]
 
 ### appengine.datastore.core
 
@@ -131,6 +137,30 @@ Example:
     (dec-value "member-count") ;;=> 8
     (inc-value "member-count" 10) ;;=> 18
 
+### appengine.urlfetch
+
+A convenience API for the [com.google.appengine.api.urlfetch](http://code.google.com/intl/ja/appengine/docs/java/javadoc/index.html?com/google/appengine/api/urlfetch/package-tree.html) package.
+
+Example:
+    (def *url* "http://www.google.com/")
+    (fetch *url*)
+    
+    ; This returns response as map.
+    {:status-code 200,
+     :headers {:Content-Type "text/html; charset=utf-8",...}
+     :content "<html>..."}
+     
+    ; fetch with options
+    (fetch *url* {:method "POST", :follow-redirects false})
+    
+Supported Options:
+
+* method (<code>"GET"</code> by default)
+* payload
+* headers
+* allow-truncate
+* follow-redirects (<code>true</code> by default)
+
 ### appengine.users
 
 Convenience API for the
@@ -142,16 +172,12 @@ the current user and a UserService.  For a more functional approach, a
 Ring middlware function is provided to assoc the user info into every
 request under the key :appengine-clj/user-info.
 
-### appengine.test-utils.datastore
+### appengine.test-utils.*
 
-Provides setup and teardown of an in-memory Datastore for use in tests
-or from a REPL.  If you're using <code>clojure.contrib.test-is</code>,
-you can use the <code>dstest</code> macro to get a fresh Datastore for
+Provides setup and teardown of a local service for use in tests
+or from a REPL. If you're using <code>clojure.contrib.test-is</code>,
+you can use the usefull macros(<code>dstest</code>, <code>mctest</code>, <code>uftest</code>) to get a fresh environment for
 each test.
-
-### appengine.test-utils.memcache
-
-Provides setup an local Memcache service for use in tests or from a REPL. You can use the <code>mctest</code> macro to get a fresh Memcache for each tests.
 
 ---
 
