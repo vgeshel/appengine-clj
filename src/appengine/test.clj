@@ -31,7 +31,7 @@
         ~@body
         (finally (tear-down))))
 
-(defmacro with-local-task-queue [& body]
+(defmacro with-local-taskqueue [& body]
   `(try (.setUp (local-service-test-helper (LocalTaskQueueTestConfig.)))
         ~@body
         (finally (tear-down))))
@@ -49,9 +49,9 @@
   `(deftest ~name
      (with-local-memcache ~@body)))
 
-(defmacro task-queue-test [name & body]
+(defmacro taskqueue-test [name & body]
   `(deftest ~name
-     (with-local-task-queue ~@body)))
+     (with-local-taskqueue ~@body)))
 
 (defmacro urlfetch-test [name & body]
   `(deftest ~name
