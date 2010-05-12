@@ -1,7 +1,7 @@
-(defproject org.clojars.fukamachi/appengine "0.1.1"
+(defproject appengine "0.2"
   :author "John D. Hume, Roman Scherer, Jean-Denis Greze, 深町英太郎(E. Fukamachi)"
   :description "Clojure library for Google App Engine."
-  :url "http://github.com/fukamachi/appengine-clj"
+  :url "http://github.com/r0man/appengine-clj"
   :dependencies [[org.clojure/clojure "1.1.0"]
                  [inflections "0.3"]]
   :dev-dependencies [[autodoc "0.7.0"]

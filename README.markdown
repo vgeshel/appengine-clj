@@ -6,16 +6,10 @@ Engine](http://code.google.com/appengine). It is based on John Hume's
 some enhancements. It is heavily refactored, so don't expect
 compatibility with the original library.
 
-### What's changed? ###
-
-* fukamachi folked from [appengine-clj](http://github.com/r0man/appengine-clj)
-* added Memcache API
-* added URLFetch API
-
 ### Install
 
 [Leiningen](http://github.com/technomancy/leiningen) usage:
-    [org.clojars.fukamachi/appengine "0.1.1"]
+    [appengine "0.2"]
 
 ### appengine.datastore.core
 
