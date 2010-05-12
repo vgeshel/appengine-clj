@@ -1,15 +1,14 @@
 (ns appengine.test.urlfetch
   (:require [appengine.urlfetch :as uf])
-  (:use clojure.test
-        appengine.test-utils.urlfetch)
+  (:use appengine.test clojure.test)
   (:import [com.google.appengine.api.urlfetch
             URLFetchServiceFactory
             URLFetchService]))
 
-(uftest test-urlfetch-service
+(urlfetch-test test-urlfetch-service
   (is (not (nil? (uf/urlfetch)))))
 
-(uftest test-fetch
+(urlfetch-test test-fetch
   (let [res (uf/fetch "http://www.google.com/")]
     (is (= (:status-code res) 200))
     (is (= (class (:headers res)) clojure.lang.PersistentArrayMap)))
