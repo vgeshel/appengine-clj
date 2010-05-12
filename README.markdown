@@ -172,12 +172,13 @@ the current user and a UserService.  For a more functional approach, a
 Ring middlware function is provided to assoc the user info into every
 request under the key :appengine-clj/user-info.
 
-### appengine.test-utils.*
+### appengine.test
 
-Provides setup and teardown of a local service for use in tests
-or from a REPL. If you're using <code>clojure.contrib.test-is</code>,
-you can use the usefull macros(<code>dstest</code>, <code>mctest</code>, <code>uftest</code>) to get a fresh environment for
-each test.
+Provides setup and teardown of a local service for use in tests or
+from a REPL. If you're using <code>clojure.test</code>, you can use
+the usefull macros(<code>datastore-test</code>,
+<code>memcache-test</code>, <code>urlfetch-test</code>) to get a fresh
+environment for each test.
 
 ---
 
