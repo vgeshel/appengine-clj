@@ -3,6 +3,7 @@
   (:import 
    (com.google.appengine.tools.development.testing 
     LocalDatastoreServiceTestConfig
+    LocalMemcacheServiceTestConfig
     LocalServiceTestHelper
     LocalTaskQueueTestConfig)
    (com.google.apphosting.api ApiProxy)))
@@ -26,6 +27,11 @@
         ~@body
         (finally (tear-down))))
 
+(defmacro with-local-memcache [& body]
+  `(try (.setUp (local-service-test-helper (LocalMemcacheServiceTestConfig.)))
+        ~@body
+        (finally (tear-down))))
+
 (defmacro with-local-task-queue [& body]
   `(try (.setUp (local-service-test-helper (LocalTaskQueueTestConfig.)))
         ~@body
@@ -38,6 +44,10 @@
 (defmacro datastore-test [name & body]
   `(deftest ~name
      (with-local-datastore ~@body)))
+
+(defmacro memcache-test [name & body]
+  `(deftest ~name
+     (with-local-memcache ~@body)))
 
 (defmacro task-queue-test [name & body]
   `(deftest ~name

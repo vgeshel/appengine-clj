@@ -1,32 +1,31 @@
 (ns appengine.test.memcache
   (:require [appengine.memcache :as mc])
-  (:use clojure.test
-        appengine.test-utils.memcache)
+  (:use appengine.test clojure.test)
   (:import [com.google.appengine.api.memcache
             Expiration
             MemcacheServiceFactory
             MemcacheService]))
 
-(mctest test-memcache-service
+(memcache-test test-memcache-service
   (is (not (nil? (mc/memcache)))))
 
-(mctest test-put
+(memcache-test test-put
   (mc/put-value "age" 22)
   (is (= (mc/get-value "age") 22)))
 
-(mctest test-set
+(memcache-test test-set
   (mc/put-value "age" 22)
   (is (= (mc/get-value "age") 22))
   (mc/set-value "age" 8000)
   (is (= (mc/get-value "age") 8000)))
 
-(mctest test-add
+(memcache-test test-add
   (mc/put-value "age" 22)
   (is (= (mc/get-value "age") 22))
   (mc/add-value "age" 8000)
   (is (= (mc/get-value "age") 22)))
 
-(mctest test-replace
+(memcache-test test-replace
   (mc/put-value "age" 22)
   (is (= (mc/get-value "age") 22))
   (mc/replace-value "age" 8000)
@@ -34,13 +33,13 @@
   (mc/replace-value "sex" "male")
   (is (nil? (mc/get-value "sex"))))
 
-(mctest test-delete
+(memcache-test test-delete
   (mc/put-value "age" 22)
   (is (= (mc/get-value "age") 22))
   (mc/delete-value "age" 0)
   (is (nil? (mc/get-value "age"))))
 
-(mctest test-inc-and-dec
+(memcache-test test-inc-and-dec
   (mc/put-value "age" 22)
   (is (mc/get-value "age") 22)
   (mc/inc-value "age")
@@ -48,7 +47,7 @@
   (mc/dec-value "age")
   (is (mc/get-value "age") 22))
 
-(mctest test-get-expiration
+(memcache-test test-get-expiration
   (is (= (mc/get-expiration nil) nil))
   (is (= (mc/get-expiration 0) nil))
   (let [exp (Expiration/byDeltaMillis 1000)]
