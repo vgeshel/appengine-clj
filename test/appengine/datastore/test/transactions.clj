@@ -3,7 +3,7 @@
             [appengine.datastore.transactions :as tr]
             [appengine.datastore.entities :as en])
   (:use clojure.test
-        appengine.test-utils.datastore)
+        appengine.test)
   (:import (com.google.appengine.api.datastore
             EntityNotFoundException
             Query
@@ -12,7 +12,7 @@
 
 ;; appengine.datastore/core tests
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(dstest create-entity-in-transaction
+(datastore-test create-entity-in-transaction
   (let [entity (tr/with-transaction 
 		(ds/create-entity {:kind "Person" :name "liz"}))]
     (is (= "liz" (:name entity))))
@@ -27,7 +27,7 @@
 			 (.addFilter "name" 
 				     Query$FilterOperator/EQUAL "jane"))))))))
 
-(dstest do-rollback-in-transaction
+(datastore-test do-rollback-in-transaction
    (let [[k1 k2] (tr/with-transaction
 		 (let [forget1 (ds/create-entity 
 				{:kind "Person" :name "ForgetMe1"})
@@ -42,12 +42,12 @@
 (defn always-fails []
   (throw (DatastoreFailureException. "Test Error")))
 
-(dstest multiple-tries-in-transaction
+(datastore-test multiple-tries-in-transaction
   (is (thrown? DatastoreFailureException
 	       (tr/with-transaction
 		(always-fails)))))
 
-(dstest non-transaction-datastore-operations-within-transactions
+(datastore-test non-transaction-datastore-operations-within-transactions
   (let [[k1 k2 k3] 
 	(tr/with-transaction
 	 (let [entity (ds/create-entity {:kind "Person" :name "Entity"})
@@ -67,7 +67,7 @@
     (is (= "SameEntityGroupAsEntity" (:name (ds/get-entity k2))))
     (is (= "DifferentEntityGroup" (:name (ds/get-entity k3))))))
 
-(dstest nested-transactions
+(datastore-test nested-transactions
   (let [[k1 k2 k3 k4]
 	(tr/with-transaction ;; transaction for first entity group
 	 (let [entity (ds/create-entity {:kind "Person" :name "Entity"})
@@ -91,7 +91,7 @@
     (is (= "Entity2" (:name (ds/get-entity k3))))
     (is (= "SameEntityGroupAsEntity2" (:name (ds/get-entity k4))))))
 
-(dstest updates-with-transactions
+(datastore-test updates-with-transactions
   (let [entity (ds/create-entity {:kind "Person" :name "Entity"})]
     (tr/with-transaction
      (is (= "Entity" (:name entity)))
@@ -111,7 +111,7 @@
 ;; http://code.google.com/appengine/docs/java/datastore/queriesandindexes.html
 ;; text-search for Ancestor Queries
 	      
-(dstest deletes-with-transactions
+(datastore-test deletes-with-transactions
   (let [entity (ds/create-entity {:kind "Person" :name "Entity"})
 	entity2 (ds/create-entity {:kind "Person" :name "Entity2"})]
     (tr/with-transaction
@@ -128,7 +128,7 @@
     (is (thrown? EntityNotFoundException (ds/get-entity (:key entity2))))))
 
 ;; ;; We can also do transactions manually if we so wish
-;; (dstest manual-transactions
+;; (datastore-test manual-transactions
 ;;   (let [transaction (.beginTransaction (ds/datastore)) ;; manually create tr
 ;; 	entity (ds/create-entity transaction {:kind "Person" :name "Entity"})
 ;; 	entity2 (ds/create-entity transaction {:kind "Person" :name "Entity2"
@@ -159,7 +159,7 @@
 ;;       (is (= "Entity2" (:name entity2?))))))
 
 ;just to show with-retries was tested manually
-;(dstest doretry-transaction-manual-test
+;(datastore-test doretry-transaction-manual-test
 ;  (tr/with-retries 2
 ;		(try (tr/with-transaction
 ;		      (always-fails)) (catch Exception e (prn "error")))
@@ -175,7 +175,7 @@
 
 ;; it's the same deal as entities.clj relies on core.clj which
 ;; support transactions
-(dstest entities-macros-and-transactions
+(datastore-test entities-macros-and-transactions
   (tr/with-transaction
    (let [user (create-testuser {:name "liz" :job "entrepreneur"})]
      (create-testuser {:name "robert" :job "secretary"

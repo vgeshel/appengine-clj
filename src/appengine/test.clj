@@ -31,7 +31,7 @@
         ~@body
         (finally (tear-down))))
 
-(defmacro dstest [name & body]
+(defmacro datastore-test [name & body]
   `(deftest ~name
      (with-local-datastore ~@body)))
 
