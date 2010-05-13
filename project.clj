@@ -1,4 +1,4 @@
-(defproject appengine "0.2"
+(defproject appengine "0.2-SNAPSHOT"
   :author "John D. Hume, Roman Scherer, Jean-Denis Greze, 深町英太郎(E. Fukamachi)"
   :description "Clojure library for Google App Engine."
   :url "http://github.com/r0man/appengine-clj"
