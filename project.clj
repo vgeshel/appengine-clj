@@ -2,6 +2,7 @@
   :author "John D. Hume, Roman Scherer, Jean-Denis Greze, 深町英太郎(E. Fukamachi)"
   :description "Clojure library for Google App Engine."
   :url "http://github.com/r0man/appengine-clj"
+  :autodoc {:copyright "Copyright (c) 2009, 2010 John D. Hume, Roman Scherer, Jean-Denis Greze, E.Fukamachi"}
   :dependencies [[org.clojure/clojure "1.1.0"]
                  [inflections "0.3"]]
   :dev-dependencies [[autodoc "0.7.0"]

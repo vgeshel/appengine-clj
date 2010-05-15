@@ -6,6 +6,11 @@ Engine](http://code.google.com/appengine). It is based on John Hume's
 some enhancements. It is heavily refactored, so don't expect
 compatibility with the original library.
 
+### Documentation 
+
+The [Autodoc](http://tomfaulhaber.github.com/autodoc) API documentation can be found
+[here](http://r0man.github.com/appengine-clj).
+
 ### Install
 
 [Leiningen](http://github.com/technomancy/leiningen) usage:
