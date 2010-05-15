@@ -1,4 +1,7 @@
-(ns appengine.datastore.entities
+(ns #^{:author "Roman Scherer with contributions by John D. Hume,
+Jean-Denis Greze and E.Fukamachi"
+       :doc "The entity API for the App Engine datastore." }
+  appengine.datastore.entities
   (:import (com.google.appengine.api.datastore 
 	    EntityNotFoundException Query Query$FilterOperator))
   (:require [appengine.datastore.core :as ds])

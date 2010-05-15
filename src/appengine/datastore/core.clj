@@ -1,4 +1,7 @@
-(ns appengine.datastore.core
+(ns #^{:author "Roman Scherer with contributions by John D. Hume,
+Jean-Denis Greze and E.Fukamachi"
+       :doc "The core API for the App Engine datastore." }
+  appengine.datastore.core
   (:import (com.google.appengine.api.datastore
             DatastoreConfig DatastoreServiceFactory 
             Entity Key Query KeyFactory Transaction))
@@ -6,7 +9,7 @@
 
 (defvar *transaction* nil
   "The current datastore transaction. If set to nil, all operations
-  are done without a transaction.")
+  are done without a transaction (the default behaviour).")
 
 (defn datastore
   "Creates a DatastoreService using the default or the provided
@@ -160,7 +163,7 @@ Examples:
     (map entity->map results)))
 
 (defn create-entity 
-  "Takes a map of keyword-value pairs or struct and puts a new Entity
+  "Takes a map of keyword-value pairs or struct and creates a new Entity
 in the Datastore.  The map or struct must include a :kind
 String. Returns the saved Entity converted with entity->map (which
 will include the assigned :key)."

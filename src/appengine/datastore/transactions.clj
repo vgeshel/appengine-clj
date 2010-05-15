@@ -1,4 +1,7 @@
-(ns appengine.datastore.transactions
+(ns #^{:author "Roman Scherer with contributions by John D. Hume,
+Jean-Denis Greze and E.Fukamachi"
+       :doc "The transaction API for the App Engine datastore." }
+    appengine.datastore.transactions
   (:require [appengine.datastore.core :as ds])
   (:import (com.google.appengine.api.datastore DatastoreFailureException)
 	   (java.util ConcurrentModificationException))

@@ -26,7 +26,7 @@ instances.
 
 Example:
     (create-entity {:kind "continent" :name "Europe"})
-    => {:kind "continent" :key #<Key Person(1138)> :name "Europe"}
+    => {:kind "continent" :key #<Key Continent(1138)> :name "Europe"}
 
 ### appengine.datastore.entities
 
