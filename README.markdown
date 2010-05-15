@@ -54,8 +54,8 @@ Examples:
     ; this prints: 
      
     {:name Europe, :iso-3166-alpha-2 eu, :kind continent, :key #&lt;Key continent("eu")&gt;}
-    {:name Spain, :iso-3166-alpha-2 es, :parent-key #&lt;Key continent("eu")&gt;, :kind country, :key #&lt;Key continent("eu")/country("es")&gt;}
-    {:code SP58, :name Galicia, :parent-key #&lt;Key continent("eu")/country("es")&gt;, :kind region, :key #&lt;Key continent("eu")/country("es")/region("SP58")&gt;}
+    {:name Spain, :iso-3166-alpha-2 es, :kind country, :key #&lt;Key continent("eu")/country("es")&gt;}
+    {:code SP58, :name Galicia, :kind region, :key #&lt;Key continent("eu")/country("es")/region("SP58")&gt;}
 
 ### appengine.datastore.transactions
 
