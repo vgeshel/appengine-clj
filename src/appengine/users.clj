@@ -1,7 +1,8 @@
-(ns appengine.users
+(ns #^{:author "John D. Hume"
+       :doc "Clojure API for the Google App Engine user service." }
+   appengine.users
   (:import
     (com.google.appengine.api.users User UserService UserServiceFactory)))
-
 
 (defn user-info
   "With no arguments, returns a UserService and User for the current request in a map keyed by :user-service and :user respectively.

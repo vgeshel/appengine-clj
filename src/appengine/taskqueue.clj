@@ -1,4 +1,6 @@
-(ns appengine.taskqueue
+(ns #^{:author "Roman Scherer"
+       :doc "Clojure API for the Google App Engine task queue." }
+  appengine.taskqueue
   (:import (com.google.appengine.api.labs.taskqueue TaskOptions$Builder Queue QueueFactory))
   (:use [clojure.contrib.def :only (defvar)]))
 

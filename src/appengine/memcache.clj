@@ -1,4 +1,6 @@
-(ns appengine.memcache
+(ns #^{:author "E. Fukamachi"
+       :doc "Clojure API for the Google App Engine memcache service." }
+  appengine.memcache
   (:import [com.google.appengine.api.memcache
             Expiration
             MemcacheServiceFactory

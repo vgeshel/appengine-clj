@@ -1,4 +1,6 @@
-(ns appengine.test
+(ns #^{:author "Roman Scherer"
+       :doc "Test functions for Google App Engine." }
+  appengine.test
   (:use clojure.test)
   (:import 
    (com.google.appengine.tools.development.testing 
