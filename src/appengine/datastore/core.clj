@@ -4,7 +4,7 @@
   (:import (com.google.appengine.api.datastore
             DatastoreConfig DatastoreServiceFactory 
             Entity Key Query KeyFactory Transaction))
-  (:use [clojure.contrib.def :only (defvar)]))
+  (:use appengine.utils [clojure.contrib.def :only (defvar)]))
 
 (defvar *transaction* nil
   "The current datastore transaction. If set to nil, all operations
@@ -91,11 +91,12 @@ Examples:
    ; => #<Entity <Entity [continent(no-id-yet)]:
    ;      name = Europe"
   [map]
-  (reduce #(do (.setProperty %1 (name (first %2)) (second %2)) %1)
-          (if (and (:kind map) (:parent-key map))
-            (Entity. (:kind map) (:parent-key map))
-            (Entity. (or (:key map) (:kind map))))
-          (properties map)))
+  (let [map (map-keyword map)]
+   (reduce #(do (.setProperty %1 (name (first %2)) (second %2)) %1)
+           (if (and (:kind map) (:parent-key map))
+             (Entity. (:kind map) (:parent-key map))
+             (Entity. (or (:key map) (:kind map))))
+           (properties map))))
 
 (defmulti properties
   "Returns the properties of the given record as a map."

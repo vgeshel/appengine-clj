@@ -125,6 +125,15 @@
       (is (= (.getId parent) 0))
       (is (= (.getName parent) "eu")))))
 
+(datastore-test test-map->entity-with-string-keys
+  (let [entity (ds/map->entity {"kind" "continent" "name" "Europe"})]
+    (is (= (class entity) Entity))
+    (is (= (.getKind entity) "continent"))
+    (is (= (.. entity getKey getKind) "continent"))
+    (is (= (.. entity getKey getId) 0))
+    (is (nil? (.. entity getKey getName)))
+    (is (= (. entity getProperty "name") "Europe"))))
+
 (datastore-test test-map->entity-with-kind
   (let [entity (ds/map->entity {:kind "continent" :name "Europe"})]
     (is (= (class entity) Entity))
