@@ -193,6 +193,12 @@
     (is (= (:iso-3166-alpha-2 continent) "eu"))
     (is (= (:name continent) "Europe"))))
 
+(datastore-test test-def-make-fn-with-undefined-attribute
+  (def-key-fn continent (:iso-3166-alpha-2))
+  (def-make-fn continent () (iso-3166-alpha-2 :key true) (name))
+  (let [continent (make-continent {:iso-3166-alpha-2 "eu" :name "Europe" :undefined "UNDEFINED"})]
+    (is (not (contains? continent :undefined )))))
+
 (datastore-test test-def-make-fn-with-country
   (def-make-fn continent () (iso-3166-alpha-2 :key true) (name))
   (def-make-fn country (continent) (iso-3166-alpha-2 :key true) (iso-3166-alpha-3) (name))

@@ -60,10 +60,11 @@ propertoes. If entity-keys is empty the fn returns nil."
 (defmacro def-make-fn [entity parent & properties]
   "Defines a function to build entity hashes."
   (let [entity# entity parent# (first parent)
+        properties# properties
         args# (compact [parent# 'attributes])]
-    `(defn ~(symbol (str "make-" entity#)) [~@args#]
-       (merge (assoc ~'attributes
-		:kind ~(str entity#))
+    `(defn ~(symbol (str "make-" entity#)) [~@args#]       
+       (merge (assoc (select-keys ~'attributes [~@(map (comp keyword first) properties#)])
+                :kind ~(str entity#))
 	      (let [key# (~(symbol (key-fn-name entity)) ~@args#)]
 		(if-not (nil? key#) {:key key#} {}))))))
 
@@ -131,7 +132,7 @@ propertoes. If entity-keys is empty the fn returns nil."
   (let [entity# entity parent# parent properties# properties]
     `(do
        (def-key-fn ~entity# ~(entity-keys properties) ~@parent#)
-       (def-make-fn ~entity# ~parent# ~properties#)
+       (def-make-fn ~entity# ~parent# ~@properties#)
        (def-create-fn ~entity# ~@parent#)
        (def-delete-fn ~entity#)
        (def-find-all-by-property-fns ~entity# ~@(map first properties#))
