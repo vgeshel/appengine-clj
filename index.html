@@ -1,0 +1,224 @@
+<html>
+  <head>
+    <title>appengine - Overview</title>
+    <link href="static/favicon.png" rel="icon" />
+    <link href="static/favicon.png" rel="shortcut icon" />
+    <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
+    <link media="all" type="text/css" href="static/wiki.css" rel="stylesheet" />
+    <link media="all" type="text/css" href="static/internal.css" rel="stylesheet" />
+    <!-- TODO: are we using these (from clojure.org)? If so, add the files -->
+    <script src="file/view/code_highlighter.js" type="text/javascript"></script>
+    <script src="file/view/clojure.js" type="text/javascript"></script>
+    <style>.menuWrapper{height: 36px;}</style>
+    <!--[if lte IE 6]>
+    <link rel="stylesheet" href="http://www.wikispaces.com/_/2009051601/s/internal_ie.css" type="text/css" />
+    <![endif]-->
+  </head>
+<!--
+This document was auto-generated from the source by the clojure autodoc system.
+To report errors or ask questions about the overall documentation structure, formatting,
+etc., contact Tom Faulhaber (google mail name: tomfaulhaber).
+For errors in the documentation of a particular namespace, contact the author of that
+namespace.
+-->
+  <body>
+    <div id="AllContentContainer">
+      <div id="Header">
+	<a id="Logo" href="index.html"><img alt="Clojure" height="100" width="100" src="static/clojure-icon.gif" /></a>
+	<h1><a title="page header title" id="page-header" href="index.html">appengine</a></h1>
+      </div>
+      <div id="leftcolumn"><div style="text-align: center;"></div>
+<div class="menu">
+  <div class="WikiCustomNav WikiElement wiki">
+    <a class="wiki_link" href="index.html">Overview</a><br />
+    <a class="wiki_link" href="api-index.html">API Index</a><br />
+    <a class="wiki_link" href="#">Namespaces:</a>
+    <ul id="left-sidebar-list">
+      <li><a href="appengine.datastore-api.html" class="wiki_link">appengine.datastore</a></li><li><a href="appengine.memcache-api.html" class="wiki_link">appengine.memcache</a></li><li><a href="appengine.taskqueue-api.html" class="wiki_link">appengine.taskqueue</a></li><li><a href="appengine.test-api.html" class="wiki_link">appengine.test</a></li><li><a href="appengine.urlfetch-api.html" class="wiki_link">appengine.urlfetch</a></li><li><a href="appengine.users-api.html" class="wiki_link">appengine.users</a></li><li><a href="appengine.utils-api.html" class="wiki_link">appengine.utils</a></li>
+    </ul>
+  </div>
+</div>
+</div>
+      <div id="rightcolumn">
+	<div id="Content">
+	  <div class="contentBox"><div class="innerContentBox">
+              <div id="content_view" class="wiki wikiPage">
+                <div id="right-sidebar"><div id="toc">
+  <h1 class="nopad">Table of Contents</h1>
+  <div style="margin-left: 1em;" class="toc-section">
+    <a href="#appengine.datastore">appengine.datastore</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#appengine.memcache">appengine.memcache</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#appengine.taskqueue">appengine.taskqueue</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#appengine.test">appengine.test</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#appengine.urlfetch">appengine.urlfetch</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#appengine.users">appengine.users</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#appengine.utils">appengine.utils</a>
+    
+    <br />
+  </div>
+</div>
+</div>
+                <div id="content-tag"><h1 id="toc0">An Overview of the <span id="header-project">appengine</span> API</h1>
+<br />
+<div id="project-description">Clojure library for Google App Engine.</div>
+<br />
+<div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore">appengine.datastore</h2>
+  by <span id="author">unknown author</span><br />
+  <a href="appengine.datastore-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  Public variables and functions:
+  <span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/*transaction*" id="var-tag">*transaction*</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/*transaction-retries*" id="var-tag">*transaction-retries*</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/create-entity" id="var-tag">create-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/create-key" id="var-tag">create-key</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/datastore" id="var-tag">datastore</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/entity-&gt;map" id="var-tag">entity-&gt;map</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/find-all" id="var-tag">find-all</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/get-entity" id="var-tag">get-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/is-transaction-active?" id="var-tag">is-transaction-active?</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/key-&gt;string" id="var-tag">key-&gt;string</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/map-&gt;entity" id="var-tag">map-&gt;entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/new-transaction" id="var-tag">new-transaction</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/properties" id="var-tag">properties</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/put-entity" id="var-tag">put-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/rollback-transaction" id="var-tag">rollback-transaction</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/string-&gt;key" id="var-tag">string-&gt;key</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/update-entity" id="var-tag">update-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/with-retries" id="var-tag">with-retries</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/with-transaction" id="var-tag">with-transaction</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/without-transaction" id="var-tag">without-transaction</a> </span><br />
+  <span id="subspace"><br />Variables and functions in
+    <span id="name">appengine.datastore.core</span>:
+    <span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.core/*transaction*">*transaction*</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.core/create-entity">create-entity</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.core/create-key">create-key</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.core/datastore">datastore</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.core/entity-&gt;map">entity-&gt;map</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.core/find-all">find-all</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.core/get-entity">get-entity</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.core/key-&gt;string">key-&gt;string</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.core/map-&gt;entity">map-&gt;entity</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.core/properties">properties</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.core/put-entity">put-entity</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.core/string-&gt;key">string-&gt;key</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.core/update-entity">update-entity</a>
+    </span>
+    <br />
+  </span><span id="subspace"><br />Variables and functions in
+    <span id="name">appengine.datastore.transactions</span>:
+    <span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.transactions/*transaction-retries*">*transaction-retries*</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.transactions/is-transaction-active?">is-transaction-active?</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.transactions/new-transaction">new-transaction</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.transactions/rollback-transaction">rollback-transaction</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.transactions/with-retries">with-retries</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.transactions/with-transaction">with-transaction</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.transactions/without-transaction">without-transaction</a>
+    </span>
+    <br />
+  </span>
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.memcache">appengine.memcache</h2>
+  by <span id="author">unknown author</span><br />
+  <a href="appengine.memcache-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  Public variables and functions:
+  <span id="var-link"><a href="appengine.memcache-api.html#appengine.memcache/add-value" id="var-tag">add-value</a> </span><span id="var-link"><a href="appengine.memcache-api.html#appengine.memcache/put-value" id="var-tag">put-value</a> </span><span id="var-link"><a href="appengine.memcache-api.html#appengine.memcache/replace-value" id="var-tag">replace-value</a> </span><span id="var-link"><a href="appengine.memcache-api.html#appengine.memcache/set-value" id="var-tag">set-value</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.taskqueue">appengine.taskqueue</h2>
+  by <span id="author">unknown author</span><br />
+  <a href="appengine.taskqueue-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  Public variables and functions:
+  <span id="var-link"><a href="appengine.taskqueue-api.html#appengine.taskqueue/*queue*" id="var-tag">*queue*</a> </span><span id="var-link"><a href="appengine.taskqueue-api.html#appengine.taskqueue/add" id="var-tag">add</a> </span><span id="var-link"><a href="appengine.taskqueue-api.html#appengine.taskqueue/default-queue" id="var-tag">default-queue</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.test">appengine.test</h2>
+  by <span id="author">unknown author</span><br />
+  <a href="appengine.test-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  Public variables and functions:
+  <br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.urlfetch">appengine.urlfetch</h2>
+  by <span id="author">unknown author</span><br />
+  <a href="appengine.urlfetch-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  Public variables and functions:
+  <br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.users">appengine.users</h2>
+  by <span id="author">unknown author</span><br />
+  <a href="appengine.users-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  Public variables and functions:
+  <span id="var-link"><a href="appengine.users-api.html#appengine.users/user-info" id="var-tag">user-info</a> </span><span id="var-link"><a href="appengine.users-api.html#appengine.users/wrap-with-user-info" id="var-tag">wrap-with-user-info</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.utils">appengine.utils</h2>
+  by <span id="author">unknown author</span><br />
+  <a href="appengine.utils-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  Public variables and functions:
+  <br />
+  
+</div>
+</div>
+              </div>
+            </div>
+          </div>
+	</div>
+	<div id="foot">
+	  <div style="text-align: center;" id="copyright">No copyright info </div>
+	</div>
+      </div>
+      <div id="DesignedBy">Logo &amp; site design by <a title="Visit Tom Hickey's website." href="http://www.tomhickey.com">Tom Hickey</a>.<br />
+      Clojure auto-documentation system by Tom Faulhaber.</div>
+    </div>
+    <!-- /AllContentContainer -->
+  </body>
+
+</html>

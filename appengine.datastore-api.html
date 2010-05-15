@@ -1,0 +1,752 @@
+<html>
+  <head>
+    <title>appengine.datastore API reference (appengine)</title>
+    <link href="static/favicon.png" rel="icon" />
+    <link href="static/favicon.png" rel="shortcut icon" />
+    <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
+    <link media="all" type="text/css" href="static/wiki.css" rel="stylesheet" />
+    <link media="all" type="text/css" href="static/internal.css" rel="stylesheet" />
+    <!-- TODO: are we using these (from clojure.org)? If so, add the files -->
+    <script src="file/view/code_highlighter.js" type="text/javascript"></script>
+    <script src="file/view/clojure.js" type="text/javascript"></script>
+    <style>.menuWrapper{height: 36px;}</style>
+    <!--[if lte IE 6]>
+    <link rel="stylesheet" href="http://www.wikispaces.com/_/2009051601/s/internal_ie.css" type="text/css" />
+    <![endif]-->
+  </head>
+<!--
+This document was auto-generated from the source by the clojure autodoc system.
+To report errors or ask questions about the overall documentation structure, formatting,
+etc., contact Tom Faulhaber (google mail name: tomfaulhaber).
+For errors in the documentation of a particular namespace, contact the author of that
+namespace.
+-->
+  <body>
+    <div id="AllContentContainer">
+      <div id="Header">
+	<a id="Logo" href="index.html"><img alt="Clojure" height="100" width="100" src="static/clojure-icon.gif" /></a>
+	<h1><a title="page header title" id="page-header" href="index.html">appengine</a></h1>
+      </div>
+      <div id="leftcolumn"><div style="text-align: center;"></div>
+<div class="menu">
+  <div class="WikiCustomNav WikiElement wiki">
+    <a class="wiki_link" href="index.html">Overview</a><br />
+    <a class="wiki_link" href="api-index.html">API Index</a><br />
+    <a class="wiki_link" href="#">Namespaces:</a>
+    <ul id="left-sidebar-list">
+      <li><a href="appengine.datastore-api.html" class="wiki_link">appengine.datastore</a></li><li><a href="appengine.memcache-api.html" class="wiki_link">appengine.memcache</a></li><li><a href="appengine.taskqueue-api.html" class="wiki_link">appengine.taskqueue</a></li><li><a href="appengine.test-api.html" class="wiki_link">appengine.test</a></li><li><a href="appengine.urlfetch-api.html" class="wiki_link">appengine.urlfetch</a></li><li><a href="appengine.users-api.html" class="wiki_link">appengine.users</a></li><li><a href="appengine.utils-api.html" class="wiki_link">appengine.utils</a></li>
+    </ul>
+  </div>
+</div>
+</div>
+      <div id="rightcolumn">
+	<div id="Content">
+	  <div class="contentBox"><div class="innerContentBox">
+              <div id="content_view" class="wiki wikiPage">
+                <div id="right-sidebar"><div id="toc">
+  <h1 class="nopad">Table of Contents</h1>
+  <div style="margin-left: 1em;" class="toc-section">
+    <a href="#toc0">Overview</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/*transaction*">*transaction*</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/*transaction-retries*">*transaction-retries*</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/create-entity">create-entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/create-key">create-key</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/datastore">datastore</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/entity-&gt;map">entity-&gt;map</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/find-all">find-all</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/get-entity">get-entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/is-transaction-active?">is-transaction-active?</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/key-&gt;string">key-&gt;string</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/map-&gt;entity">map-&gt;entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/new-transaction">new-transaction</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/properties">properties</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/put-entity">put-entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/rollback-transaction">rollback-transaction</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/string-&gt;key">string-&gt;key</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/update-entity">update-entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/with-retries">with-retries</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/with-transaction">with-transaction</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/without-transaction">without-transaction</a>
+    </div>
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#appengine.datastore.core">appengine.datastore.core</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.core/*transaction*">*transaction*</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.core/create-entity">create-entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.core/create-key">create-key</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.core/datastore">datastore</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.core/entity-&gt;map">entity-&gt;map</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.core/find-all">find-all</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.core/get-entity">get-entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.core/key-&gt;string">key-&gt;string</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.core/map-&gt;entity">map-&gt;entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.core/properties">properties</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.core/put-entity">put-entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.core/string-&gt;key">string-&gt;key</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.core/update-entity">update-entity</a>
+    </div>
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#appengine.datastore.transactions">appengine.datastore.transactions</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.transactions/*transaction-retries*">*transaction-retries*</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.transactions/is-transaction-active?">is-transaction-active?</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.transactions/new-transaction">new-transaction</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.transactions/rollback-transaction">rollback-transaction</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.transactions/with-retries">with-retries</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.transactions/with-transaction">with-transaction</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.transactions/without-transaction">without-transaction</a>
+    </div>
+    <br />
+  </div>
+</div>
+</div>
+                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">appengine.datastore</span></h1>
+by <span id="author">Unknown</span><br />
+<br />Usage:
+<pre>
+(ns your-namespace
+  (:require <span id="long-name">appengine.datastore</span>))
+</pre><pre>
+</pre><h2>Overview</h2>
+<pre id="namespace-docstr"></pre>
+<br />
+<h2>Public Variables and Functions</h2>
+<div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/*transaction*">*transaction*</h2>
+  <span id="var-type">var</span><br />
+  <pre id="var-usage"></pre>
+  <pre id="var-docstr">The current datastore transaction. If set to nil, all operations
+are done without a transaction.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/*transaction-retries*">*transaction-retries*</h2>
+  <span id="var-type">var</span><br />
+  <pre id="var-usage"></pre>
+  <pre id="var-docstr">Total number of of times to retry a transaction beyond the first
+attempt in case a DatastoreFailureException is thrown.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/create-entity">create-entity</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (create-entity record)
+</pre>
+  <pre id="var-docstr">Takes a map of keyword-value pairs or struct and puts a new Entity
+in the Datastore.  The map or struct must include a :kind
+String. Returns the saved Entity converted with entity-&gt;map (which
+will include the assigned :key).</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/create-key">create-key</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (create-key kind identifier)
+       (create-key parent-key kind identifier)
+</pre>
+  <pre id="var-docstr">Creates a new Key using the given kind and identifier. If parent-key is
+given, the new key will be a child of the parent-key.
+  
+Examples:
+
+   (create-key "country" "de")
+   ; =&gt; #&lt;Key country("de")&gt;
+ 	
+   (create-key (create-key "continent" "eu") "country" "de")
+   ; =&gt; #&lt;Key continent("eu")/country("de")&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/datastore">datastore</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (datastore)
+       (datastore configuration)
+</pre>
+  <pre id="var-docstr">Creates a DatastoreService using the default or the provided
+configuration.
+
+Examples:
+
+  (datastore)
+  ; =&gt; #&lt;DatastoreServiceImpl com.google.appengine.api.datastore.DatastoreServiceImpl@a7b68a&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/entity-&gt;map">entity-&gt;map</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (entity-&gt;map entity)
+</pre>
+  <pre id="var-docstr">Converts a com.google.appengine.api.datastore.Entity instance to a
+PersistentHashMap. The properties of the entity are stored under their
+keyword names, the entity kind under :kind and the entity key
+under :key.
+
+Examples:
+
+   (entity-&gt;map (doto (Entity. "continent") (.setProperty "name" "Europe")))
+   ; =&gt; {:name "Europe", :kind "continent", :key #&lt;Key continent(no-id-yet)&gt;}</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/find-all">find-all</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (find-all query)
+</pre>
+  <pre id="var-docstr">Executes the given com.google.appengine.api.datastore.Query
+and returns the results as a lazy sequence of items converted 
+with entity-&gt;map.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/get-entity">get-entity</h2>
+  <span id="var-type">multimethod</span><br />
+  <pre id="var-usage">No usage documentation available</pre>
+  <pre id="var-docstr">Retrieves a PersistentHashMap of an Entity in the datastore. The
+entity can be retrieved by an instance of Key, Entity, a
+PersistentHashMap with a :key keyword, or an ISeq of keys, in which 
+case a PersistentHashMap of appengine Keys to PersistentHashmaps of
+Entities is returned.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/is-transaction-active?">is-transaction-active?</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (is-transaction-active?)
+       (is-transaction-active? transaction)
+</pre>
+  <pre id="var-docstr">Returns whether the current transaction is active. As with
+rollback-transaction, should only be used from within with-transaction.
+See doc of rollback-transaction for an example</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/key-&gt;string">key-&gt;string</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (key-&gt;string key)
+</pre>
+  <pre id="var-docstr">Returns a "websafe" string from the given Key.
+
+Examples:
+
+  (key-&gt;string (create-key "continent" "eu"))
+  ; =&gt; "agR0ZXN0chELEgljb250aW5lbnQiAmV1DA"
+
+   (key-&gt;string (create-key (create-key "continent" "eu") "country" "de")
+   ; =&gt; "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA"</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/map-&gt;entity">map-&gt;entity</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (map-&gt;entity map)
+</pre>
+  <pre id="var-docstr">Converts a map or struct to an Entity. The map must have the key or
+kind of the entity stored under the :key or a :kind keywords.
+
+Examples:
+
+   (map-&gt;entity {:key "continent" :name "Europe"})
+   ; =&gt; #&lt;Entity &lt;Entity [continent(no-id-yet)]:
+   ;      name = Europe</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/new-transaction">new-transaction</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (new-transaction)
+</pre>
+  <pre id="var-docstr">Returns a new GAE transaction object</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/properties">properties</h2>
+  <span id="var-type">multimethod</span><br />
+  <pre id="var-usage">No usage documentation available</pre>
+  <pre id="var-docstr">Returns the properties of the given record as a map.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/put-entity">put-entity</h2>
+  <span id="var-type">multimethod</span><br />
+  <pre id="var-usage">No usage documentation available</pre>
+  <pre id="var-docstr">Puts the given record into the datastore and returns a
+PersistentHashMap of the record. The record must be an instance of
+Entity or PersistentHashMap.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/rollback-transaction">rollback-transaction</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (rollback-transaction)
+       (rollback-transaction transaction)
+</pre>
+  <pre id="var-docstr">Can be used optionally to rollback a transaction.  
+  Use only within with-transaction.
+
+  (let [[k1 k2] (tr/with-transaction
+		 (let [forget1 (ds/create-entity 
+				{:kind "Person" :name "ForgetMe1"})
+		       forget2 (ds/create-entity 
+				{:kind "Person" :name "ForgetMe2"
+				 :parent-key (:key forget1)})]
+		   (tr/rollback-transaction)
+		   [(:key forget1) (:key forget2)]))]
+    (is (thrown? EntityNotFoundException (ds/get-entity k1)))
+    (is (thrown? EntityNotFoundException (ds/get-entity k2)))))
+
+  Note that the correct transaction is substituted in by the 
+  with-transaction macro.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/string-&gt;key">string-&gt;key</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (string-&gt;key string)
+</pre>
+  <pre id="var-docstr">Returns a Key from the given "websafe" string.
+
+Examples:
+
+  (string-&gt;key "agR0ZXN0chELEgljb250aW5lbnQiAmV1DA")
+  ; =&gt; #&lt;Key country("de")&gt;
+
+   (string-&gt;key "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA")
+   ; =&gt; #&lt;Key continent("eu")/country("de")&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/update-entity">update-entity</h2>
+  <span id="var-type">multimethod</span><br />
+  <pre id="var-usage">No usage documentation available</pre>
+  <pre id="var-docstr">Updates the record with the given properites. The record must be an
+instance of Entity, Key or PersistentHashMap. If one of the
+attributes' values is :remove, then the correponding property name is
+removed from that entity.  If one of the attributes't values is nil,
+then the corresponding property name is set to Java's null for that
+property.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/with-retries">with-retries</h2>
+  <span id="var-type">macro</span><br />
+  <pre id="var-usage">Usage: (with-retries num &amp; body)
+</pre>
+  <pre id="var-docstr">Set the number of retries for any transactions within do retries's body.
+The first argument is the number of retries desired.  Must be used
+outside of the with-transaction macro.
+
+;; try to create parent and child a maximum of three times
+(tr/with-retries 2
+  (tr/with-transaction
+    (let [parent (ds/create-entity {:kind "Person" :name "Jennifer"})
+          child (ds/create-entity {:kind "Person" :name "Robert"
+                                   :parent-key (:key parent)})]
+     [parent child])))</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/with-transaction">with-transaction</h2>
+  <span id="var-type">macro</span><br />
+  <pre id="var-usage">Usage: (with-transaction &amp; body)
+</pre>
+  <pre id="var-docstr">Takes a body of forms (do is implied) and at runtime executes 
+the body of forms with a newly created transaction
+(one per thread per with-transaction).  In case of a 
+DatastoreFailureException which is not caught by the user's code,
+retry the transaction *transaction-retries* times 
+and throw the last DatastoreFailureException in case of 
+ultimate failure despite the retries.  Returns the value of the
+result of the last form.
+
+(with-transaction
+  (let [parent (ds/create-entity {:kind "Person" :name "Jennifer"})
+        child (ds/create-entity {:kind "Person" :name "Robert"
+                                 :parent-key (:key parent)})]
+    [parent child]))</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/without-transaction">without-transaction</h2>
+  <span id="var-type">macro</span><br />
+  <pre id="var-usage">Usage: (without-transaction &amp; body)
+</pre>
+  <pre id="var-docstr">Used to do no-transaction operations from within a transaction.
+Should be used within a try to catch any DatastoreFailureException
+or ConcurrentModificationException or other exceptions so that 
+these do not interfere with the encompassing transaction.
+
+(with-transaction
+  (let [parent (ds/create-entity {:kind "Person" :name "Jennifer"})
+        stranger (try 
+                   (without-transaction
+                     (ds/create-entity {:kind "Person" :name "Chris"}))
+                   (catch Exception e nil))
+        child (ds/create-entity {:kind "Person" :name "Robert"
+                                 :parent-key (:key parent)})]
+  ... do something with parent, stranger, child ...
+ ))</pre>
+  
+</div>
+<h2 id="namespace-name">appengine.datastore.core</h2>
+<pre id="namespace-docstr"></pre>
+<br />
+<div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.core/*transaction*">*transaction*</h2>
+  <span id="var-type">var</span><br />
+  <pre id="var-usage"></pre>
+  <pre id="var-docstr">The current datastore transaction. If set to nil, all operations
+are done without a transaction.</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.core/create-entity">create-entity</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (create-entity record)
+</pre>
+  <pre id="var-docstr">Takes a map of keyword-value pairs or struct and puts a new Entity
+in the Datastore.  The map or struct must include a :kind
+String. Returns the saved Entity converted with entity-&gt;map (which
+will include the assigned :key).</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.core/create-key">create-key</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (create-key kind identifier)
+       (create-key parent-key kind identifier)
+</pre>
+  <pre id="var-docstr">Creates a new Key using the given kind and identifier. If parent-key is
+given, the new key will be a child of the parent-key.
+  
+Examples:
+
+   (create-key "country" "de")
+   ; =&gt; #&lt;Key country("de")&gt;
+ 	
+   (create-key (create-key "continent" "eu") "country" "de")
+   ; =&gt; #&lt;Key continent("eu")/country("de")&gt;</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.core/datastore">datastore</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (datastore)
+       (datastore configuration)
+</pre>
+  <pre id="var-docstr">Creates a DatastoreService using the default or the provided
+configuration.
+
+Examples:
+
+  (datastore)
+  ; =&gt; #&lt;DatastoreServiceImpl com.google.appengine.api.datastore.DatastoreServiceImpl@a7b68a&gt;</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.core/entity-&gt;map">entity-&gt;map</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (entity-&gt;map entity)
+</pre>
+  <pre id="var-docstr">Converts a com.google.appengine.api.datastore.Entity instance to a
+PersistentHashMap. The properties of the entity are stored under their
+keyword names, the entity kind under :kind and the entity key
+under :key.
+
+Examples:
+
+   (entity-&gt;map (doto (Entity. "continent") (.setProperty "name" "Europe")))
+   ; =&gt; {:name "Europe", :kind "continent", :key #&lt;Key continent(no-id-yet)&gt;}</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.core/find-all">find-all</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (find-all query)
+</pre>
+  <pre id="var-docstr">Executes the given com.google.appengine.api.datastore.Query
+and returns the results as a lazy sequence of items converted 
+with entity-&gt;map.</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.core/get-entity">get-entity</h2>
+  <span id="var-type">multimethod</span><br />
+  <pre id="var-usage">No usage documentation available</pre>
+  <pre id="var-docstr">Retrieves a PersistentHashMap of an Entity in the datastore. The
+entity can be retrieved by an instance of Key, Entity, a
+PersistentHashMap with a :key keyword, or an ISeq of keys, in which 
+case a PersistentHashMap of appengine Keys to PersistentHashmaps of
+Entities is returned.</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.core/key-&gt;string">key-&gt;string</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (key-&gt;string key)
+</pre>
+  <pre id="var-docstr">Returns a "websafe" string from the given Key.
+
+Examples:
+
+  (key-&gt;string (create-key "continent" "eu"))
+  ; =&gt; "agR0ZXN0chELEgljb250aW5lbnQiAmV1DA"
+
+   (key-&gt;string (create-key (create-key "continent" "eu") "country" "de")
+   ; =&gt; "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA"</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.core/map-&gt;entity">map-&gt;entity</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (map-&gt;entity map)
+</pre>
+  <pre id="var-docstr">Converts a map or struct to an Entity. The map must have the key or
+kind of the entity stored under the :key or a :kind keywords.
+
+Examples:
+
+   (map-&gt;entity {:key "continent" :name "Europe"})
+   ; =&gt; #&lt;Entity &lt;Entity [continent(no-id-yet)]:
+   ;      name = Europe</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.core/properties">properties</h2>
+  <span id="var-type">multimethod</span><br />
+  <pre id="var-usage">No usage documentation available</pre>
+  <pre id="var-docstr">Returns the properties of the given record as a map.</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.core/put-entity">put-entity</h2>
+  <span id="var-type">multimethod</span><br />
+  <pre id="var-usage">No usage documentation available</pre>
+  <pre id="var-docstr">Puts the given record into the datastore and returns a
+PersistentHashMap of the record. The record must be an instance of
+Entity or PersistentHashMap.</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.core/string-&gt;key">string-&gt;key</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (string-&gt;key string)
+</pre>
+  <pre id="var-docstr">Returns a Key from the given "websafe" string.
+
+Examples:
+
+  (string-&gt;key "agR0ZXN0chELEgljb250aW5lbnQiAmV1DA")
+  ; =&gt; #&lt;Key country("de")&gt;
+
+   (string-&gt;key "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA")
+   ; =&gt; #&lt;Key continent("eu")/country("de")&gt;</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.core/update-entity">update-entity</h2>
+  <span id="var-type">multimethod</span><br />
+  <pre id="var-usage">No usage documentation available</pre>
+  <pre id="var-docstr">Updates the record with the given properites. The record must be an
+instance of Entity, Key or PersistentHashMap. If one of the
+attributes' values is :remove, then the correponding property name is
+removed from that entity.  If one of the attributes't values is nil,
+then the corresponding property name is set to Java's null for that
+property.</pre>
+  
+</div>
+<h2 id="namespace-name">appengine.datastore.transactions</h2>
+<pre id="namespace-docstr"></pre>
+<br />
+<div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.transactions/*transaction-retries*">*transaction-retries*</h2>
+  <span id="var-type">var</span><br />
+  <pre id="var-usage"></pre>
+  <pre id="var-docstr">Total number of of times to retry a transaction beyond the first
+attempt in case a DatastoreFailureException is thrown.</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.transactions/is-transaction-active?">is-transaction-active?</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (is-transaction-active?)
+       (is-transaction-active? transaction)
+</pre>
+  <pre id="var-docstr">Returns whether the current transaction is active. As with
+rollback-transaction, should only be used from within with-transaction.
+See doc of rollback-transaction for an example</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.transactions/new-transaction">new-transaction</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (new-transaction)
+</pre>
+  <pre id="var-docstr">Returns a new GAE transaction object</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.transactions/rollback-transaction">rollback-transaction</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (rollback-transaction)
+       (rollback-transaction transaction)
+</pre>
+  <pre id="var-docstr">Can be used optionally to rollback a transaction.  
+  Use only within with-transaction.
+
+  (let [[k1 k2] (tr/with-transaction
+		 (let [forget1 (ds/create-entity 
+				{:kind "Person" :name "ForgetMe1"})
+		       forget2 (ds/create-entity 
+				{:kind "Person" :name "ForgetMe2"
+				 :parent-key (:key forget1)})]
+		   (tr/rollback-transaction)
+		   [(:key forget1) (:key forget2)]))]
+    (is (thrown? EntityNotFoundException (ds/get-entity k1)))
+    (is (thrown? EntityNotFoundException (ds/get-entity k2)))))
+
+  Note that the correct transaction is substituted in by the 
+  with-transaction macro.</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.transactions/with-retries">with-retries</h2>
+  <span id="var-type">macro</span><br />
+  <pre id="var-usage">Usage: (with-retries num &amp; body)
+</pre>
+  <pre id="var-docstr">Set the number of retries for any transactions within do retries's body.
+The first argument is the number of retries desired.  Must be used
+outside of the with-transaction macro.
+
+;; try to create parent and child a maximum of three times
+(tr/with-retries 2
+  (tr/with-transaction
+    (let [parent (ds/create-entity {:kind "Person" :name "Jennifer"})
+          child (ds/create-entity {:kind "Person" :name "Robert"
+                                   :parent-key (:key parent)})]
+     [parent child])))</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.transactions/with-transaction">with-transaction</h2>
+  <span id="var-type">macro</span><br />
+  <pre id="var-usage">Usage: (with-transaction &amp; body)
+</pre>
+  <pre id="var-docstr">Takes a body of forms (do is implied) and at runtime executes 
+the body of forms with a newly created transaction
+(one per thread per with-transaction).  In case of a 
+DatastoreFailureException which is not caught by the user's code,
+retry the transaction *transaction-retries* times 
+and throw the last DatastoreFailureException in case of 
+ultimate failure despite the retries.  Returns the value of the
+result of the last form.
+
+(with-transaction
+  (let [parent (ds/create-entity {:kind "Person" :name "Jennifer"})
+        child (ds/create-entity {:kind "Person" :name "Robert"
+                                 :parent-key (:key parent)})]
+    [parent child]))</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.transactions/without-transaction">without-transaction</h2>
+  <span id="var-type">macro</span><br />
+  <pre id="var-usage">Usage: (without-transaction &amp; body)
+</pre>
+  <pre id="var-docstr">Used to do no-transaction operations from within a transaction.
+Should be used within a try to catch any DatastoreFailureException
+or ConcurrentModificationException or other exceptions so that 
+these do not interfere with the encompassing transaction.
+
+(with-transaction
+  (let [parent (ds/create-entity {:kind "Person" :name "Jennifer"})
+        stranger (try 
+                   (without-transaction
+                     (ds/create-entity {:kind "Person" :name "Chris"}))
+                   (catch Exception e nil))
+        child (ds/create-entity {:kind "Person" :name "Robert"
+                                 :parent-key (:key parent)})]
+  ... do something with parent, stranger, child ...
+ ))</pre>
+  
+</div>
+
+
+</div>
+              </div>
+            </div>
+          </div>
+	</div>
+	<div id="foot">
+	  <div style="text-align: center;" id="copyright">No copyright info </div>
+	</div>
+      </div>
+      <div id="DesignedBy">Logo &amp; site design by <a title="Visit Tom Hickey's website." href="http://www.tomhickey.com">Tom Hickey</a>.<br />
+      Clojure auto-documentation system by Tom Faulhaber.</div>
+    </div>
+    <!-- /AllContentContainer -->
+  </body>
+
+</html>
