@@ -129,7 +129,7 @@
 
 (datastore-test test-def-create-fn-with-continent
   (def-key-fn continent (:iso-3166-alpha-2))
-  (def-make-fn continent)
+  (def-make-fn continent () (iso-3166-alpha-2 :key true) (name))
   (def-create-fn continent)
   (let [continent (create-continent {:iso-3166-alpha-2 "eu" :name "Europe"})]
     (let [key (:key continent)]
@@ -145,10 +145,10 @@
 
 (datastore-test test-def-create-fn-with-create-country
   (def-key-fn continent (:iso-3166-alpha-2))
-  (def-make-fn continent)
+  (def-make-fn continent () (iso-3166-alpha-2 :key true) (name))
   (def-create-fn continent)
   (def-key-fn country (:iso-3166-alpha-2) continent)
-  (def-make-fn country continent)
+  (def-make-fn country (continent) (iso-3166-alpha-2 :key true) (iso-3166-alpha-3) (name))
   (def-create-fn country continent)
     (let [continent (create-continent {:iso-3166-alpha-2 "eu" :name "Europe"})
           country (create-country continent {:iso-3166-alpha-2 "es" :name "Spain"})]
@@ -180,7 +180,7 @@
 
 (datastore-test test-def-make-fn-continent-with-continent
   (def-key-fn continent (:iso-3166-alpha-2))
-  (def-make-fn continent)
+  (def-make-fn continent () (iso-3166-alpha-2 :key true) (name))
   (let [continent (make-continent {:iso-3166-alpha-2 "eu" :name "Europe"})]
     (let [key (:key continent)]
       (is (= (class key) com.google.appengine.api.datastore.Key))
@@ -194,8 +194,8 @@
     (is (= (:name continent) "Europe"))))
 
 (datastore-test test-def-make-fn-with-country
-  (def-make-fn continent)
-  (def-make-fn country continent)
+  (def-make-fn continent () (iso-3166-alpha-2 :key true) (name))
+  (def-make-fn country (continent) (iso-3166-alpha-2 :key true) (iso-3166-alpha-3) (name))
   (let [continent (make-continent {:iso-3166-alpha-2 "eu" :name "Europe"})
         country (make-country continent {:iso-3166-alpha-2 "es" :name "Spain"})]
     (let [key (:key country)]
