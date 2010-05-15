@@ -3,5 +3,6 @@
 
 (immigrate
  'appengine.datastore.core
- 'appengine.datastore.entities)
+ 'appengine.datastore.entities
+ 'appengine.datastore.transactions)
 
