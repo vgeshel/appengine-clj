@@ -51,7 +51,22 @@ Examples:
    :else (throw (IllegalArgumentException. (str "Invalid sort direction: " direction)))))
 
 (defmulti make-query
-  "Create a new Query that finds Entity objects."
+  "Create a new Query that finds Entity objects.
+
+Examples:
+
+  (make-query)
+  ; => #<Query SELECT *>
+
+  (make-query \"continents\")
+  ; => #<Query SELECT * FROM continents>
+
+  (make-query (create-key \"continent\" \"eu\"))
+  ; => #<Query SELECT * WHERE __ancestor__ is continent(\"eu\")>
+
+  (make-query \"countries\" (create-key \"continent\" \"eu\"))
+  ; => #<Query SELECT * FROM countries WHERE __ancestor__ is continent(\"eu\")>
+"
   (fn [& args] (map class args)))
 
 (defmethod make-query [] []
