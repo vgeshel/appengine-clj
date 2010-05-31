@@ -51,3 +51,17 @@
       (is (isa? (class query) Query))
       (is (= (.getKind query) "countries"))
       (is (= (str query) "SELECT * FROM countries WHERE __ancestor__ is continent(\"eu\")")))))
+
+(datastore-test test-add-sort
+  (let [query (add-sort (make-query "continents") :iso-3166-alpha-2)]
+    (is (isa? (class query) Query))
+    (is (= (str query) "SELECT * FROM continents ORDER BY iso-3166-alpha-2")))
+  (let [query (add-sort (make-query "continents") :iso-3166-alpha-2 :asc)]
+    (is (isa? (class query) Query))
+    (is (= (str query) "SELECT * FROM continents ORDER BY iso-3166-alpha-2")))
+  (let [query (add-sort (make-query "continents") :iso-3166-alpha-2 :desc)]
+    (is (isa? (class query) Query))
+    (is (= (str query) "SELECT * FROM continents ORDER BY iso-3166-alpha-2 DESC")))
+  (let [query (-> (make-query "continents") (add-sort :iso-3166-alpha-2) (add-sort :name :desc))]
+    (is (isa? (class query) Query))
+    (is (= (str query) "SELECT * FROM continents ORDER BY iso-3166-alpha-2, name DESC"))))
