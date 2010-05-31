@@ -49,35 +49,35 @@ Examples:
    (= direction :desc) Query$SortDirection/DESCENDING
    :else (throw (IllegalArgumentException. (str "Invalid sort direction: " direction)))))
 
-(defmulti select
+(defmulti query
   "Create a new Query that finds Entity objects.
 
 Examples:
 
-  (select)
+  (query)
   ; => #<Query SELECT *>
 
-  (select \"continents\")
+  (query \"continents\")
   ; => #<Query SELECT * FROM continents>
 
-  (select (create-key \"continent\" \"eu\"))
+  (query (create-key \"continent\" \"eu\"))
   ; => #<Query SELECT * WHERE __ancestor__ is continent(\"eu\")>
 
-  (select \"countries\" (create-key \"continent\" \"eu\"))
+  (query \"countries\" (create-key \"continent\" \"eu\"))
   ; => #<Query SELECT * FROM countries WHERE __ancestor__ is continent(\"eu\")>
 "
   (fn [& args] (map class args)))
 
-(defmethod select [] []
+(defmethod query [] []
   (Query.))
 
-(defmethod select [Key] [key]
+(defmethod query [Key] [key]
   (Query. key))
 
-(defmethod select [String] [kind]
+(defmethod query [String] [kind]
   (Query. kind))
 
-(defmethod select [String Key] [kind key]
+(defmethod query [String Key] [kind key]
   (Query. kind key))
 
 (defn filter-by
@@ -85,10 +85,10 @@ Examples:
 
 Examples:
 
-  (filter-by (select \"continents\") :iso-3166-alpha-2 = \"eu\")
+  (filter-by (query \"continents\") :iso-3166-alpha-2 = \"eu\")
   ; => #<Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu>
 
-  (-> (select \"continents\")
+  (-> (query \"continents\")
       (filter-by :iso-3166-alpha-2 = \"eu\")
       (filter-by :name = \"Europe\"))
   ; => #<Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu AND name = Europe>
@@ -105,10 +105,10 @@ ascending order of the given property.
 
 Examples:
 
-  (sort-by (select \"continents\") :iso-3166-alpha-2)
+  (sort-by (query \"continents\") :iso-3166-alpha-2)
   ; => #<Query SELECT * FROM continents ORDER BY iso-3166-alpha-2>
 
-  (-> (select \"continents\")
+  (-> (query \"continents\")
       (sort-by :iso-3166-alpha-2)
       (sort-by :name :desc))
   ; => #<Query SELECT * FROM continents ORDER BY iso-3166-alpha-2, name DESC>
