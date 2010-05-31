@@ -1,8 +1,7 @@
 (ns appengine.datastore.query
-  (:refer-clojure :exclude [sort-by])
   (:import (com.google.appengine.api.datastore Key Query Query$FilterOperator Query$SortDirection))
-  (:use appengine.utils [clojure.contrib.string :only (as-str)]))
-
+  (:refer-clojure :exclude [sort-by])
+  (:use appengine.utils))
 
 (defn filter-operator
   "Returns the FilterOperator enum for the given operator. The
@@ -50,39 +49,50 @@ Examples:
    (= direction :desc) Query$SortDirection/DESCENDING
    :else (throw (IllegalArgumentException. (str "Invalid sort direction: " direction)))))
 
-(defmulti make-query
+(defmulti select
   "Create a new Query that finds Entity objects.
 
 Examples:
 
-  (make-query)
+  (select)
   ; => #<Query SELECT *>
 
-  (make-query \"continents\")
+  (select \"continents\")
   ; => #<Query SELECT * FROM continents>
 
-  (make-query (create-key \"continent\" \"eu\"))
+  (select (create-key \"continent\" \"eu\"))
   ; => #<Query SELECT * WHERE __ancestor__ is continent(\"eu\")>
 
-  (make-query \"countries\" (create-key \"continent\" \"eu\"))
+  (select \"countries\" (create-key \"continent\" \"eu\"))
   ; => #<Query SELECT * FROM countries WHERE __ancestor__ is continent(\"eu\")>
 "
   (fn [& args] (map class args)))
 
-(defmethod make-query [] []
+(defmethod select [] []
   (Query.))
 
-(defmethod make-query [Key] [key]
+(defmethod select [Key] [key]
   (Query. key))
 
-(defmethod make-query [String] [kind]
+(defmethod select [String] [kind]
   (Query. kind))
 
-(defmethod make-query [String Key] [kind key]
+(defmethod select [String Key] [kind key]
   (Query. kind key))
 
 (defn filter-by
-  "Add a filter on the specified property to the query."
+  "Add a filter on the specified property to the query.
+
+Examples:
+
+  (filter-by (select \"continents\") :iso-3166-alpha-2 = \"eu\")
+  ; => #<Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu>
+
+  (-> (select \"continents\")
+      (filter-by :iso-3166-alpha-2 = \"eu\")
+      (filter-by :name = \"Europe\"))
+  ; => #<Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu AND name = Europe>
+"
   [query property-name operator value]
   (.addFilter query (stringify property-name) (filter-operator operator) value))
 
@@ -95,10 +105,10 @@ ascending order of the given property.
 
 Examples:
 
-  (sort-by (make-query \"continents\") :iso-3166-alpha-2)
+  (sort-by (select \"continents\") :iso-3166-alpha-2)
   ; => #<Query SELECT * FROM continents ORDER BY iso-3166-alpha-2>
 
-  (-> (make-query \"continents\") (sort-by :iso-3166-alpha-2) (sort-by :name :desc))
+  (-> (select \"continents\") (sort-by :iso-3166-alpha-2) (sort-by :name :desc))
   ; => #<Query SELECT * FROM continents ORDER BY iso-3166-alpha-2, name DESC>
 "
   [query property-name & [direction]]
