@@ -4,8 +4,8 @@
   (:import (com.google.appengine.api.datastore 
 	    EntityNotFoundException Query Query$FilterOperator))
   (:require [appengine.datastore.core :as ds])
-  (:use [clojure.contrib.str-utils2 :only (join)]
-        [clojure.contrib.seq-utils :only (includes?)]
+  (:use [clojure.contrib.string :only (join)]
+        [clojure.contrib.seq :only (includes?)]
         appengine.utils	inflections))
 
 (defn- entity-key? [entity-specs]
