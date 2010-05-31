@@ -1,8 +1,8 @@
 (ns appengine.datastore.query
+  (:refer-clojure :exclude [sort-by])
   (:import (com.google.appengine.api.datastore Key Query Query$FilterOperator Query$SortDirection))
   (:use appengine.utils [clojure.contrib.string :only (as-str)]))
 
-(str :test)
 
 (defn filter-operator
   "Returns the FilterOperator enum for the given operator. The
@@ -81,21 +81,30 @@ Examples:
 (defmethod make-query [String Key] [kind key]
   (Query. kind key))
 
-(defn add-sort
+(defn filter-by
+  "Add a filter on the specified property to the query."
+  [query property-name operator value]
+  (.addFilter query (stringify property-name) (filter-operator operator) value))
+
+(defn sort-by
   "Specify how the query results should be sorted. The first call to
-add-sort will register the property that will serve as the primary
-sort key. A second call to add-sort will set a secondary sort key,
+sort-by will register the property that will serve as the primary
+sort key. A second call to sort-by will set a secondary sort key,
 etc. If no direction is given, the query results will be sorted in
 ascending order of the given property.
 
 Examples:
 
-  (add-sort (make-query \"continents\") :iso-3166-alpha-2)
+  (sort-by (make-query \"continents\") :iso-3166-alpha-2)
   ; => #<Query SELECT * FROM continents ORDER BY iso-3166-alpha-2>
 
-  (-> (make-query \"continents\") (add-sort :iso-3166-alpha-2) (add-sort :name :desc))
+  (-> (make-query \"continents\") (sort-by :iso-3166-alpha-2) (sort-by :name :desc))
   ; => #<Query SELECT * FROM continents ORDER BY iso-3166-alpha-2, name DESC>
 "
   [query property-name & [direction]]
   (.addSort query (stringify property-name)
             (if direction (sort-direction direction) Query$SortDirection/ASCENDING)))
+
+(defn query?
+  "Returns true, if the arg is an instance of Query."
+  [arg] (isa? (class arg) Query))
