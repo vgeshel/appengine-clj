@@ -3,9 +3,9 @@
 
 (defn filter-operator
   "Returns the FilterOperator enum for the given operator. The
-  operator argument is a clojure function, such as =, >, >=, <, <= or
-  not. These functions are not called at all, they just act as
-  shortcut to map to the FilterOperator enums.
+operator argument is a clojure function, such as =, >, >=, <, <= or
+not. These functions are not called at all, they just act as shortcut
+to map to the FilterOperator enums.
 
 Examples:
 
@@ -31,8 +31,8 @@ Examples:
 
 (defn sort-direction
   "Returns the SortDirection enum for the given sort direction. The
-  direction argument must be :asc for an ascending, or :desc for
-  descending a sort order.
+direction argument must be :asc for an ascending, or :desc for a
+descending a sort order.
 
 Examples:
 
