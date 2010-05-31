@@ -90,3 +90,12 @@
        (Query.) true
        nil false
        "" false))
+
+(datastore-test test-select
+  (is (query? (select "continents")))
+  (is (query? (select "continents"
+                (filter-by :iso-3166-alpha-2 = "eu")
+                (sort-by :iso-3166-alpha-2)
+                (sort-by :name :desc)))))
+
+

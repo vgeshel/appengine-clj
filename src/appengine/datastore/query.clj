@@ -120,3 +120,22 @@ Examples:
 (defn query?
   "Returns true, if the arg is an instance of Query."
   [arg] (isa? (class arg) Query))
+
+(defmacro select
+  "A macro that transforms the select clause, and any number of
+filter-by and sort-by clauses into a -> form to produce a query.
+
+Examples:
+
+  (select \"continents\"
+    (filter-by :iso-3166-alpha-2 = \"eu\")
+    (sort-by :iso-3166-alpha-2)
+    (sort-by :name :desc))
+  ; => #<Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu ORDER BY iso-3166-alpha-2, name DESC>
+
+"
+  [query & body]
+  `(-> (query ~query)
+       ~@body))
+
+
