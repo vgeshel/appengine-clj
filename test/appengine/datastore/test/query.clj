@@ -6,14 +6,26 @@
             Query$SortDirection)))
 
 (deftest test-filter-operator
-  (are [operator expected]
-    (is (= (filter-operator operator) expected))
-    = Query$FilterOperator/EQUAL
-    > Query$FilterOperator/GREATER_THAN
-    >= Query$FilterOperator/GREATER_THAN_OR_EQUAL
-    < Query$FilterOperator/LESS_THAN
-    <= Query$FilterOperator/LESS_THAN_OR_EQUAL
-    not Query$FilterOperator/NOT_EQUAL))
+  (testing "Valid filter operators"
+    (are [operator expected]
+      (is (= (filter-operator operator) expected))
+      = Query$FilterOperator/EQUAL
+      > Query$FilterOperator/GREATER_THAN
+      >= Query$FilterOperator/GREATER_THAN_OR_EQUAL
+      < Query$FilterOperator/LESS_THAN
+      <= Query$FilterOperator/LESS_THAN_OR_EQUAL
+      not Query$FilterOperator/NOT_EQUAL))
+  (testing "Invalid filter operators"
+    (is (thrown? IllegalArgumentException (filter-operator :invalid)))))
+
+(deftest test-sort-direction
+  (testing "Valid sort directions"
+    (are [direction expected]
+      (is (= (sort-direction direction) expected))
+      :asc Query$SortDirection/ASCENDING
+      :desc Query$SortDirection/DESCENDING))
+  (testing "Invalid sort directions"
+    (is (thrown? IllegalArgumentException (sort-direction :invalid)))))
 
 (datastore-test test-make-query
   (testing "Build a new kind-less Query that finds Entity objects."
