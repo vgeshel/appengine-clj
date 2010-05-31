@@ -108,7 +108,9 @@ Examples:
   (sort-by (select \"continents\") :iso-3166-alpha-2)
   ; => #<Query SELECT * FROM continents ORDER BY iso-3166-alpha-2>
 
-  (-> (select \"continents\") (sort-by :iso-3166-alpha-2) (sort-by :name :desc))
+  (-> (select \"continents\")
+      (sort-by :iso-3166-alpha-2)
+      (sort-by :name :desc))
   ; => #<Query SELECT * FROM continents ORDER BY iso-3166-alpha-2, name DESC>
 "
   [query property-name & [direction]]
