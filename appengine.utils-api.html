@@ -47,7 +47,13 @@ namespace.
   <h1 class="nopad">Table of Contents</h1>
   <div style="margin-left: 1em;" class="toc-section">
     <a href="#toc0">Overview</a>
-    
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.utils/keyword-&gt;string">keyword-&gt;string</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.utils/map-keys">map-keys</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.utils/stringify">stringify</a>
+    </div>
     <br />
   </div>
 </div>
@@ -63,7 +69,58 @@ by <span id="author">Roman Scherer</span><br />
 <pre id="namespace-docstr">Utility functions for Google App Engine.</pre>
 <br />
 <h2>Public Variables and Functions</h2>
+<div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.utils/keyword-&gt;string">keyword-&gt;string</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (keyword-&gt;string keyword)
+</pre>
+  <pre id="var-docstr">Returns a string by calling str on the keyword and removing the
+double colon at the beginning. If called with a string as argument the
+string will be returned without modification.
 
+Examples:
+
+  (keyword-&gt;string :iso-3166-alpha-2)
+  ; =&gt; "iso-3166-alpha-2"
+
+  (keyword-&gt;string "iso-3166-alpha-2")
+  ; =&gt; "iso-3166-alpha-2"</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.utils/map-keys">map-keys</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (map-keys coll f)
+</pre>
+  <pre id="var-docstr">Returns a lazy sequence consisting of the result of applying f to
+the keys of coll.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.utils/stringify">stringify</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (stringify arg)
+</pre>
+  <pre id="var-docstr">Returns a stringified version of the given argument. Keywords are
+converted with the keyword-&gt;string function, all other by calling str
+on the argument.
+
+Examples:
+
+  (stringify "iso-3166-alpha-2")
+  ; =&gt; "iso-3166-alpha-2"
+
+  (stringify :iso-3166-alpha-2)
+  ; =&gt; "iso-3166-alpha-2"
+
+  (stringify 'iso-3166-alpha-2)
+  ; =&gt; "iso-3166-alpha-2"</pre>
+  
+</div>
 
 
 </div>

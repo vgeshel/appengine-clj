@@ -124,6 +124,24 @@ namespace.
     
     <br />
   </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#appengine.datastore.query">appengine.datastore.query</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/filter-by">filter-by</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/filter-operator">filter-operator</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/query">query</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/query?">query?</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/select">select</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/sort-by">sort-by</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/sort-direction">sort-direction</a>
+    </div>
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
     <a href="#appengine.datastore.transactions">appengine.datastore.transactions</a>
     <div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore.transactions/*transaction-retries*">*transaction-retries*</a>
@@ -625,6 +643,136 @@ property.</pre>
 <pre id="namespace-docstr">The entity API for the Google App Engine datastore service.</pre>
 <br />
 
+<h2 id="namespace-name">appengine.datastore.query</h2>
+<pre id="namespace-docstr"></pre>
+<br />
+<div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.query/filter-by">filter-by</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (filter-by query property-name operator value)
+</pre>
+  <pre id="var-docstr">Add a filter on the specified property to the query.
+
+Examples:
+
+  (filter-by (query "continents") :iso-3166-alpha-2 = "eu")
+  ; =&gt; #&lt;Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu&gt;
+
+  (-&gt; (query "continents")
+      (filter-by :iso-3166-alpha-2 = "eu")
+      (filter-by :name = "Europe"))
+  ; =&gt; #&lt;Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu AND name = Europe&gt;</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.query/filter-operator">filter-operator</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (filter-operator operator)
+</pre>
+  <pre id="var-docstr">Returns the FilterOperator enum for the given operator. The
+operator argument is a clojure function, such as =, &gt;, &gt;=, &lt;, &lt;= or
+not. These functions are not called at all, they just act as shortcut
+to map to the FilterOperator enums.
+
+Examples:
+
+  (filter-operator =)
+  ; =&gt; #&lt;FilterOperator =&gt;
+
+  (filter-operator &gt;)
+  ; =&gt; #&lt;FilterOperator &gt;&gt;
+
+  (filter-operator not)
+  ; =&gt; #&lt;FilterOperator !=&gt;</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.query/query">query</h2>
+  <span id="var-type">multimethod</span><br />
+  <pre id="var-usage">No usage documentation available</pre>
+  <pre id="var-docstr">Create a new Query that finds Entity objects.
+
+Examples:
+
+  (query)
+  ; =&gt; #&lt;Query SELECT *&gt;
+
+  (query "continents")
+  ; =&gt; #&lt;Query SELECT * FROM continents&gt;
+
+  (query (create-key "continent" "eu"))
+  ; =&gt; #&lt;Query SELECT * WHERE __ancestor__ is continent("eu")&gt;
+
+  (query "countries" (create-key "continent" "eu"))
+  ; =&gt; #&lt;Query SELECT * FROM countries WHERE __ancestor__ is continent("eu")&gt;</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.query/query?">query?</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (query? arg)
+</pre>
+  <pre id="var-docstr">Returns true, if the arg is an instance of Query.</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.query/select">select</h2>
+  <span id="var-type">macro</span><br />
+  <pre id="var-usage">Usage: (select query &amp; body)
+</pre>
+  <pre id="var-docstr">A macro that transforms the select clause, and any number of
+filter-by and sort-by clauses into a -&gt; form to produce a query.
+
+Examples:
+
+  (select "continents"
+    (filter-by :iso-3166-alpha-2 = "eu")
+    (sort-by :iso-3166-alpha-2)
+    (sort-by :name :desc))
+  ; =&gt; #&lt;Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu ORDER BY iso-3166-alpha-2, name DESC&gt;</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.query/sort-by">sort-by</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (sort-by query property-name &amp; [direction])
+</pre>
+  <pre id="var-docstr">Specify how the query results should be sorted. The first call to
+sort-by will register the property that will serve as the primary
+sort key. A second call to sort-by will set a secondary sort key,
+etc. If no direction is given, the query results will be sorted in
+ascending order of the given property.
+
+Examples:
+
+  (sort-by (query "continents") :iso-3166-alpha-2)
+  ; =&gt; #&lt;Query SELECT * FROM continents ORDER BY iso-3166-alpha-2&gt;
+
+  (-&gt; (query "continents")
+      (sort-by :iso-3166-alpha-2)
+      (sort-by :name :desc))
+  ; =&gt; #&lt;Query SELECT * FROM continents ORDER BY iso-3166-alpha-2, name DESC&gt;</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.query/sort-direction">sort-direction</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (sort-direction direction)
+</pre>
+  <pre id="var-docstr">Returns the SortDirection enum for the given sort direction. The
+direction argument must be :asc for an ascending, or :desc for a
+descending a sort order.
+
+Examples:
+
+  (sort-direction :asc)
+  ; =&gt; #&lt;SortDirection ASCENDING&gt;
+
+  (sort-direction :desc)
+  ; =&gt; #&lt;SortDirection DESCENDING&gt;</pre>
+  
+</div>
 <h2 id="namespace-name">appengine.datastore.transactions</h2>
 <pre id="namespace-docstr">The transaction API for the Google App Engine datastore service.</pre>
 <br />
