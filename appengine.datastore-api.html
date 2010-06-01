@@ -130,13 +130,13 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore.query/filter-operator">filter-operator</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/order-by">order-by</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore.query/query">query</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore.query/query?">query?</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore.query/select">select</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.datastore.query/sort-by">sort-by</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore.query/sort-direction">sort-direction</a>
     </div>
@@ -650,18 +650,18 @@ property.</pre>
   <hr />
   <h2 id="appengine.datastore.query/filter-by">filter-by</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (filter-by query property-name operator value)
+  <pre id="var-usage">Usage: (filter-by query operator property-name value)
 </pre>
   <pre id="var-docstr">Add a filter on the specified property to the query.
 
 Examples:
 
-  (filter-by (query "continents") :iso-3166-alpha-2 = "eu")
+  (filter-by (query "continents") = :iso-3166-alpha-2 "eu")
   ; =&gt; #&lt;Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu&gt;
 
   (-&gt; (query "continents")
-      (filter-by :iso-3166-alpha-2 = "eu")
-      (filter-by :name = "Europe"))
+      (filter-by = :iso-3166-alpha-2 "eu")
+      (filter-by = :name "Europe"))
   ; =&gt; #&lt;Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu AND name = Europe&gt;</pre>
   
 </div><div id="var-entry">
@@ -685,6 +685,28 @@ Examples:
 
   (filter-operator not)
   ; =&gt; #&lt;FilterOperator !=&gt;</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="appengine.datastore.query/order-by">order-by</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (order-by query property-name &amp; [direction])
+</pre>
+  <pre id="var-docstr">Specify how the query results should be sorted. The first call to
+order-by will register the property that will serve as the primary
+sort key. A second call to order-by will set a secondary sort key,
+etc. If no direction is given, the query results will be sorted in
+ascending order of the given property.
+
+Examples:
+
+  (order-by (query "continents") :iso-3166-alpha-2)
+  ; =&gt; #&lt;Query SELECT * FROM continents ORDER BY iso-3166-alpha-2&gt;
+
+  (-&gt; (query "continents")
+      (order-by :iso-3166-alpha-2)
+      (order-by :name :desc))
+  ; =&gt; #&lt;Query SELECT * FROM continents ORDER BY iso-3166-alpha-2, name DESC&gt;</pre>
   
 </div><div id="var-entry">
   <hr />
@@ -719,40 +741,23 @@ Examples:
   <hr />
   <h2 id="appengine.datastore.query/select">select</h2>
   <span id="var-type">macro</span><br />
-  <pre id="var-usage">Usage: (select query &amp; body)
+  <pre id="var-usage">Usage: (select &amp; args)
 </pre>
   <pre id="var-docstr">A macro that transforms the select clause, and any number of
-filter-by and sort-by clauses into a -&gt; form to produce a query.
+where and order-by clauses into a -&gt; form to produce a query.
 
 Examples:
+
+  (select "continents")
+  ; =&gt; #&lt;Query SELECT * FROM continents&gt;
+
+  (select "countries" (create-key "continent" "eu") where (= :name "Europe"))
+  ; =&gt; #&lt;Query SELECT * FROM countries WHERE name = Europe AND __ancestor__ is continent("eu")&gt;
 
   (select "continents"
-    (filter-by :iso-3166-alpha-2 = "eu")
-    (sort-by :iso-3166-alpha-2)
-    (sort-by :name :desc))
-  ; =&gt; #&lt;Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu ORDER BY iso-3166-alpha-2, name DESC&gt;</pre>
-  
-</div><div id="var-entry">
-  <hr />
-  <h2 id="appengine.datastore.query/sort-by">sort-by</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (sort-by query property-name &amp; [direction])
-</pre>
-  <pre id="var-docstr">Specify how the query results should be sorted. The first call to
-sort-by will register the property that will serve as the primary
-sort key. A second call to sort-by will set a secondary sort key,
-etc. If no direction is given, the query results will be sorted in
-ascending order of the given property.
-
-Examples:
-
-  (sort-by (query "continents") :iso-3166-alpha-2)
-  ; =&gt; #&lt;Query SELECT * FROM continents ORDER BY iso-3166-alpha-2&gt;
-
-  (-&gt; (query "continents")
-      (sort-by :iso-3166-alpha-2)
-      (sort-by :name :desc))
-  ; =&gt; #&lt;Query SELECT * FROM continents ORDER BY iso-3166-alpha-2, name DESC&gt;</pre>
+    where (= :name "Europe") (&gt; :updated-at "2010-01-01")
+    order-by (:name) (:updated-at :desc)))
+  ; =&gt; #&lt;Query SELECT * FROM continents WHERE name = Europe AND updated-at &gt; 2010-01-01 ORDER BY name, updated-at DESC&gt;</pre>
   
 </div><div id="var-entry">
   <hr />
