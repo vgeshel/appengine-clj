@@ -1,7 +1,6 @@
 (ns appengine.datastore.query
   (:import (com.google.appengine.api.datastore Key Query Query$FilterOperator Query$SortDirection))
-  (:refer-clojure :exclude [sort-by])
-  (:use appengine.utils))
+  (:use appengine.utils [clojure.contrib.seq :only (includes?)]))
 
 (defn filter-operator
   "Returns the FilterOperator enum for the given operator. The
@@ -96,21 +95,21 @@ Examples:
   [query operator property-name value]
   (.addFilter query (stringify property-name) (filter-operator operator) value))
 
-(defn sort-by
+(defn order-by
   "Specify how the query results should be sorted. The first call to
-sort-by will register the property that will serve as the primary
-sort key. A second call to sort-by will set a secondary sort key,
+order-by will register the property that will serve as the primary
+sort key. A second call to order-by will set a secondary sort key,
 etc. If no direction is given, the query results will be sorted in
 ascending order of the given property.
 
 Examples:
 
-  (sort-by (query \"continents\") :iso-3166-alpha-2)
+  (order-by (query \"continents\") :iso-3166-alpha-2)
   ; => #<Query SELECT * FROM continents ORDER BY iso-3166-alpha-2>
 
   (-> (query \"continents\")
-      (sort-by :iso-3166-alpha-2)
-      (sort-by :name :desc))
+      (order-by :iso-3166-alpha-2)
+      (order-by :name :desc))
   ; => #<Query SELECT * FROM continents ORDER BY iso-3166-alpha-2, name DESC>
 "
   [query property-name & [direction]]
@@ -121,21 +120,31 @@ Examples:
   "Returns true, if the arg is an instance of Query."
   [arg] (isa? (class arg) Query))
 
+(defn- extract-clauses
+  "Extract and return the query, where and order-by clauses."
+  [& args]
+  (let [[query k1 v1 k2 v2] (partition-by #(includes? ['where 'order-by] %1) (first args))]
+    (if (= (first k1) 'where) [query v1 v2] [query v2 v1])))
+
 (defmacro select
   "A macro that transforms the select clause, and any number of
-filter-by and sort-by clauses into a -> form to produce a query.
+where and order-by clauses into a -> form to produce a query.
 
 Examples:
 
+  (select \"continents\")
+  ; => #<Query SELECT * FROM continents>
+
+  (select \"countries\" (create-key \"continent\" \"eu\") where (= :name \"Europe\"))
+  ; => #<Query SELECT * FROM countries WHERE name = Europe AND __ancestor__ is continent(\"eu\")>
+
   (select \"continents\"
-    (filter-by :iso-3166-alpha-2 = \"eu\")
-    (sort-by :iso-3166-alpha-2)
-    (sort-by :name :desc))
-  ; => #<Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu ORDER BY iso-3166-alpha-2, name DESC>
-
+    where (= :name \"Europe\") (> :updated-at \"2010-01-01\")
+    order-by (:name) (:updated-at :desc)))
+  ; => #<Query SELECT * FROM continents WHERE name = Europe AND updated-at > 2010-01-01 ORDER BY name, updated-at DESC>
 "
-  [query & body]
-  `(-> (query ~query)
-       ~@body))
-
-
+  [& args]
+  (let [[query-clauses filter-clauses sort-clauses] (extract-clauses args)]
+    `(-> (query ~@query-clauses)
+         ~@(map (fn [args] `(filter-by ~@args)) filter-clauses)
+         ~@(map (fn [args] `(order-by ~@args)) sort-clauses))))
