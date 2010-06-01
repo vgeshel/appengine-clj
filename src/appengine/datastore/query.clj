@@ -85,15 +85,15 @@ Examples:
 
 Examples:
 
-  (filter-by (query \"continents\") :iso-3166-alpha-2 = \"eu\")
+  (filter-by (query \"continents\") = :iso-3166-alpha-2 \"eu\")
   ; => #<Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu>
 
   (-> (query \"continents\")
-      (filter-by :iso-3166-alpha-2 = \"eu\")
-      (filter-by :name = \"Europe\"))
+      (filter-by = :iso-3166-alpha-2 \"eu\")
+      (filter-by = :name \"Europe\"))
   ; => #<Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu AND name = Europe>
 "
-  [query property-name operator value]
+  [query operator property-name value]
   (.addFilter query (stringify property-name) (filter-operator operator) value))
 
 (defn sort-by

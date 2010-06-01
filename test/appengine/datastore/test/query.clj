@@ -54,8 +54,8 @@
       (do (is (query? q))
           (is (= (str q) expected-sql)))
       (-> (query "continents")
-          (filter-by :iso-3166-alpha-2 = "eu")
-          (filter-by :country-count > 0)
+          (filter-by = :iso-3166-alpha-2 "eu")
+          (filter-by > :country-count 0)
           (sort-by :iso-3166-alpha-2 :desc))
       "SELECT * FROM continents WHERE iso-3166-alpha-2 = eu AND country-count > 0 ORDER BY iso-3166-alpha-2 DESC")))
 
@@ -63,11 +63,11 @@
   (are [q expected-sql]
     (do (is (query? q))
         (is (= (str q) expected-sql)))
-    (filter-by (query "continents") :iso-3166-alpha-2 = "eu")
+    (filter-by (query "continents") = :iso-3166-alpha-2 "eu")
     "SELECT * FROM continents WHERE iso-3166-alpha-2 = eu"
     (-> (query "continents")
-        (filter-by :iso-3166-alpha-2 = "eu")
-        (filter-by :name = "Europe"))
+        (filter-by = :iso-3166-alpha-2 "eu")
+        (filter-by = :name "Europe"))
     "SELECT * FROM continents WHERE iso-3166-alpha-2 = eu AND name = Europe"))
 
 (datastore-test test-sort-by
@@ -94,7 +94,7 @@
 (datastore-test test-select
   (is (query? (select "continents")))
   (is (query? (select "continents"
-                (filter-by :iso-3166-alpha-2 = "eu")
+                (filter-by = :iso-3166-alpha-2 "eu")
                 (sort-by :iso-3166-alpha-2)
                 (sort-by :name :desc)))))
 
