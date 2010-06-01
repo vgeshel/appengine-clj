@@ -751,8 +751,8 @@ Examples:
   (select "continents")
   ; =&gt; #&lt;Query SELECT * FROM continents&gt;
 
-  (select "countries" (create-key "continent" "eu") where (= :name "Europe"))
-  ; =&gt; #&lt;Query SELECT * FROM countries WHERE name = Europe AND __ancestor__ is continent("eu")&gt;
+  (select "countries" (create-key "continent" "eu") where (= :name "Germany"))
+  ; =&gt; #&lt;Query SELECT * FROM countries WHERE name = Germany AND __ancestor__ is continent("eu")&gt;
 
   (select "continents"
     where (= :name "Europe") (&gt; :updated-at "2010-01-01")
