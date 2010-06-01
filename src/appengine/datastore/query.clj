@@ -135,8 +135,8 @@ Examples:
   (select \"continents\")
   ; => #<Query SELECT * FROM continents>
 
-  (select \"countries\" (create-key \"continent\" \"eu\") where (= :name \"Europe\"))
-  ; => #<Query SELECT * FROM countries WHERE name = Europe AND __ancestor__ is continent(\"eu\")>
+  (select \"countries\" (create-key \"continent\" \"eu\") where (= :name \"Germany\"))
+  ; => #<Query SELECT * FROM countries WHERE name = Germany AND __ancestor__ is continent(\"eu\")>
 
   (select \"continents\"
     where (= :name \"Europe\") (> :updated-at \"2010-01-01\")
