@@ -9,11 +9,11 @@ given, the new key will be a child of the parent-key.
   
 Examples:
 
-   (create-key \"country\" \"de\")
-   ; => #<Key country(\"de\")>
+  (create-key \"country\" \"de\")
+  ; => #<Key country(\"de\")>
  	
-   (create-key (create-key \"continent\" \"eu\") \"country\" \"de\")
-   ; => #<Key continent(\"eu\")/country(\"de\")>"
+  (create-key (create-key \"continent\" \"eu\") \"country\" \"de\")
+  ; => #<Key continent(\"eu\")/country(\"de\")>"
   ([kind identifier]
      (create-key nil kind identifier))
   ([#^Key parent-key kind identifier]
