@@ -17,6 +17,4 @@
     (is (= (.getAppDir environment) (java.io.File. ".")))))
 
 (deftest test-init-appengine
-  (let [proxy (init-appengine)]
-    (println proxy)
-    ))
+  (let [proxy (init-appengine)]))
