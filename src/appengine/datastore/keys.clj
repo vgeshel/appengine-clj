@@ -32,7 +32,7 @@ Examples:
 
   (key->string (create-key (create-key \"continent\" \"eu\") \"country\" \"de\")
   ; => \"agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA\""
-  [key] (KeyFactory/keyToString key))
+  [#^Key key] (KeyFactory/keyToString key))
 
 (defn string->key
   "Returns a Key from the given \"websafe\" string.
