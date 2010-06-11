@@ -1,7 +1,7 @@
 (ns appengine.datastore.test.types
   (import (com.google.appengine.api.datastore
            Blob Category Email GeoPt IMHandle IMHandle$Scheme Link PhoneNumber
-           PostalAddress Rating ShortBlob))
+           PostalAddress Rating ShortBlob Text))
   (:use appengine.datastore.types appengine.test clojure.test))
 
 (refer-private 'appengine.datastore.types)
@@ -70,6 +70,11 @@
     (is (isa? (class property) ShortBlob))
     (is (= (seq (.getBytes property)) [(byte 1) (byte 2)]))))
 
+(deftest test-serialize-text
+  (let [property (serialize Text "Lorem ipsum dolor sit amet ...")]
+    (is (isa? (class property) Text))
+    (is (= (.getValue property) "Lorem ipsum dolor sit amet ..."))))
+
 (deftest test-deserialize-blob
   (is (= (deserialize (Blob. (byte-array [(byte 1) (byte 2)])))
          [(byte 1) (byte 2)])))
@@ -94,10 +99,6 @@
 (deftest test-deserialize-link
   (is (= (deserialize (Link. "http://example.com")) "http://example.com")))
 
-(deftest test-deserialize-short-blob
-  (is (= (deserialize (ShortBlob. (byte-array [(byte 1) (byte 2)])))
-         [(byte 1) (byte 2)])))
-
 (deftest test-deserialize-phone-number
   (is (= (deserialize (PhoneNumber. "1234")) "1234")))
 
@@ -107,3 +108,11 @@
 
 (deftest test-deserialize-rating
   (is (= (deserialize (Rating. 10)) 10)))
+
+(deftest test-deserialize-short-blob
+  (is (= (deserialize (ShortBlob. (byte-array [(byte 1) (byte 2)])))
+         [(byte 1) (byte 2)])))
+
+(deftest test-deserialize-text
+  (is (= (deserialize (Text. "Lorem ipsum dolor sit amet ..."))
+         "Lorem ipsum dolor sit amet ...")))

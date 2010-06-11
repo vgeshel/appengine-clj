@@ -1,7 +1,7 @@
 (ns appengine.datastore.types
   (:import (com.google.appengine.api.datastore
             Blob Category Email GeoPt IMHandle IMHandle$Scheme Link PhoneNumber
-            PostalAddress Rating ShortBlob))
+            PostalAddress Rating ShortBlob Text))
   (:use [clojure.contrib.string :only (lower-case trim)]
         [clojure.contrib.seq :only (includes?)]))
 
@@ -78,6 +78,9 @@ Examples:
 
 (defmethod deserialize ShortBlob [short-blob]
   (seq (.getBytes short-blob)))
+
+(defmethod deserialize Text [text]
+  (.getValue text))
 
 (defmethod deserialize :default [instance]
   instance)
