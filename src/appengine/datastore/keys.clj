@@ -28,8 +28,8 @@ Examples:
   (key->string (create-key \"continent\" \"eu\"))
   ; => \"agR0ZXN0chELEgljb250aW5lbnQiAmV1DA\"
 
-   (key->string (create-key (create-key \"continent\" \"eu\") \"country\" \"de\")
-   ; => \"agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA\""
+  (key->string (create-key (create-key \"continent\" \"eu\") \"country\" \"de\")
+  ; => \"agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA\""
   [key] (KeyFactory/keyToString key))
 
 (defn string->key
@@ -40,6 +40,6 @@ Examples:
   (string->key \"agR0ZXN0chELEgljb250aW5lbnQiAmV1DA\")
   ; => #<Key country(\"de\")>
 
-   (string->key \"agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA\")
-   ; => #<Key continent(\"eu\")/country(\"de\")>"
+  (string->key \"agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA\")
+  ; => #<Key continent(\"eu\")/country(\"de\")>"
   [string] (KeyFactory/stringToKey string))
