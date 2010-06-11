@@ -1,4 +1,6 @@
-(ns appengine.datastore.keys
+(ns #^{:author "Roman Scherer"
+       :doc "Clojue API for Google App Engine datastore keys."}
+  appengine.datastore.keys
   (:import (com.google.appengine.api.datastore Key KeyFactory)))
 
 (defn create-key

@@ -1,5 +1,5 @@
 (ns #^{:author "Roman Scherer"
-       :doc "The core API for the Google App Engine datastore service." }
+       :doc "Clojue API for the Google App Engine datastore service."}
   appengine.datastore.core
   (:import (com.google.appengine.api.datastore
             DatastoreServiceFactory DatastoreServiceConfig
