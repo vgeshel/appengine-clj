@@ -7,5 +7,7 @@ Jean-Denis Greze."
 (immigrate
  'appengine.datastore.core
  'appengine.datastore.entities
+ 'appengine.datastore.keys
+ 'appengine.datastore.query
  'appengine.datastore.transactions)
 

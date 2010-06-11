@@ -1,6 +1,7 @@
 (ns appengine.datastore.test.entities
-  (:require [appengine.datastore.core :as ds])
-  (:use appengine.datastore.entities
+  (:use appengine.datastore.core
+        appengine.datastore.entities
+        appengine.datastore.keys
         appengine.test
         clojure.test))
 
@@ -53,13 +54,13 @@
          "find-sheep-by-color")))
 
 (datastore-test test-filter-query
-  (let [continent (ds/create-entity {:kind "continent" :name "Europe"})]
-    (is (= [continent] (ds/find-all (filter-query 'continent 'name "Europe"))))
-    (is (= [continent] (ds/find-all (filter-query "continent" "name" "Europe"))))))
+  (let [continent (create-entity {:kind "continent" :name "Europe"})]
+    (is (= [continent] (find-all (filter-query 'continent 'name "Europe"))))
+    (is (= [continent] (find-all (filter-query "continent" "name" "Europe"))))))
 
 (datastore-test test-filter-fn
   (is (fn? (filter-fn 'continent 'name)))
-  (let [continent (ds/create-entity {:kind "continent" :name "Europe"})]
+  (let [continent (create-entity {:kind "continent" :name "Europe"})]
     (is (= [continent] ((filter-fn 'continent 'name) "Europe")))
     (is (= [continent] ((filter-fn "continent" "name") "Europe")))))
 
@@ -67,24 +68,24 @@
   (deffilter continent find-all-continents-by-name
     "Find all continents by name."
     (name))
-  (let [continent (ds/create-entity {:kind "continent" :name "Europe"})]
+  (let [continent (create-entity {:kind "continent" :name "Europe"})]
     (is (= [continent] (find-all-continents-by-name (:name continent))))))
 
 (datastore-test test-find-continent-by-name
   (deffilter continent find-continent-by-name
     "Find all countries by name." (name) first)
-  (let [continent (ds/create-entity {:kind "continent" :name "Europe"})]
+  (let [continent (create-entity {:kind "continent" :name "Europe"})]
     (is (= continent (find-continent-by-name (:name continent))))))
 
 (datastore-test test-def-find-all-by-property-fns
   (def-find-all-by-property-fns continent name iso-3166-alpha-2)
-  (let [continent (ds/create-entity {:kind "continent" :name "Europe" :iso-3166-alpha-2 "eu"})]
+  (let [continent (create-entity {:kind "continent" :name "Europe" :iso-3166-alpha-2 "eu"})]
     (is (= [continent] (find-all-continents-by-name (:name continent))))
     (is (= [continent] (find-all-continents-by-iso-3166-alpha-2 (:iso-3166-alpha-2 continent))))))
 
 (datastore-test test-def-find-first-by-property-fns
   (def-find-first-by-property-fns continent name iso-3166-alpha-2)
-  (let [continent (ds/create-entity {:kind "continent" :name "Europe" :iso-3166-alpha-2 "eu"})]
+  (let [continent (create-entity {:kind "continent" :name "Europe" :iso-3166-alpha-2 "eu"})]
     (is (= continent (find-continent-by-name (:name continent))))
     (is (= continent (find-continent-by-iso-3166-alpha-2 (:iso-3166-alpha-2 continent))))))
 
@@ -103,7 +104,7 @@
 
 (datastore-test test-make-country-key
   (def-key-fn country (:iso-3166-alpha-2) continent)
-  (let [continent {:key (ds/create-key "continent" "eu")}
+  (let [continent {:key (create-key "continent" "eu")}
         key (make-country-key continent {:iso-3166-alpha-2 "es"})]
     (is (= (class key) com.google.appengine.api.datastore.Key))
     (is (.isComplete key))
@@ -217,17 +218,17 @@
 
 (datastore-test test-def-delete-fn
   (def-delete-fn continent)
-  (let [continent (ds/create-entity {:kind "continent" :name "Europe"})]
+  (let [continent (create-entity {:kind "continent" :name "Europe"})]
     (delete-continent continent)
     (is (nil? (find-continent-by-name "Europe")))))
 
 (datastore-test test-def-find-all-fn
   (def-find-all-fn continent)
-  (let [continent (ds/create-entity {:kind "continent" :name "Europe"})]
+  (let [continent (create-entity {:kind "continent" :name "Europe"})]
     (is (= (find-continents) [continent]))))
 
 (datastore-test test-def-update-fn-with-continent
-  (let [continent (ds/create-entity {:kind "continent" :name "unknown"})]
+  (let [continent (create-entity {:kind "continent" :name "unknown"})]
     (is (= (update-continent continent {:name "Europe"})
            (find-continent-by-name "Europe")))
     (update-continent continent {:name "Europe"})
@@ -245,7 +246,7 @@
   (deffilter continent find-all-continents-by-name
     "Find all continents by name." (name))
   (is (fn? find-all-continents-by-name))
-  (let [continent (ds/create-entity {:kind "continent" :name "Europe"})]
+  (let [continent (create-entity {:kind "continent" :name "Europe"})]
     (is (= [continent] (find-all-continents-by-name (:name continent))))))
 
 ;; note: if you don't set the :key, let the datastore set it for us

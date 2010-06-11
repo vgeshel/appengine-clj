@@ -1,10 +1,10 @@
 (ns #^{:author "Jean-Denis Greze"
        :doc "The transaction API for the Google App Engine datastore service." }
     appengine.datastore.transactions
-  (:require [appengine.datastore.core :as ds])
   (:import (com.google.appengine.api.datastore DatastoreFailureException)
 	   (java.util ConcurrentModificationException))
-  (:use [clojure.contrib.def :only (defvar)]))
+  (:use [clojure.contrib.def :only (defvar)]
+        appengine.datastore.core))
 
 (defvar *transaction-retries* 4
   "Total number of of times to retry a transaction beyond the first
@@ -12,33 +12,33 @@
 
 (defn new-transaction 
   "Returns a new GAE transaction object"
-  [] (.beginTransaction (ds/datastore)))
+  [] (.beginTransaction (datastore)))
 
 (defn rollback-transaction 
   "Can be used optionally to rollback a transaction.  
   Use only within with-transaction.
 
   (let [[k1 k2] (tr/with-transaction
-		 (let [forget1 (ds/create-entity 
+		 (let [forget1 (create-entity 
 				{:kind \"Person\" :name \"ForgetMe1\"})
-		       forget2 (ds/create-entity 
+		       forget2 (create-entity 
 				{:kind \"Person\" :name \"ForgetMe2\"
 				 :parent-key (:key forget1)})]
 		   (tr/rollback-transaction)
 		   [(:key forget1) (:key forget2)]))]
-    (is (thrown? EntityNotFoundException (ds/get-entity k1)))
-    (is (thrown? EntityNotFoundException (ds/get-entity k2)))))
+    (is (thrown? EntityNotFoundException (get-entity k1)))
+    (is (thrown? EntityNotFoundException (get-entity k2)))))
 
   Note that the correct transaction is substituted in by the 
   with-transaction macro."
-  ([] (rollback-transaction ds/*transaction*))
+  ([] (rollback-transaction *transaction*))
   ([transaction] (.rollback transaction)))
 
 (defn is-transaction-active?
   "Returns whether the current transaction is active. As with
   rollback-transaction, should only be used from within with-transaction.
   See doc of rollback-transaction for an example"
-  ([] (is-transaction-active? ds/*transaction*))
+  ([] (is-transaction-active? *transaction*))
   ([transaction] (.isActive transaction)))
 
 (defmacro with-retries
@@ -49,8 +49,8 @@
   ;; try to create parent and child a maximum of three times
   (tr/with-retries 2
     (tr/with-transaction
-      (let [parent (ds/create-entity {:kind \"Person\" :name \"Jennifer\"})
-            child (ds/create-entity {:kind \"Person\" :name \"Robert\"
+      (let [parent (create-entity {:kind \"Person\" :name \"Jennifer\"})
+            child (create-entity {:kind \"Person\" :name \"Robert\"
                                      :parent-key (:key parent)})]
        [parent child])))"  
   [num & body]
@@ -63,17 +63,17 @@
    these do not interfere with the encompassing transaction.
 
    (with-transaction
-     (let [parent (ds/create-entity {:kind \"Person\" :name \"Jennifer\"})
+     (let [parent (create-entity {:kind \"Person\" :name \"Jennifer\"})
            stranger (try 
                       (without-transaction
-                        (ds/create-entity {:kind \"Person\" :name \"Chris\"}))
+                        (create-entity {:kind \"Person\" :name \"Chris\"}))
                       (catch Exception e nil))
-           child (ds/create-entity {:kind \"Person\" :name \"Robert\"
+           child (create-entity {:kind \"Person\" :name \"Robert\"
                                     :parent-key (:key parent)})]
      ... do something with parent, stranger, child ...
     ))"
   [& body]
-  `(binding [ds/*transaction* nil] (do ~@body)))
+  `(binding [*transaction* nil] (do ~@body)))
 
 (defmacro with-transaction 
   "Takes a body of forms (do is implied) and at runtime executes 
@@ -86,20 +86,20 @@
    result of the last form.
 
    (with-transaction
-     (let [parent (ds/create-entity {:kind \"Person\" :name \"Jennifer\"})
-           child (ds/create-entity {:kind \"Person\" :name \"Robert\"
+     (let [parent (create-entity {:kind \"Person\" :name \"Jennifer\"})
+           child (create-entity {:kind \"Person\" :name \"Robert\"
                                     :parent-key (:key parent)})]
        [parent child]))"
   [& body]
   `(loop [retries-left# *transaction-retries*]
      (let [status-and-result# 
 	   (try 
-	    (binding [ds/*transaction* (new-transaction)]
+	    (binding [*transaction* (new-transaction)]
 	      (let [result# (do 
 			      ~@body)]
 		;; check there has not been a user rollback/commit
-		(if (.isActive ds/*transaction*) 
-		  (.commit ds/*transaction*))
+		(if (.isActive *transaction*) 
+		  (.commit *transaction*))
 		[true result#])
 	      (catch DatastoreFailureException e# 
 		(if (zero? retries-left#) 

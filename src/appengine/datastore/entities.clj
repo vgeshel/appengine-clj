@@ -3,9 +3,11 @@
   appengine.datastore.entities
   (:import (com.google.appengine.api.datastore 
 	    EntityNotFoundException Query Query$FilterOperator))
-  (:require [appengine.datastore.core :as ds])
   (:use [clojure.contrib.string :only (join)]
         [clojure.contrib.seq :only (includes?)]
+        [clojure.contrib.ns-utils :only (immigrate)]
+        appengine.datastore.core
+        appengine.datastore.keys
         appengine.utils	inflections))
 
 (defn- entity-key? [entity-specs]
@@ -41,7 +43,7 @@ operator."
 property matches the operator."
   (let [operator (or operator Query$FilterOperator/EQUAL)]
     (fn [property-val]
-      (ds/find-all
+      (find-all
        (filter-query entity property property-val operator)))))
 
 (defn- key-fn-name [entity]
@@ -54,7 +56,7 @@ propertoes. If entity-keys is empty the fn returns nil."
   (let [entity# entity entity-keys# entity-keys parent# parent]
     `(defn ~(symbol (key-fn-name entity#)) [~@(compact [parent#]) ~'attributes]
        ~(if-not (empty? entity-keys#)
-          `(ds/create-key
+          `(create-key
             (:key ~parent#)
             ~(str entity#)
             (join "-" [~@(map #(list (if (keyword? %) % (keyword %)) 'attributes) entity-keys#)]))))))
@@ -75,7 +77,7 @@ propertoes. If entity-keys is empty the fn returns nil."
   (let [entity# entity parent# parent
         args# (compact [parent# 'attributes])]
     `(defn ~(symbol (str "create-" entity#)) [~@args#]
-       (ds/create-entity (~(symbol (str "make-" entity#)) ~@args#)))))
+       (create-entity (~(symbol (str "make-" entity#)) ~@args#)))))
 
 (defmacro deffilter [entity name doc-string [property operator] & [result-fn]]
   "Defines a finder function for the entity."
@@ -111,19 +113,19 @@ propertoes. If entity-keys is empty the fn returns nil."
   "Defines a delete function for the entity."
   (let [entity# entity]
     `(defn ~(symbol (str "delete-" entity#)) [& ~'args]
-       (ds/delete-entity ~'args))))
+       (delete-entity ~'args))))
 
 (defmacro def-find-all-fn [entity]
   "Defines a function that returns all entities."
   (let [entity# entity]
     `(defn ~(symbol (str "find-" (pluralize (str entity#)))) []
-       (ds/find-all (Query. ~(str entity#))))))
+       (find-all (Query. ~(str entity#))))))
 
 (defmacro def-update-fn [entity]
   "Defines an update function for the entity."
   (let [entity# entity]
     `(defn ~(symbol (str "update-" entity#)) [~entity# ~'properties]
-       (ds/update-entity ~entity ~'properties))))
+       (update-entity ~entity ~'properties))))
 
 (defmacro defentity [entity parent & properties]
   "Defines helper functions for the entity. Note that

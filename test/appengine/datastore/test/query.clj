@@ -1,6 +1,10 @@
 (ns appengine.datastore.test.query
   (:import (com.google.appengine.api.datastore Query Query$FilterOperator Query$SortDirection))
-  (:use clojure.test appengine.datastore.core appengine.datastore.query appengine.test))
+  (:use clojure.test
+        appengine.datastore.core
+        appengine.datastore.keys
+        appengine.datastore.query
+        appengine.test))
 
 (deftest test-filter-operator
   (testing "Valid filter operators"
