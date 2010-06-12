@@ -56,8 +56,8 @@ Examples:
   (query)
   ; => #<Query SELECT *>
 
-  (query \"continents\")
-  ; => #<Query SELECT * FROM continents>
+  (query \"continent\")
+  ; => #<Query SELECT * FROM continent>
 
   (query (create-key \"continent\" \"eu\"))
   ; => #<Query SELECT * WHERE __ancestor__ is continent(\"eu\")>
@@ -84,13 +84,13 @@ Examples:
 
 Examples:
 
-  (filter-by (query \"continents\") = :iso-3166-alpha-2 \"eu\")
-  ; => #<Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu>
+  (filter-by (query \"continent\") = :iso-3166-alpha-2 \"eu\")
+  ; => #<Query SELECT * FROM continent WHERE iso-3166-alpha-2 = eu>
 
-  (-> (query \"continents\")
+  (-> (query \"continent\")
       (filter-by = :iso-3166-alpha-2 \"eu\")
       (filter-by = :name \"Europe\"))
-  ; => #<Query SELECT * FROM continents WHERE iso-3166-alpha-2 = eu AND name = Europe>
+  ; => #<Query SELECT * FROM continent WHERE iso-3166-alpha-2 = eu AND name = Europe>
 "
   [query operator property-name value]
   (.addFilter query (stringify property-name) (filter-operator operator) value))
@@ -104,13 +104,13 @@ ascending order of the given property.
 
 Examples:
 
-  (order-by (query \"continents\") :iso-3166-alpha-2)
-  ; => #<Query SELECT * FROM continents ORDER BY iso-3166-alpha-2>
+  (order-by (query \"continent\") :iso-3166-alpha-2)
+  ; => #<Query SELECT * FROM continent ORDER BY iso-3166-alpha-2>
 
-  (-> (query \"continents\")
+  (-> (query \"continent\")
       (order-by :iso-3166-alpha-2)
       (order-by :name :desc))
-  ; => #<Query SELECT * FROM continents ORDER BY iso-3166-alpha-2, name DESC>
+  ; => #<Query SELECT * FROM continent ORDER BY iso-3166-alpha-2, name DESC>
 "
   [query property-name & [direction]]
   (.addSort query (stringify property-name)
@@ -132,16 +132,16 @@ where and order-by clauses into a -> form to produce a query.
 
 Examples:
 
-  (select \"continents\")
-  ; => #<Query SELECT * FROM continents>
+  (select \"continent\")
+  ; => #<Query SELECT * FROM continent>
 
   (select \"countries\" (create-key \"continent\" \"eu\") where (= :name \"Germany\"))
   ; => #<Query SELECT * FROM countries WHERE name = Germany AND __ancestor__ is continent(\"eu\")>
 
-  (select \"continents\"
+  (select \"continent\"
     where (= :name \"Europe\") (> :updated-at \"2010-01-01\")
     order-by (:name) (:updated-at :desc)))
-  ; => #<Query SELECT * FROM continents WHERE name = Europe AND updated-at > 2010-01-01 ORDER BY name, updated-at DESC>
+  ; => #<Query SELECT * FROM continent WHERE name = Europe AND updated-at > 2010-01-01 ORDER BY name, updated-at DESC>
 "
   [& args]
   (let [[query-clauses filter-clauses sort-clauses] (extract-clauses args)]
