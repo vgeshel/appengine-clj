@@ -1,10 +1,13 @@
 (ns appengine.datastore.test.keys
-  (:use clojure.test appengine.datastore.keys appengine.test)
+  (:use appengine.datastore.keys
+        appengine.test
+        clojure.test
+        [clojure.contrib.string :only (lower-case)])
   (:import (com.google.appengine.api.datastore Key KeyFactory)))
 
 (datastore-test test-create-key-with-int
   (let [key (create-key "continent" 1)]
-    (is (= (class key) Key))
+    (is (key? key))
     (is (.isComplete key))
     (is (nil? (.getParent key)))    
     (is (= (.getKind key) "continent"))
@@ -13,7 +16,7 @@
 
 (datastore-test test-create-key-with-string
   (let [key (create-key "country" "de")]
-    (is (= (class key) Key))
+    (is (key? key))
     (is (.isComplete key))
     (is (nil? (.getParent key)))
     (is (= (.getKind key) "country"))
@@ -29,6 +32,11 @@
     (is (= (.getKind country) "country"))
     (is (= (.getId country) 0))
     (is (= (.getName country) "de"))))
+
+(datastore-test test-key?
+  (is (not (key? nil)))
+  (is (not (key? "")))
+  (is (key? (create-key "continent" "eu"))))
 
 (datastore-test test-key->string  
   (is (= (key->string (create-key "continent" 1)) "agR0ZXN0cg8LEgljb250aW5lbnQYAQw"))
@@ -54,3 +62,12 @@
       (is (= (.getKind parent) "continent"))
       (is (= (.getId parent) 0))
       (is (= (.getName parent) "eu")))))
+
+(deftest test-key-name
+  (let [continent {:iso-3166-alpha-2 "EU" :name "Europe" :location {:latitude 54.5260, :longitude 15.2551}}]
+    (is (nil? (key-name continent)))    
+    ;; (is (thrown? IllegalArgumentException (key-name continent :asas #'identity)))
+    (is (= (key-name continent :iso-3166-alpha-2 #'identity) "EU"))
+    (is (= (key-name continent :iso-3166-alpha-2 #'lower-case) "eu"))
+    (is (= (key-name continent :iso-3166-alpha-2 #'lower-case :name #'lower-case) "eu-europe"))
+    (is (= (key-name continent :name #'lower-case :iso-3166-alpha-2 #'lower-case) "europe-eu"))))

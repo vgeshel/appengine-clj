@@ -1,7 +1,12 @@
 (ns #^{:author "Roman Scherer"
        :doc "Clojue API for Google App Engine datastore keys."}
   appengine.datastore.keys
-  (:import (com.google.appengine.api.datastore Key KeyFactory)))
+  (:import (com.google.appengine.api.datastore Key KeyFactory))
+  (:use [clojure.contrib.string :only (join)]))
+
+(defn key?
+  "Returns true if arg is a Key, else false."
+  [arg] (isa? (class arg) Key))
 
 (defn create-key
   "Creates a new Key using the given kind and identifier. If parent-key is
@@ -18,9 +23,23 @@ Examples:
      (create-key nil kind identifier))
   ([#^Key parent-key kind identifier]
      (KeyFactory/createKey
-      parent-key kind 
+      (if (key? parent-key) parent-key (:key parent-key))
+      kind 
       (if (integer? identifier) (Long/valueOf (str identifier)) 
           (str identifier)))))
+
+(defn key-name
+  "Returns a named key from the properties map."
+  [properties & key-transform-fns]
+  (let [transformed-keys
+        (map (fn [[key transform-fn]]
+               (if-let [value (key properties)]
+                 (transform-fn value)
+                 (throw (IllegalArgumentException.
+                         (str "Can't find key " key " in " properties ".")))))
+             (partition 2 key-transform-fns))]
+    (if-not (empty? transformed-keys)
+      (join "-" transformed-keys))))
 
 (defn key->string
   "Returns a \"websafe\" string from the given Key.

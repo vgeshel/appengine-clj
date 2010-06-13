@@ -2,21 +2,16 @@
        :doc "The entity API for the Google App Engine datastore service." }
   appengine.datastore.entities
   (:import (com.google.appengine.api.datastore 
-	    Entity EntityNotFoundException Key Query Query$FilterOperator))
-  (:require [appengine.datastore.core :as ds])
-  (:use [clojure.contrib.string :only (join)]
+	    Entity EntityNotFoundException Key Query Query$FilterOperator
+            GeoPt
+            ))
+  (:require [appengine.datastore.core :as ds]
+            [appengine.datastore.types :as types])
+  (:use [clojure.contrib.string :only (join lower-case)]
         [clojure.contrib.seq :only (includes?)]
-        appengine.utils	inflections))
-
-(defprotocol Serialize
-  (serialize [entity] "Serialize the entity."))
-
-(defprotocol Deserialize
-  (deserialize [entity] "Deserialize the entity."))
-
-(extend-type clojure.lang.PersistentArrayMap
-  Serialize
-  (serialize [entity]))
+        appengine.datastore.keys
+        appengine.utils
+        inflections))
 
 (defn blank-entity
   "Returns a blank Entity. If called with one parameter, key-or-kind
@@ -36,6 +31,130 @@ Examples:
      (Entity. key-or-kind))
   ([#^Key parent #^String kind #^String key-name]
      (Entity. kind key-name parent)))
+
+(defn property-class
+  "Returns the class of the record's property."
+  [record property]  
+  (or (:type (property (:properties (meta record))))
+      (class (property record))))
+
+(defn serialze-property-fn
+  "Returns a function to serialize the record's property."
+  [record property]  
+  (or (:serialize (property (:properties (meta record))))
+      (fn [value]
+        (types/serialize (property-class record property) value))))
+
+(defn deserialze-property-fn
+  "Returns a function to deserialize the record's property."
+  [record property]  
+  (or (:deserialize (property (:properties (meta record))))
+      (fn [value]
+        (types/deserialize value))))
+
+(defn serialize-entity [record]
+  
+  )
+
+(defn- entity?-fn [record]
+  (symbol (str (hyphenize record) "?")))
+
+(defn- make-entity-fn [record]
+  (symbol (str "make-" (hyphenize record))))
+
+(defn- make-entity-key-fn [record]
+  (symbol (str (make-entity-fn record) "-key")))
+
+(defn- extract-properties [specifications]
+  (zipmap
+   (map #(keyword (first %)) specifications)
+   (map #(apply hash-map (rest %)) specifications)))
+
+(defn- extract-key-fns [specifications]
+  (let [properties (extract-properties specifications)]
+    (apply vector (map #(vector % (:key (% properties)))
+                       (remove #(nil? (:key (% properties)))
+                               (map (comp keyword first) specifications))))))
+
+(defn- extract-meta-data [entity specifications]  
+  {:key-fns (extract-key-fns specifications)
+   :kind (hyphenize entity)
+   :properties (extract-properties specifications)})
+
+(defmacro defentity
+  "A macro to define entitiy records.
+
+Examples:
+
+  (defentity Continent ()
+    (iso-3166-alpha-2 :key lower-case)
+    (location :type GeoPt)
+    (name))
+
+  (defentity Country (Continent)
+    (iso-3166-alpha-2 :key lower-case)
+    (location :type GeoPt)
+    (name))
+
+"
+  [entity [parent] & specifications]
+  (let [entity# entity
+        parent# (if parent (symbol (hyphenize parent)))
+        meta-data# (extract-meta-data entity# specifications)
+        properties# (map (comp keyword first) specifications)
+        ]
+   `(do
+
+      (defrecord ~entity# [~'key ~'kind ~@(map first specifications)])
+
+      (defn ~(entity?-fn entity#) [~'arg]
+        (isa? (class ~'arg) ~entity#))
+
+      (defn ~(make-entity-key-fn entity#) [~@(compact [parent# '& 'properties])]        
+        (create-key ~parent# ~(hyphenize entity#)
+                    (key-name (apply hash-map ~'properties) ~@(flatten (:key-fns meta-data#)))))
+
+      (defn ~(make-entity-fn entity#) [~@(compact [parent# '& 'properties])]
+        (let [~'properties (apply hash-map ~'properties)]
+          (with-meta
+            (new ~entity#
+                 (or (:key ~'properties)
+                     (apply ~(make-entity-key-fn entity#)
+                            ~@(compact [parent# '(flatten (seq properties))])))
+                 ~(hyphenize entity#)                 
+                 ~@(map (fn [property] (list property 'properties)) properties#))
+            ~meta-data#))))))
+
+;; (defentity Continent ()
+;;   (iso-3166-alpha-2 :key lower-case)
+;;   (location :type GeoPt)
+;;   (name))
+
+;; (defentity Country (Continent)
+;;   (iso-3166-alpha-2 :key true)
+;;   (location :type GeoPt)
+;;   (name))
+
+;; (make-continent :name "Europe")
+;; (meta (make-continent :name "Europe"))
+;; assoc
+
+;; (defn- set-property [entity record property]
+;;   (let [value ((serialze-property-fn record property) (property record))]
+;;     (.setProperty entity (str property) value)
+;;     entity))
+
+;; (defprotocol Serialize
+;;   (serialize [entity] "Serialize the entity."))
+
+;; (defprotocol Deserialize
+;;   (deserialize [entity] "Deserialize the entity."))
+
+;; (extend-type clojure.lang.PersistentArrayMap
+;;   Serialize
+;;   (serialize [map]
+;;     (let [entity (blank-entity (or (:key map) (:kind map)))]
+;;       (set-properties entity map))))
 
 ;; (class {})
 
