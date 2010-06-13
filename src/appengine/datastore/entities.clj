@@ -111,8 +111,11 @@ Examples:
         (isa? (class ~'arg) ~entity#))
 
       (defn ~(make-entity-key-fn entity#) [~@(compact [parent# '& 'properties])]        
-        (create-key ~parent# ~(hyphenize entity#)
-                    (key-name (apply hash-map ~'properties) ~@(flatten (:key-fns meta-data#)))))
+        ~(if-not (empty? (:key-fns meta-data#))
+           `(create-key
+             ~parent#
+             ~(hyphenize entity#)
+             (key-name (apply hash-map ~'properties) ~@(flatten (:key-fns meta-data#))))))
 
       (defn ~(make-entity-fn entity#) [~@(compact [parent# '& 'properties])]
         (let [~'properties (apply hash-map ~'properties)]

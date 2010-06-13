@@ -24,50 +24,34 @@
   (name :key lower-case))
 
 (defn make-europe []
-  (make-continent :iso-3166-alpha-2 "eu" :name "Europe" :location {:latitude 54.52 :longitude 15.25}))
+  (make-continent
+   :iso-3166-alpha-2 "eu"
+   :location {:latitude 54.52 :longitude 15.25}
+   :name "Europe"))
 
 (defn make-germany []
-  (make-country (make-europe) :iso-3166-alpha-2 "de" :name "Germany" :location {:latitude 51.16 :longitude 10.45}))
+  (make-country
+   (make-europe)
+   :iso-3166-alpha-2 "de"
+   :location {:latitude 51.16 :longitude 10.45}
+   :name "Germany"))
 
 (defn make-berlin []
-  (make-region (make-germany) :country-id "de" :name "Berlin" :location {:latitude 52.52 :longitude 13.41}))
+  (make-region
+   (make-germany)
+   :country-id "de"
+   :location {:latitude 52.52 :longitude 13.41}
+   :name "Berlin"))
 
-(def *continent-specification*
+(def continent-specification
      ['(iso-3166-alpha-2 :key #'lower-case)
       '(location :type GeoPt)
       '(name)])
 
-(def *region-specification*
+(def region-specification
      ['(country-id :key #'lower-case)
       '(location :type GeoPt)
       '(name :key #'lower-case)])
-
-(def *europe*
-     {:iso-3166-alpha-2 "eu"
-      :name "Europe"
-      :location {:latitude 54.5260, :longitude 15.2551}})
-
-(defn continent-meta-data []
-  {:kind "continent"
-   :properties
-   {:name {:type String}
-    :iso-3166-alpha-2 {:type String :key #'lower-case}
-    :location {:type GeoPt}}})
-
-(defn region-meta-data []
-  {:kind "region"
-   :properties
-   {:country-id {:type String :key #'lower-case}
-    :name {:type String :key #'lower-case}
-    :location {:type GeoPt}}})
-
-(defn make-example-continent []
-  (with-meta
-    {:key (create-key "continent" "eu")
-     :iso-3166-alpha-2 "eu"
-     :name "Europe"
-     :location {:latitude 54.5260, :longitude 15.2551}}
-    (continent-meta-data)))
 
 (datastore-test test-blank-entity-with-key  
   (let [entity (blank-entity (create-key "continent" 1))]
@@ -139,7 +123,7 @@
       (is (= (.getParent key) parent-key)))))
 
 (datastore-test test-property-class-with-meta  
-  (let [continent (make-example-continent)]
+  (let [continent (make-europe)]
     (are [property class]
       (is (= (property-class continent property) class))
       :iso-3166-alpha-2 String
@@ -148,7 +132,7 @@
       :name String)))
 
 (datastore-test test-property-class-without-meta  
-  (let [continent (with-meta (make-example-continent) {})]
+  (let [continent (with-meta (make-europe) {})]
     (are [property class]
       (is (= (property-class continent property) class))
       :iso-3166-alpha-2 String
@@ -164,26 +148,26 @@
     (is (not (continent? (make-germany))))))
 
 (deftest test-extract-properties
-  (let [properties (extract-properties *continent-specification*)]      
+  (let [properties (extract-properties continent-specification)]      
     (is (= (:iso-3166-alpha-2 properties) {:key '#'lower-case}))
     (is (= (:location properties) {:type 'GeoPt}))
     (is (= (:name properties) {}))))
 
 (deftest test-extract-key-fns
-  (is (= (extract-key-fns *continent-specification*)
+  (is (= (extract-key-fns continent-specification)
          [[:iso-3166-alpha-2 '#'lower-case]]))
-  (is (= (extract-key-fns *region-specification*)
+  (is (= (extract-key-fns region-specification)
          [[:country-id '#'lower-case] [:name '#'lower-case]])))
 
 (deftest test-extract-meta-data
-  (let [meta (extract-meta-data 'Continent *continent-specification*)]
+  (let [meta (extract-meta-data 'Continent continent-specification)]
     (is (= (:key-fns meta) [[:iso-3166-alpha-2 '#'lower-case]]))
     (is (= (:kind meta) "continent"))
     (let [properties (:properties meta)]      
       (is (= (:iso-3166-alpha-2 properties) {:key '#'lower-case}))
       (is (= (:location properties) {:type 'GeoPt}))
       (is (= (:name properties) {}))))
-  (let [meta (extract-meta-data 'Region *region-specification*)]
+  (let [meta (extract-meta-data 'Region region-specification)]
     (is (= (:key-fns meta) [[:country-id '#'lower-case] [:name '#'lower-case]]))
     (is (= (:kind meta) "region"))
     (let [properties (:properties meta)]      
@@ -286,35 +270,7 @@
 ;;                     (throw (IllegalArgumentException. (str "Missing key: " (first %)))))
 ;;                  (property-key-fns (continent-meta-data)))))
 
-;; (apply named-key
-;;  {:iso-3166-alpha-2 "eu" :name "Europe"}
-;;  (property-key-fns (continent-meta-data)))
-
-;; (apply named-key
-;;  {:iso-3166-alpha-2 "eu" :name "Europe"}
-;;  [])
-
-;;  (property-key-fns (continent-meta-data))
-
-;;  (property-key-fns (continent-meta-data))
-
-;; (let [continent {:iso-3166-alpha-2 "eu" :name "Europe"}]
-;;   (join "-" (map
-;;              (fn [[key transform-key-fn]]
-;;                (if-let [value (key continent)]
-;;                  (transform-key-fn value)
-;;                  (throw (IllegalArgumentException. (str "Missing key: " key)))))
-;;              (property-key-fns (continent-meta-data)))))
-
-;; (let [properties {:iso-3166-alpha-2 "eu" :name "Europe"}]
-;;   (join "-" (map #(if-let [value ((last %) ((first %) properties))]
-;;                     value
-;;                     (throw (IllegalArgumentException. "Key is missing:" (str (first )))))
-;;                  (property-key-fns (continent-meta-data)))))
-
 ;; (property-key-fns (continent-meta-data))
-
-
 
 ;; (println (property-meta-data ['(iso-3166-alpha-2 :key true) '(location :type GeoPt) '(name)]))
 
@@ -331,21 +287,6 @@
 ;;       :location clojure.lang.PersistentArrayMap
 ;;       :name String))
 ;;   )
-
-;; (defentity continent ()
-;;   (iso-3166-alpha-2 :key true)
-;;   (location :type GeoPt)
-;;   (name))
-
-;; (defentity country (continent)
-;;   (iso-3166-alpha-2 :key true)
-;;   (location :type GeoPt)
-;;   (name))
-
-;; (defentity region (country)
-;;   (code :key true)
-;;   (location :type GeoPt)
-;;   (name))
 
 ;; (deftest test-entity-key?
 ;;   (is (entity-key? '(iso-3166-alpha-2 :key true)))
@@ -610,3 +551,10 @@
 ;;     (println continent)
 ;;     (println country)
 ;;     ))
+
+;; (defentity User ()
+;;   (name))
+
+;; (with-local-datastore  
+;;   (println (make-user :name "Roman"))
+;;   )
