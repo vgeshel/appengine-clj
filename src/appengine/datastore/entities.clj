@@ -56,14 +56,25 @@ Examples:
   
   )
 
-(defn- entity?-fn [record]
+(defn- entity?-sym [record]
   (symbol (str (hyphenize record) "?")))
 
-(defn- make-entity-fn [record]
+(defn- make-entity-sym [record]
   (symbol (str "make-" (hyphenize record))))
 
-(defn- make-entity-key-fn [record]
-  (symbol (str (make-entity-fn record) "-key")))
+(defn make-entity-key-fn [parent entity & key-fns]  
+  (let [entity-kind (hyphenize entity)
+        key-name-fn #(apply key-name (apply hash-map %) key-fns)]
+    (if parent
+      (fn [parent & properties]
+        (if-not (empty? key-fns)
+          (create-key parent entity-kind (key-name-fn properties))))
+      (fn [& properties]
+        (if-not (empty? key-fns)
+          (create-key entity-kind (key-name-fn properties)))))))
+
+(defn- make-entity-key-sym [entity]
+  (symbol (str (make-entity-sym entity) "-key")))
 
 (defn- extract-properties [specifications]
   (zipmap
@@ -76,9 +87,10 @@ Examples:
                        (remove #(nil? (:key (% properties)))
                                (map (comp keyword first) specifications))))))
 
-(defn- extract-meta-data [entity specifications]  
+(defn- make-meta-data [entity parent specifications]  
   {:key-fns (extract-key-fns specifications)
    :kind (hyphenize entity)
+   :parent (if parent (hyphenize parent))
    :properties (extract-properties specifications)})
 
 (defmacro defentity
@@ -99,34 +111,46 @@ Examples:
 "
   [entity [parent] & specifications]
   (let [entity# entity
-        parent# (if parent (symbol (hyphenize parent)))
-        meta-data# (extract-meta-data entity# specifications)
+        parent# parent
+        meta-data# (make-meta-data entity# parent# specifications)
         properties# (map (comp keyword first) specifications)
         ]
    `(do
 
       (defrecord ~entity# [~'key ~'kind ~@(map first specifications)])
 
-      (defn ~(entity?-fn entity#) [~'arg]
+      (defn ~(entity?-sym entity#) [~'arg]
         (isa? (class ~'arg) ~entity#))
 
-      (defn ~(make-entity-key-fn entity#) [~@(compact [parent# '& 'properties])]        
-        ~(if-not (empty? (:key-fns meta-data#))
-           `(create-key
-             ~parent#
-             ~(hyphenize entity#)
-             (key-name (apply hash-map ~'properties) ~@(flatten (:key-fns meta-data#))))))
+      (def ~(make-entity-key-sym entity)
+           (make-entity-key-fn '~parent# '~entity# ~@(flatten (:key-fns meta-data#))))
 
-      (defn ~(make-entity-fn entity#) [~@(compact [parent# '& 'properties])]
+      ;; (defn ~(make-entity-key-sym entity#) [~@(compact [parent# '& 'properties])]        
+      ;;   ~(if-not (empty? (:key-fns meta-data#))
+      ;;      `(create-key
+      ;;        ~parent#
+      ;;        ~(hyphenize entity#)
+      ;;        (key-name (apply hash-map ~'properties) ~@(flatten (:key-fns meta-data#))))))
+
+      (defn ~(make-entity-sym entity#) [~@(compact [parent# '& 'properties])]
         (let [~'properties (apply hash-map ~'properties)]
           (with-meta
             (new ~entity#
                  (or (:key ~'properties)
-                     (apply ~(make-entity-key-fn entity#)
+                     (apply ~(make-entity-key-sym entity#)
                             ~@(compact [parent# '(flatten (seq properties))])))
                  ~(hyphenize entity#)                 
                  ~@(map (fn [property] (list property 'properties)) properties#))
-            ~meta-data#))))))
+            ~meta-data#)))
+      )))
+
+;; (with-local-datastore
+;;   ((make-entity-key-fn 'Continent 'Country :iso-3166-alpha-2 #'lower-case)
+;;    (create-key "continent" "eu") :iso-3166-alpha-2 "DE" :name "Germany"))
+
+;; (with-local-datastore
+;;   ((make-entity-key-fn nil 'Continent :iso-3166-alpha-2 #'lower-case :name #'lower-case)
+;;    :iso-3166-alpha-2 "EU" :name "Europe"))
 
 ;; (defentity Continent ()
 ;;   (iso-3166-alpha-2 :key lower-case)

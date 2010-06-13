@@ -89,21 +89,21 @@
     (is (empty? (.getProperties entity)))
     (is (= (.getKey entity) key))))
 
-(deftest test-entity?-fn
+(deftest test-entity?-sym
   (are [record name]
-    (is (= (entity?-fn record) name))
+    (is (= (entity?-sym record) name))
     'Continent 'continent?
     'CountryFlag 'country-flag?))
 
-(deftest test-make-entity-key-fn
+(deftest test-make-entity-key-sym
   (are [record name]
-    (is (= (make-entity-key-fn record) name))
+    (is (= (make-entity-key-sym record) name))
     'Continent 'make-continent-key
     'CountryFlag 'make-country-flag-key))
 
-(deftest test-make-entity-fn
+(deftest test-make-entity-sym
   (are [record name]
-    (is (= (make-entity-fn record) name))
+    (is (= (make-entity-sym record) name))
     'Continent 'make-continent
     'CountryFlag 'make-country-flag))
 
@@ -159,17 +159,51 @@
   (is (= (extract-key-fns region-specification)
          [[:country-id '#'lower-case] [:name '#'lower-case]])))
 
-(deftest test-extract-meta-data
-  (let [meta (extract-meta-data 'Continent continent-specification)]
+(datastore-test test-make-entity-key-fn
+  (let [key-fn (make-entity-key-fn nil 'Person)]
+    (is (fn? key-fn))
+    (is (nil? (key-fn :name "Bob"))))
+  (let [key-fn (make-entity-key-fn nil 'Continent :iso-3166-alpha-2 #'lower-case)]
+    (is (fn? key-fn))
+    (let [key (key-fn :iso-3166-alpha-2 "EU")]
+      (is (key? key))
+      (is (= (.getKind key) "continent"))
+      (is (nil? (.getParent key)))
+      (is (= (.getId key) 0))
+      (is (= (.getName key) "eu"))
+      (is (.isComplete key))))
+  (let [key-fn (make-entity-key-fn 'Continent 'Country :iso-3166-alpha-2 #'lower-case)]
+    (is (fn? key-fn))
+    (let [key (key-fn (make-europe) :iso-3166-alpha-2 "DE")]
+      (is (key? key))
+      (is (= (.getKind key) "country"))
+      (is (= (.getParent key) (:key (make-europe))))
+      (is (= (.getId key) 0))
+      (is (= (.getName key) "de"))
+      (is (.isComplete key))))
+  (let [key-fn (make-entity-key-fn 'Country 'Region :iso-3166-alpha-2 #'lower-case :name #'lower-case)]
+    (is (fn? key-fn))
+    (let [key (key-fn (make-germany) :iso-3166-alpha-2 "DE" :name "Berlin")]
+      (is (key? key))
+      (is (= (.getKind key) "region"))
+      (is (= (.getParent key) (:key (make-germany))))
+      (is (= (.getId key) 0))
+      (is (= (.getName key) "de-berlin"))
+      (is (.isComplete key)))))
+
+(deftest test-make-meta-data
+  (let [meta (make-meta-data 'Continent nil continent-specification)]
     (is (= (:key-fns meta) [[:iso-3166-alpha-2 '#'lower-case]]))
     (is (= (:kind meta) "continent"))
+    (is (nil? (:parent meta)))
     (let [properties (:properties meta)]      
       (is (= (:iso-3166-alpha-2 properties) {:key '#'lower-case}))
       (is (= (:location properties) {:type 'GeoPt}))
       (is (= (:name properties) {}))))
-  (let [meta (extract-meta-data 'Region region-specification)]
+  (let [meta (make-meta-data 'Region 'Country region-specification)]
     (is (= (:key-fns meta) [[:country-id '#'lower-case] [:name '#'lower-case]]))
     (is (= (:kind meta) "region"))
+    (is (= (:parent meta) "country"))
     (let [properties (:properties meta)]      
       (is (= (:country-id properties) {:key '#'lower-case}))
       (is (= (:location properties) {:type 'GeoPt}))
