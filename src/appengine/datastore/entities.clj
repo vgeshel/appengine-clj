@@ -32,6 +32,9 @@ Examples:
   ([#^Key parent #^String kind #^String key-name]
      (Entity. kind key-name parent)))
 
+(defn- blank-record [record n-fields]
+  (eval `(new ~record ~@(take n-fields (repeat nil)))))
+
 (defn property-class
   "Returns the class of the record's property."
   [record property]  
@@ -59,22 +62,45 @@ Examples:
 (defn- entity?-sym [record]
   (symbol (str (hyphenize record) "?")))
 
+(defn- entity?-doc [record]
+  (str "Returns true if arg is a " record ", else false."))
+
 (defn- make-entity-sym [record]
   (symbol (str "make-" (hyphenize record))))
+
+(defn- make-entity-doc [entity]
+  (str "Returns a new " entity " record."))
+
+(defn- make-entity-key-doc [entity]
+  (str "Returns a new " entity " key."))
+
+(defn- make-entity-key-sym [entity]
+  (symbol (str (make-entity-sym entity) "-key")))
 
 (defn make-entity-key-fn [parent entity & key-fns]  
   (let [entity-kind (hyphenize entity)
         key-name-fn #(apply key-name (apply hash-map %) key-fns)]
     (if parent
-      (fn [parent & properties]
+      (fn [parent & key-vals]
         (if-not (empty? key-fns)
-          (create-key parent entity-kind (key-name-fn properties))))
-      (fn [& properties]
+          (create-key parent entity-kind (key-name-fn key-vals))))
+      (fn [& key-vals]
         (if-not (empty? key-fns)
-          (create-key entity-kind (key-name-fn properties)))))))
+          (create-key entity-kind (key-name-fn key-vals)))))))
 
-(defn- make-entity-key-sym [entity]
-  (symbol (str (make-entity-sym entity) "-key")))
+(defn make-entity-fn [parent entity & property-keys]  
+  (let [entity-kind (hyphenize entity)
+        record (blank-record entity (+ 2 (count property-keys)))
+        key-fn (resolve (make-entity-key-sym entity))
+        builder-fn (fn [key properties]
+                     (-> record
+                         (merge {:key key :kind entity-kind})
+                         (merge (select-keys (apply hash-map properties) property-keys))))]
+    (if parent
+      (fn [parent & properties]
+        (builder-fn (apply key-fn parent properties) properties))
+      (fn [& properties]        
+        (builder-fn (apply key-fn properties) properties)))))
 
 (defn- extract-properties [specifications]
   (zipmap
@@ -114,35 +140,51 @@ Examples:
         parent# parent
         meta-data# (make-meta-data entity# parent# specifications)
         properties# (map (comp keyword first) specifications)
+        arglists# (if parent# '['parent '& 'properties] '['& 'properties])
         ]
-   `(do
+    `(do
 
-      (defrecord ~entity# [~'key ~'kind ~@(map first specifications)])
+       (defrecord ~entity# [~'key ~'kind ~@(map first specifications)])
 
-      (defn ~(entity?-sym entity#) [~'arg]
-        (isa? (class ~'arg) ~entity#))
+       (defn ~(entity?-sym entity#)
+         ~(entity?-doc entity#)
+         [~'arg]
+         (isa? (class ~'arg) ~entity#))
 
-      (def ~(make-entity-key-sym entity)
-           (make-entity-key-fn '~parent# '~entity# ~@(flatten (:key-fns meta-data#))))
+       (def ~(with-meta (make-entity-key-sym entity#)
+               {:arglists arglists# :doc (make-entity-key-doc entity#)})
+            (make-entity-key-fn '~parent# '~entity# ~@(flatten (:key-fns meta-data#))))
 
-      ;; (defn ~(make-entity-key-sym entity#) [~@(compact [parent# '& 'properties])]        
-      ;;   ~(if-not (empty? (:key-fns meta-data#))
-      ;;      `(create-key
-      ;;        ~parent#
-      ;;        ~(hyphenize entity#)
-      ;;        (key-name (apply hash-map ~'properties) ~@(flatten (:key-fns meta-data#))))))
+       (def ~(with-meta (make-entity-sym entity#)
+               {:arglists arglists# :doc (make-entity-doc entity#)})
+            (make-entity-fn '~parent# '~entity# ~@properties#))       
 
-      (defn ~(make-entity-sym entity#) [~@(compact [parent# '& 'properties])]
-        (let [~'properties (apply hash-map ~'properties)]
-          (with-meta
-            (new ~entity#
-                 (or (:key ~'properties)
-                     (apply ~(make-entity-key-sym entity#)
-                            ~@(compact [parent# '(flatten (seq properties))])))
-                 ~(hyphenize entity#)                 
-                 ~@(map (fn [property] (list property 'properties)) properties#))
-            ~meta-data#)))
-      )))
+       ;; (def ~(make-entity-sym entity#)
+       ;;      (make-entity-fn '~parent# '~entity# ~@(flatten (:key-fns meta-data#))))
+
+       ;; (defn ~(make-entity-sym entity#) [~@(compact [parent# '& 'properties])]
+       ;;   (let [~'properties (apply hash-map ~'properties)]
+       ;;     (with-meta
+       ;;       (new ~entity#
+       ;;            (or (:key ~'properties)
+       ;;                (apply ~(make-entity-key-sym entity#)
+       ;;                       ~@(compact [parent# '(flatten (seq properties))])))
+       ;;            ~(hyphenize entity#)                 
+       ;;            ~@(map (fn [property] (list property 'properties)) properties#))
+       ;;       ~meta-data#)))
+       
+       )))
+
+;; (defn make-entity-fn [parent entity & properties]  
+;;   (let [entity-kind (hyphenize entity)
+;;         key-name-fn #(apply key-name (apply hash-map %) key-fns)]
+;;     (if parent
+;;       (fn [parent & properties]
+;;         (if-not (empty? key-fns)
+;;           (create-key parent entity-kind (key-name-fn properties))))
+;;       (fn [& properties]
+;;         (if-not (empty? key-fns)
+;;           (create-key entity-kind (key-name-fn properties)))))))
 
 ;; (with-local-datastore
 ;;   ((make-entity-key-fn 'Continent 'Country :iso-3166-alpha-2 #'lower-case)
