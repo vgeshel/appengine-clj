@@ -59,7 +59,7 @@ Examples:
   (.getEmail email))
 
 (defmethod deserialize GeoPt [geo-point]
-   {:latitude (.getLatitude geo-point) :longitude (.getLongitude geo-point)})
+  {:latitude (.getLatitude geo-point) :longitude (.getLongitude geo-point)})
 
 (defmethod deserialize IMHandle [handle]
    {:protocol (.getProtocol handle) :address (.getAddress handle)})
