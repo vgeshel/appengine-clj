@@ -5,6 +5,9 @@
 (defn compact [seq]
   (remove nil? seq))
 
+(defn flat-seq [arg]
+  (flatten (seq arg)))
+
 (defn map-keys
   "Returns a lazy sequence consisting of the result of applying f to
   the keys of coll."
