@@ -17,9 +17,10 @@ configuration.
 Examples:
 
   (datastore)
-  ; => #<DatastoreServiceImpl com.google.appengine.api.datastore.DatastoreServiceImpl@a7b68a>"
-  ([] (datastore (DatastoreServiceConfig$Builder/withDefaults)))
-  ([configuration] (DatastoreServiceFactory/getDatastoreService configuration)))
+  ; => #<DatastoreServiceImpl com.google.appengine.api.datastore.DatastoreServiceImpl@a7b68a>"  
+  [ & [configuration]]
+  (DatastoreServiceFactory/getDatastoreService
+   (or configuration (DatastoreServiceConfig$Builder/withDefaults))))
 
 (defn entity->map
   "Converts a com.google.appengine.api.datastore.Entity instance to a
