@@ -75,13 +75,13 @@ Examples:
          (blank-entity (or (:key record) (:kind record)))
          (keys (dissoc record :key :kind)))))))
 
-(defn- entity?-sym [record]
+(defn- entity?-name [record]
   (symbol (str (hyphenize record) "?")))
 
 (defn- entity?-doc [record]
   (str "Returns true if arg is a " record ", else false."))
 
-(defn- make-entity-sym [record]
+(defn- make-entity-name [record]
   (symbol (str "make-" (hyphenize (demodulize record)))))
 
 (defn- make-entity-doc [entity]
@@ -90,8 +90,8 @@ Examples:
 (defn- make-entity-key-doc [entity]
   (str "Returns a new " entity " key."))
 
-(defn- make-entity-key-sym [entity]
-  (symbol (str (make-entity-sym entity) "-key")))
+(defn- make-entity-key-name [entity]
+  (symbol (str (make-entity-name entity) "-key")))
 
 (defn entity-kind [record]
   (hyphenize (demodulize (pr-str record))))
@@ -110,7 +110,7 @@ Examples:
 (defn make-entity-fn [parent entity & property-keys]  
   (let [entity-kind (entity-kind entity)
         record (blank-record entity)
-        key-fn (resolve (make-entity-key-sym entity))
+        key-fn (resolve (make-entity-key-name entity))
         builder-fn (fn [key properties]
                      (-> record
                          (merge {:key key :kind entity-kind})
@@ -121,10 +121,10 @@ Examples:
       (fn [& properties]        
         (builder-fn (apply key-fn properties) properties)))))
 
-(defn- deserialize-entity-sym [record]
+(defn- deserialize-name [record]
   (symbol (str "deserialize-" (hyphenize record))))
 
-(defn- serialize-entity-sym [record]
+(defn- serialize-name [record]
   (symbol (str "serialize-" (hyphenize record))))
 
 (defn- extract-properties [property-specs]
@@ -154,6 +154,8 @@ Examples:
    :parent (if parent (hyphenize parent))
    :properties (extract-properties property-specs)})
 
+
+
 (defmacro defentity
   "A macro to define entitiy records.
 
@@ -171,76 +173,43 @@ Examples:
 
 "
   [entity [parent] & property-specs]
-  (let [entity# entity
-        parent# parent
-        property-specs# property-specs
-        meta-data# (make-meta-data entity# parent# property-specs)
-        properties# (map (comp keyword first) property-specs)
-        ;; arglists# (if parent# '[parent & properties] ''[& properties])
-        arglists# (if parent# '['parent '& 'properties] '['& 'properties])
-
+  (let [properties#   (map (comp keyword first) property-specs)
+        arglists#     (if parent '(parent & properties) '(& properties))
+        params#       (remove #(= % '&) arglists#)
+        key-fns#      (extract-key-fns property-specs)
+        deserializer# (extract-deserializer property-specs)
+        serializer#   (extract-serializer property-specs)
         ]
-    ;; (println property-specs)
-    ;; (println (extract-serializer property-specs))
-    ;; (println property-specs#)
-    ;; (println (extract-serializer property-specs#))
-    ;; (println)
     `(do
 
-       (defrecord ~entity# [~'key ~'kind ~@(map first property-specs)])
+       (defrecord ~entity [~'key ~'kind ~@(map first property-specs)])
 
-       (defn ~(entity?-sym entity#)
-         ~(entity?-doc entity#)
+       (defn ~(entity?-name entity)
+         ~(entity?-doc entity)
          [~'arg]
-         (isa? (class ~'arg) ~entity#))
+         (isa? (class ~'arg) ~entity))
 
-       (def ~(with-meta (make-entity-key-sym entity#)
-               {}
-               ;; {:arglists arglists# :doc (make-entity-key-doc entity#)}
-               )
-            (make-entity-key-fn '~parent# '~entity# ~@(flatten (:key-fns meta-data#))))
+       (defn ~(make-entity-key-name entity) [~@arglists#]
+         (apply (make-entity-key-fn ~parent ~entity ~@key-fns#) ~@params#))
 
-       (def ~(with-meta (make-entity-sym entity#)
-               {}
-               ;; {:arglists arglists# :doc (make-entity-doc entity#)}
-               )
-            (make-entity-fn '~parent# '~entity# ~@properties#))
+       (defn ~(make-entity-name entity) [~@arglists#]
+         (apply (make-entity-fn ~parent ~entity ~@properties#) ~@params#))
 
-       ;; ~(if parent#
-       ;;    `(defn ~(make-entity-sym entity#) [~'parent & ~'properties]
-       ;;       (apply (make-entity-fn ~parent# ~entity# ~@properties#) ~'parent ~'properties))
-       ;;    `(defn ~(make-entity-sym entity#) [& ~'properties]
-       ;;       (apply (make-entity-fn nil ~entity# ~@properties#) ~'properties)))
+       (defn ~(serialize-name entity) [~'record]
+         ((serialize-fn ~@serializer#) ~'record))
 
-       ;; ~(if parent#
-       ;;    `(defn ~(make-entity-key-sym entity#) [~'parent & ~'properties]
-       ;;       (apply (make-entity-key-fn ~parent# ~(hyphenize entity#) ~@(extract-key-fns property-specs)) ~'parent ~'properties))
-       ;;    `(defn ~(make-entity-key-sym entity#) [& ~'properties]
-       ;;       (apply (make-entity-key-fn nil ~(hyphenize entity#) ~@(extract-key-fns property-specs)) ~'properties)))
+       (defn ~(deserialize-name entity) [~'entity]
+         ((deserialize-fn ~entity ~@deserializer#) ~'entity))
 
-       (defn ~(make-entity-key-sym entity#) [~@(if parent# '(parent & properties) '(& properties))]
-         (apply (make-entity-key-fn ~parent# ~entity# ~@(extract-key-fns property-specs))
-                ~@(if parent# '(parent properties) '(properties))))
-
-       (defn ~(make-entity-sym entity#) [~@(if parent# '(parent & properties) '(& properties))]
-         (apply (make-entity-fn ~parent# ~entity# ~@properties#)
-                ~@(if parent# '(parent properties) '(properties))))
-
-       (defn ~(serialize-entity-sym entity#) [~'record]
-         ((serialize-fn ~@(extract-serializer property-specs)) ~'record))
-
-       (defn ~(deserialize-entity-sym entity#) [~'entity]
-         ((deserialize-fn ~entity# ~@(extract-deserializer property-specs)) ~'entity))
-
-       (extend-type ~entity#
+       (extend-type ~entity
          Serialize
-         (~'serialize [~'record] (~(serialize-entity-sym entity#) ~'record))))))
+         (~'serialize [~'record] (~(serialize-name entity) ~'record))))))
 
 (extend-type Entity
   Deserialize
   (deserialize [entity]
     (let [record (symbol (camelize (.getKind entity)))]                 
-      ((resolve (deserialize-entity-sym record)) entity))))
+      ((resolve (deserialize-name record)) entity))))
 
 ;; (with-local-datastore
 ;;   ((make-entity-key-fn 'Continent 'Country :iso-3166-alpha-2 #'lower-case)

@@ -24,7 +24,7 @@
 ;;   ;; (make-continent :iso-3166-alpha-2 "eu")
 ;;   )
 
-;; (make-entity-key-sym Continent)
+;; (make-entity-key-name Continent)
 
 
 ;; (pr-str Continent)
@@ -127,9 +127,9 @@
   (is (not (entity? "")))
   (is (entity? (Entity. "person"))))
 
-(deftest test-entity?-sym
+(deftest test-entity?-name
   (are [record name]
-    (is (= (entity?-sym record) name))
+    (is (= (entity?-name record) name))
     'Continent 'continent?
     'CountryFlag 'country-flag?))
 
@@ -139,18 +139,30 @@
     'Continent "Returns true if arg is a Continent, else false."
     'CountryFlag "Returns true if arg is a CountryFlag, else false."))
 
-(deftest test-make-entity-key-sym
+(deftest test-deserialize-name
   (are [record name]
-    (is (= (make-entity-key-sym record) name))
+    (is (= (deserialize-name record) name))
+    'Continent 'deserialize-continent
+    'CountryFlag 'deserialize-country-flag))
+
+(deftest test-make-entity-key-name
+  (are [record name]
+    (is (= (make-entity-key-name record) name))
     'Continent 'make-continent-key
     'CountryFlag 'make-country-flag-key))
 
-(deftest test-make-entity-sym
+(deftest test-make-entity-name
   (are [record name]
-    (is (= (make-entity-sym record) name))
+    (is (= (make-entity-name record) name))
     Continent 'make-continent
     'Continent 'make-continent
     'CountryFlag 'make-country-flag))
+
+(deftest test-serialize-name
+  (are [record name]
+    (is (= (serialize-name record) name))
+    'Continent 'serialize-continent
+    'CountryFlag 'serialize-country-flag))
 
 (datastore-test test-blank-entity-with-parent-kind-and-named-key
   (let [parent-key (create-key "continent" "eu")
@@ -524,7 +536,7 @@
 
 ;; (println (property-meta-data ['(iso-3166-alpha-2 :key true) '(location :type GeoPt) '(name)]))
 
-;; (make-record-fn-sym 'Contient)
+;; (make-record-fn-name 'Contient)
 
 ;; (datastore-test test-serialize-property-fn-with-meta
 ;;   (let [continent (make-example-continent)]
