@@ -78,19 +78,10 @@ Examples:
 (defn- entity?-name [record]
   (symbol (str (hyphenize record) "?")))
 
-(defn- entity?-doc [record]
-  (str "Returns true if arg is a " record ", else false."))
-
 (defn- make-entity-name [record]
   (symbol (str "make-" (hyphenize (demodulize record)))))
 
-(defn- make-entity-doc [entity]
-  (str "Returns a new " entity " record."))
-
-(defn- make-entity-key-doc [entity]
-  (str "Returns a new " entity " key."))
-
-(defn- make-entity-key-name [entity]
+(defn- make-key-name [entity]
   (symbol (str (make-entity-name entity) "-key")))
 
 (defn entity-kind [record]
@@ -110,7 +101,7 @@ Examples:
 (defn make-entity-fn [parent entity & property-keys]  
   (let [entity-kind (entity-kind entity)
         record (blank-record entity)
-        key-fn (resolve (make-entity-key-name entity))
+        key-fn (resolve (make-key-name entity))
         builder-fn (fn [key properties]
                      (-> record
                          (merge {:key key :kind entity-kind})
@@ -162,13 +153,13 @@ Examples:
 Examples:
 
   (defentity Continent ()
-    (iso-3166-alpha-2 :key lower-case)
-    (location :type GeoPt)
+    (iso-3166-alpha-2 :key lower-case :serialize lower-case))
+    (location :serialize GeoPt)
     (name))
 
   (defentity Country (Continent)
-    (iso-3166-alpha-2 :key lower-case)
-    (location :type GeoPt)
+    (iso-3166-alpha-2 :key lower-case :serialize lower-case))
+    (location :serialize GeoPt)
     (name))
 
 "
@@ -185,21 +176,24 @@ Examples:
        (defrecord ~entity [~'key ~'kind ~@(map first property-specs)])
 
        (defn ~(entity?-name entity)
-         ~(entity?-doc entity)
-         [~'arg]
-         (isa? (class ~'arg) ~entity))
+         ~(str "Returns true if arg is a " entity ", else false.")
+         [~'arg] (isa? (class ~'arg) ~entity))
 
-       (defn ~(make-entity-key-name entity) [~@arglists#]
-         (apply (make-entity-key-fn ~parent ~entity ~@key-fns#) ~@params#))
+       (defn ~(make-key-name entity)
+         ~(str "Make a " entity " Key.")
+         [~@arglists#] (apply (make-entity-key-fn ~parent ~entity ~@key-fns#) ~@params#))
 
-       (defn ~(make-entity-name entity) [~@arglists#]
-         (apply (make-entity-fn ~parent ~entity ~@properties#) ~@params#))
+       (defn ~(make-entity-name entity)
+         ~(str "Make a " entity " record.")
+         [~@arglists#] (apply (make-entity-fn ~parent ~entity ~@properties#) ~@params#))
 
-       (defn ~(serialize-name entity) [~'record]
-         ((serialize-fn ~@serializer#) ~'record))
+       (defn ~(serialize-name entity)
+         ~(str "Serialize the " entity " record into an Entity.")
+         [~'record] ((serialize-fn ~@serializer#) ~'record))
 
-       (defn ~(deserialize-name entity) [~'entity]
-         ((deserialize-fn ~entity ~@deserializer#) ~'entity))
+       (defn ~(deserialize-name entity)
+         ~(str "Deserialize the Entity into a " entity " record.")
+         [~'entity] ((deserialize-fn ~entity ~@deserializer#) ~'entity))
 
        (extend-type ~entity
          Serialize

@@ -3,6 +3,7 @@
   (:use appengine.datastore.entities
         appengine.datastore.keys
         appengine.test
+        appengine.test.examples
         clojure.test
         [clojure.contrib.string :only (join lower-case)]))
 
@@ -15,33 +16,6 @@
   (iso-3166-alpha-2 :key lower-case)
   (location :serialize GeoPt)
   (name))
-
-;; (clojure.core/defn make-continent [& properties]
-;;   (clojure.core/apply (appengine.datastore.entities/make-entity-fn nil Continent :iso-3166-alpha-2 :location :name) properties))
-
-;; (with-local-datastore
-;;   (appengine.datastore.entities/make-entity-fn nil Continent :iso-3166-alpha-2 :location :name)
-;;   ;; (make-continent :iso-3166-alpha-2 "eu")
-;;   )
-
-;; (make-entity-key-name Continent)
-
-
-;; (pr-str Continent)
-
-;; (with-local-datastore
-;;   (apply (make-entity-key-fn nil "continent" :iso-3166-alpha-2 lower-case) [:iso-3166-alpha-2 "eu"])
-;;   )
-
-;; (with-local-datastore
-;;   (make-continent-key :iso-3166-alpha-2 "eu"))
-
-;; (with-local-datastore
-;;   (make-continent :iso-3166-alpha-2 "eu"))
-
-;; (with-local-datastore
-;;   (make-person-key))
-
 
 (defentity Country (Continent)
   (iso-3166-alpha-2 :key lower-case)
@@ -133,21 +107,15 @@
     'Continent 'continent?
     'CountryFlag 'country-flag?))
 
-(deftest test-entity?-doc
-  (are [record doc-string]
-    (is (= (entity?-doc record) doc-string))
-    'Continent "Returns true if arg is a Continent, else false."
-    'CountryFlag "Returns true if arg is a CountryFlag, else false."))
-
 (deftest test-deserialize-name
   (are [record name]
     (is (= (deserialize-name record) name))
     'Continent 'deserialize-continent
     'CountryFlag 'deserialize-country-flag))
 
-(deftest test-make-entity-key-name
+(deftest test-make-key-name
   (are [record name]
-    (is (= (make-entity-key-name record) name))
+    (is (= (make-key-name record) name))
     'Continent 'make-continent-key
     'CountryFlag 'make-country-flag-key))
 
