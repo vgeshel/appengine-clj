@@ -1,5 +1,5 @@
 (ns #^{:author "E. Fukamachi"
-       :doc "Clojure API for the Google App Engine URL Fetch service." }
+       :doc "API for the Google App Engine URL Fetch service." }
   appengine.urlfetch
   (:use [clojure.contrib.def :only [defnk]])
   (:import [com.google.appengine.api.urlfetch

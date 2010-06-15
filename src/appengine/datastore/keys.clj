@@ -1,5 +1,12 @@
 (ns #^{:author "Roman Scherer"
-       :doc "Clojue API for Google App Engine datastore keys."}
+       :doc
+       "Allows you to create arbitrary Key objects in the root
+       group (no parent).
+
+       Also allows you to encode Key objects to and decode them from
+  strings. Clients should not make any assumptions about this return
+  value, except that it is a websafe string that does not need to be
+  quoted when used in HTML or in URLs."}
   appengine.datastore.keys
   (:import (com.google.appengine.api.datastore Key KeyFactory))
   (:use [clojure.contrib.string :only (join)]))

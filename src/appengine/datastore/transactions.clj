@@ -1,5 +1,5 @@
 (ns #^{:author "Jean-Denis Greze"
-       :doc "The transaction API for the Google App Engine datastore service." }
+       :doc "Datastore transaction API." }
     appengine.datastore.transactions
   (:import (com.google.appengine.api.datastore DatastoreFailureException)
 	   (java.util ConcurrentModificationException))

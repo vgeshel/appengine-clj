@@ -1,8 +1,8 @@
 (ns #^{:author "Roman Scherer"
-       :doc "Clojue API for the Google App Engine datastore service."}
+       :doc "API for the Google App Engine datastore service."}
   appengine.datastore.core
   (:import (com.google.appengine.api.datastore
-            DatastoreServiceFactory DatastoreServiceConfig
+            DatastoreServiceFactory DatastoreServiceConfig DatastoreServiceConfig$Builder
             Entity Key Query KeyFactory Transaction))
   (:use appengine.utils [clojure.contrib.def :only (defvar)]))
 
@@ -18,7 +18,7 @@ Examples:
 
   (datastore)
   ; => #<DatastoreServiceImpl com.google.appengine.api.datastore.DatastoreServiceImpl@a7b68a>"
-  ([] (datastore (com.google.appengine.api.datastore.DatastoreServiceConfig$Builder/withDefaults)))
+  ([] (datastore (DatastoreServiceConfig$Builder/withDefaults)))
   ([configuration] (DatastoreServiceFactory/getDatastoreService configuration)))
 
 (defn entity->map

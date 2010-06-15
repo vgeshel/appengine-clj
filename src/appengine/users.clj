@@ -1,5 +1,5 @@
 (ns #^{:author "John D. Hume"
-       :doc "Clojure API for the Google App Engine user service." }
+       :doc "The Clojure API for the Google App Engine user service." }
    appengine.users
   (:import
     (com.google.appengine.api.users User UserService UserServiceFactory)))

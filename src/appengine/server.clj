@@ -1,4 +1,5 @@
-(ns appengine.server
+(ns #^{:author "Roman Scherer"}
+  appengine.server
   (:use appengine.environment
         [ring.adapter.jetty :only (run-jetty)]))
 

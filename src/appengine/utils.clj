@@ -1,5 +1,5 @@
 (ns #^{:author "Roman Scherer"
-       :doc "Utility functions for Google App Engine." }
+       :doc "Utility functions used by other namespaces."}
   appengine.utils)
 
 (defn compact [seq]

@@ -1,4 +1,5 @@
-(ns appengine.datastore.types
+(ns #^{:author "Roman Scherer"}
+  appengine.datastore.types
   (:import (com.google.appengine.api.datastore
             Blob Category Email GeoPt IMHandle IMHandle$Scheme Link PhoneNumber
             PostalAddress Rating ShortBlob Text))

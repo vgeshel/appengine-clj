@@ -1,5 +1,9 @@
 (ns #^{:author "Roman Scherer"
-       :doc "The entity API for the Google App Engine datastore service." }
+       :doc
+       "Entity is the fundamental unit of data storage. It has an
+  immutable identifier (contained in the Key) object, a reference to
+  an optional parent Entity, a kind (represented as an arbitrary
+  string), and a set of zero or more typed properties." }
   appengine.datastore.entities
   (:import (com.google.appengine.api.datastore 
 	    Entity EntityNotFoundException Key Query Query$FilterOperator

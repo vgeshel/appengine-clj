@@ -1,4 +1,13 @@
-(ns appengine.datastore.query
+(ns #^{:author "Roman Scherer"
+       :doc "The query namespace provides functionality to select
+entities from App Engine's datastore.
+
+A Query encapsulates a request for zero or more Entity objects out of
+the datastore. It supports querying on zero or more properties,
+querying by ancestor, and sorting. Entity objects which match the
+query can be retrieved in a single list, or with an unbounded
+iterator."}
+  appengine.datastore.query
   (:import (com.google.appengine.api.datastore Key Query Query$FilterOperator Query$SortDirection))
   (:use appengine.utils [clojure.contrib.seq :only (includes?)]))
 
