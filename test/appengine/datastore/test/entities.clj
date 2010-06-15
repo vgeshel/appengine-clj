@@ -32,6 +32,15 @@
    :location {:latitude (float 54.52) :longitude (float 15.25)}
    :name "Europe"))
 
+;; (quote [& properties])
+;; (with-local-datastore
+;;   (println (make-berlin))
+;;   (println (deserialize (serialize (make-berlin))))
+;;   (println))
+
+;; (appengine.environment/init-repl)
+;; (deserialize (serialize (make-berlin)))
+
 (defn make-germany []
   (make-country
    (make-europe)
