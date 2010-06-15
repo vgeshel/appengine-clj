@@ -2,6 +2,20 @@
   (:import (com.google.apphosting.api ApiProxy ApiProxy$Environment)
            (com.google.appengine.tools.development ApiProxyLocalFactory LocalServerEnvironment)))
 
+(defn local-proxy
+  "Returns a local api proxy environment."
+  [& options]
+  (let [options (apply hash-map options)]
+    (proxy [ApiProxy$Environment] []
+      (isLoggedIn [] (not (nil? (:email options))))
+      (getAuthDomain [] "")
+      (getRequestNamespace [] "")
+      (getDefaultNamespace [] "")
+      (getAttributes [] (java.util.HashMap.))
+      (getEmail [] (or (:email options) ""))
+      (isAdmin [] (or (:admin options) true))
+      (getAppId [] (or (:app-id options) "local")))))
+
 (defn local-server-environment
   "Returns a local server environment."  
   [ & [directory]]
@@ -22,20 +36,6 @@
       (getEmail [] (or email ""))
       (isAdmin [] true)
       (getAppId [] "local"))))
-
-(defn local-proxy
-  "Returns a local api proxy environment."
-  [& options]
-  (let [options (apply hash-map options)]
-    (proxy [ApiProxy$Environment] []
-      (isLoggedIn [] (not (nil? (:email options))))
-      (getAuthDomain [] "")
-      (getRequestNamespace [] "")
-      (getDefaultNamespace [] "")
-      (getAttributes [] (java.util.HashMap.))
-      (getEmail [] (or (:email options) ""))
-      (isAdmin [] (or (:admin options) true))
-      (getAppId [] (or (:app-id options) "local")))))
 
 (defmacro with-appengine
   "Macro to set the environment for the current thread."
