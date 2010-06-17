@@ -14,9 +14,9 @@
 (deftest test-current-transaction
   (current-transaction)) ;; TODO
 
-(deftest test-datastore-service  
-  (is (isa? (class (datastore-service)) DatastoreService))
-  (is (isa? (class (datastore-service (DatastoreServiceConfig$Builder/withDefaults)))
+(deftest test-datastore  
+  (is (isa? (class (datastore)) DatastoreService))
+  (is (isa? (class (datastore (DatastoreServiceConfig$Builder/withDefaults)))
             DatastoreService)))
 
 (datastore-test test-delete-with-entity

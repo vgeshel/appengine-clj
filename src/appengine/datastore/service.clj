@@ -8,21 +8,24 @@
   (:use [clojure.contrib.def :only (defvar)]))
 
 (defprotocol Protocol
-  (delete [entity] "Delete the entity, key or sequence of entities and keys from the datastore.")
-  (get [entity] "Get the entity, key or sequence of entities and keys from the datastore.")
-  (put [entity] "Put the entity, key or sequence of entities and keys to the datastore."))
+  (delete [entity] "Delete the entity, key or sequence of entities and
+  keys from the datastore.")
+  (get [entity] "Get the entity, key or sequence of entities and keys
+  from the datastore.")
+  (put [entity] "Put the entity, key or sequence of entities and keys
+  to the datastore."))
 
-(defn datastore-service
+(defn datastore
   "Returns a DatastoreService with the default or the provided
   configuration.
 
 Examples:
 
   (datastore)
-  ; => #<DatastoreServiceImpl com.google.appengine.api.datastore.DatastoreServiceImpl@a7b68a>
+  ; => #<DatastoreServiceImpl DatastoreServiceImpl@a7b68a>
 
   (datastore DatastoreServiceConfig$Builder/withDefaults)
-  ; => #<DatastoreServiceImpl com.google.appengine.api.datastore.DatastoreServiceImpl@a7b68a>"
+  ; => #<DatastoreServiceImpl DatastoreServiceImpl@a7b68a>"
   [ & [configuration]]
   (DatastoreServiceFactory/getDatastoreService
    (or configuration (DatastoreServiceConfig$Builder/withDefaults))))
@@ -34,18 +37,20 @@ Examples:
 
 (extend-type Entity
   Protocol
-  (delete [entity] (delete (.getKey entity)))
-  (get [entity] (get (.getKey entity)))
+  (delete [entity]
+    (delete (.getKey entity)))
+  (get [entity]
+    (get (.getKey entity)))
   (put [entity]   
-    (.put (datastore-service) (current-transaction) entity)
+    (.put (datastore) (current-transaction) entity)
     entity))
 
 (extend-type Key
   Protocol
   (delete [key]
-    (.delete (datastore-service) (current-transaction) (into-array [key])) key)
+    (.delete (datastore) (current-transaction) (into-array [key])) key)
   (get [key]
-    (try (.get (datastore-service) (current-transaction) key)
+    (try (.get (datastore) (current-transaction) key)
          (catch EntityNotFoundException _ nil)))
   (put [key]
     (put (Entity. key))))
