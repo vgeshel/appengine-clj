@@ -8,26 +8,31 @@
   value, except that it is a websafe string that does not need to be
   quoted when used in HTML or in URLs."}
   appengine.datastore.keys
-  (:import (com.google.appengine.api.datastore Key KeyFactory))
-  (:use [clojure.contrib.string :only (join)]))
+  (:import (com.google.appengine.api.datastore Entity EntityNotFoundException Key KeyFactory))
+  (:use [appengine.datastore.transactions :only (*transaction*)]
+        [appengine.datastore.utils :only (assert-new)]
+        [clojure.contrib.string :only (join replace-re)]
+        appengine.datastore.protocols)
+  (:require [appengine.datastore.service :as datastore]
+            [appengine.datastore.types :as types]))
 
 (defn key?
   "Returns true if arg is a Key, else false."
   [arg] (isa? (class arg) Key))
 
-(defn create-key
+(defn make-key
   "Creates a new Key using the given kind and identifier. If parent-key is
 given, the new key will be a child of the parent-key.
   
 Examples:
 
-  (create-key \"country\" \"de\")
+  (make-key \"country\" \"de\")
   ; => #<Key country(\"de\")>
  	
-  (create-key (create-key \"continent\" \"eu\") \"country\" \"de\")
+  (make-key (make-key \"continent\" \"eu\") \"country\" \"de\")
   ; => #<Key continent(\"eu\")/country(\"de\")>"
   ([kind identifier]
-     (create-key nil kind identifier))
+     (make-key nil kind identifier))
   ([#^Key parent-key kind identifier]
      (KeyFactory/createKey
       (if (key? parent-key) parent-key (:key parent-key))
@@ -53,10 +58,10 @@ Examples:
 
 Examples:
 
-  (key->string (create-key \"continent\" \"eu\"))
+  (key->string (make-key \"continent\" \"eu\"))
   ; => \"agR0ZXN0chELEgljb250aW5lbnQiAmV1DA\"
 
-  (key->string (create-key (create-key \"continent\" \"eu\") \"country\" \"de\")
+  (key->string (make-key (make-key \"continent\" \"eu\") \"country\" \"de\")
   ; => \"agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA\""
   [#^Key key] (KeyFactory/keyToString key))
 
@@ -71,3 +76,19 @@ Examples:
   (string->key \"agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA\")
   ; => #<Key continent(\"eu\")/country(\"de\")>"
   [string] (KeyFactory/stringToKey string))
+
+(extend-type Key
+  Datastore
+  (create [key]
+    (assert-new key)
+    (save key))
+  (delete [key]
+    (datastore/delete key))
+  (save [key]
+    (save (Entity. key)))
+  (select [key]          
+    (try (types/deserialize (datastore/get key))
+         (catch EntityNotFoundException _ nil)))
+  (update [key key-vals]
+    (if-let [entity (select key)]
+      (update entity key-vals))))

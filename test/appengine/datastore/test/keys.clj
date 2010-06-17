@@ -1,12 +1,60 @@
 (ns appengine.datastore.test.keys
-  (:use appengine.datastore.keys
+  (:import (com.google.appengine.api.datastore Entity Key KeyFactory))
+  (:use appengine.datastore.entities
+        appengine.datastore.keys
+        appengine.datastore.protocols
         appengine.test
         clojure.test
-        [clojure.contrib.string :only (lower-case)])
-  (:import (com.google.appengine.api.datastore Key KeyFactory)))
+        [clojure.contrib.string :only (lower-case)]))
 
-(datastore-test test-create-key-with-int
-  (let [key (create-key "continent" 1)]
+(defn make-europe []
+  (make-key "continent" "eu"))
+
+(defn create-europe []
+  (save (make-europe)))
+
+(datastore-test test-create
+  (let [entity (create (make-europe))]
+    (is (map? entity))
+    (is (= (select entity) entity))
+    (is (thrown? Exception (create (.getKey entity))))))
+
+(datastore-test test-delete
+  (let [entity (create-europe)]
+    (is (map? entity))
+    (is (= (select entity) entity))
+    (delete (:key entity))
+    (is (nil? (select entity)))))
+
+(datastore-test test-save
+  (testing "with complete key"
+    (let [entity (save (make-europe))]
+      (is (map? entity))
+      (is (= entity (select entity)))))
+  (testing "with incomplete key"
+    (let [entity (save (doto (Entity. "person") (.setProperty "name" "Bob")))]
+      (is (map? entity))
+      (is (= entity (select entity))))))
+
+(datastore-test test-select
+  (is (nil? (select (make-europe))))
+  (is (not (nil? (select (:key (create-europe))))))
+  (let [entity (create-europe)]
+    (is (map? entity))
+    (is (= (select (:key entity)) entity))))
+
+(datastore-test test-update
+  (testing "with saved key"    
+    (let [entity (update (:key (create-europe)) {:name "Asia"})]
+      (is (map? entity))
+      (is (= (:name entity) "Asia"))))
+  (testing "with unsaved key"    
+    (let [entity (update (make-europe) {:name "Asia"})]
+      (is (map? entity))
+      (is (= (:name entity) "Asia")))))
+
+(datastore-test test-make-key-with-int
+  (let [key (make-key "continent" 1)]
     (is (key? key))
     (is (.isComplete key))
     (is (nil? (.getParent key)))    
@@ -14,8 +62,8 @@
     (is (= (.getId key) 1))
     (is (nil? (.getName key)))))
 
-(datastore-test test-create-key-with-string
-  (let [key (create-key "country" "de")]
+(datastore-test test-make-key-with-string
+  (let [key (make-key "country" "de")]
     (is (key? key))
     (is (.isComplete key))
     (is (nil? (.getParent key)))
@@ -23,9 +71,9 @@
     (is (= (.getId key) 0))
     (is (= (.getName key) "de"))))
 
-(datastore-test test-create-key-with-parent
-  (let [continent (create-key "continent" "eu")
-        country (create-key continent "country" "de")]
+(datastore-test test-make-key-with-parent
+  (let [continent (make-key "continent" "eu")
+        country (make-key continent "country" "de")]
     (is (= (class country) Key))
     (is (.isComplete country))
     (is (= (.getParent country) continent))
@@ -36,13 +84,13 @@
 (datastore-test test-key?
   (is (not (key? nil)))
   (is (not (key? "")))
-  (is (key? (create-key "continent" "eu"))))
+  (is (key? (make-key "continent" "eu"))))
 
 (datastore-test test-key->string  
-  (is (= (key->string (create-key "continent" 1)) "agR0ZXN0cg8LEgljb250aW5lbnQYAQw"))
-  (is (= (key->string (create-key "country" "de")) "agR0ZXN0cg8LEgdjb3VudHJ5IgJkZQw"))
-  (let [continent (create-key "continent" "eu")
-        country (create-key continent "country" "de")]
+  (is (= (key->string (make-key "continent" 1)) "agR0ZXN0cg8LEgljb250aW5lbnQYAQw"))
+  (is (= (key->string (make-key "country" "de")) "agR0ZXN0cg8LEgdjb3VudHJ5IgJkZQw"))
+  (let [continent (make-key "continent" "eu")
+        country (make-key continent "country" "de")]
     (is (= (key->string country) "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA"))))
 
 (datastore-test test-string->key
