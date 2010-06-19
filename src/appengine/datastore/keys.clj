@@ -81,13 +81,13 @@ Examples:
     (assert-new key)
     (save key))
   (delete [key]
-    (datastore/delete key))
+    (datastore/delete-entity key))
   (save [key]
     (save (Entity. key)))
   (select [key]          
-          (try (if-let [entity (datastore/get key)]
+          (try (if-let [entity (datastore/get-entity key)]
                  (deserialize entity))
          (catch EntityNotFoundException _ nil)))
   (update [key key-vals]
-    (if-let [entity (select key)]
+    (if-let [entity (datastore/get-entity key)]
       (update entity key-vals))))
