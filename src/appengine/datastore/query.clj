@@ -151,18 +151,18 @@ Examples:
   (map deserialize (iterator-seq (.asQueryResultIterator (prepare-query query)))))
 
 (defmacro compile-query
-  "A macro that transforms the select clause, and any number of
-where and order-by clauses into a -> form to produce a query.
+  "A macro that compiles the select clause, and any number of where
+and order-by clauses into a -> form to produce a query.
 
 Examples:
 
-  (select \"continent\")
+  (compile-query \"continent\")
   ; => #<Query SELECT * FROM continent>
 
-  (select \"countries\" (make-key \"continent\" \"eu\") where (= :name \"Germany\"))
-  ; => #<Query SELECT * FROM countries WHERE name = Germany AND __ancestor__ is continent(\"eu\")>
+  (compile-query \"country\" (make-key \"continent\" \"eu\") where (= :name \"Germany\"))
+  ; => #<Query SELECT * FROM country WHERE name = Germany AND __ancestor__ is continent(\"eu\")>
 
-  (select \"continent\"
+  (compile-query \"continent\"
     where (= :name \"Europe\") (> :updated-at \"2010-01-01\")
     order-by (:name) (:updated-at :desc)))
   ; => #<Query SELECT * FROM continent WHERE name = Europe AND updated-at > 2010-01-01 ORDER BY name, updated-at DESC>
@@ -174,21 +174,23 @@ Examples:
           ~@(map (fn [args] `(order-by ~@args)) sort-clauses))))
 
 (defmacro select
-  "A macro that transforms the select clause, and any number of
-where and order-by clauses into a -> form to produce a query.
+  "A macro that compiles the select clause, and any number of where
+and order-by clauses into query which will be executed against the
+datastore. The function returns a sequence of entities or an empty
+sequence if no entities were found.
 
 Examples:
 
   (select \"continent\")
-  ; => #<Query SELECT * FROM continent>
+  ; => ()
 
-  (select \"countries\" (make-key \"continent\" \"eu\") where (= :name \"Germany\"))
-  ; => #<Query SELECT * FROM countries WHERE name = Germany AND __ancestor__ is continent(\"eu\")>
+  (select \"country\" (make-key \"continent\" \"eu\") where (= :name \"Germany\"))
+  ; => ()
 
   (select \"continent\"
     where (= :name \"Europe\") (> :updated-at \"2010-01-01\")
     order-by (:name) (:updated-at :desc)))
-  ; => #<Query SELECT * FROM continent WHERE name = Europe AND updated-at > 2010-01-01 ORDER BY name, updated-at DESC>
+  ; => ()
 "
   [& args]
   (let [[query-clauses filter-clauses sort-clauses] (extract-clauses args)]
