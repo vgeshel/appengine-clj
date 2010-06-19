@@ -17,7 +17,7 @@
     datastore."))
 
 (defprotocol Deserialize
-  (deserialize [record] "Deserialize the datastore record."))
+  (deserialize [object] "Deserialize an object from the datastore."))
 
 (defprotocol Serialize
   (serialize [record] "Serialize the datastore record into an entity."))

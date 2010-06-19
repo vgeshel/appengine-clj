@@ -2,7 +2,11 @@
   (import (com.google.appengine.api.datastore
            Blob Category Email Entity KeyFactory GeoPt IMHandle IMHandle$Scheme Link
            PhoneNumber PostalAddress Rating ShortBlob Text))
-  (:use appengine.datastore.keys appengine.datastore.types appengine.test clojure.test))
+  (:use appengine.datastore.keys
+        appengine.datastore.types
+        [appengine.datastore.protocols :only (deserialize)]
+        appengine.test
+        clojure.test))
 
 (refer-private 'appengine.datastore.types)
 

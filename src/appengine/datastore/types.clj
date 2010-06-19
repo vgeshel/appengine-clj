@@ -5,47 +5,56 @@
             PostalAddress Rating ShortBlob Text)
            (java.net MalformedURLException URL ))
   (:use [clojure.contrib.string :only (lower-case trim)]
-        [clojure.contrib.seq :only (includes?)]))
+        [clojure.contrib.seq :only (includes?)]
+        [appengine.datastore.protocols :only (Deserialize deserialize)]))
 
-(defmulti deserialize
-  "Deserialize the instance into a clojure data structure."
-  (fn [instance] (class instance)))
+(extend-type Blob
+  Deserialize
+  (deserialize [blob] (seq (.getBytes blob))))
 
-(defmethod deserialize Blob [blob]
-  (seq (.getBytes blob)))
+(extend-type Category
+  Deserialize
+  (deserialize [category] (.getCategory category)))
 
-(defmethod deserialize Category [category]
-  (.getCategory category))
+(extend-type Email
+  Deserialize
+  (deserialize [email] (.getEmail email)))
 
-(defmethod deserialize Email [email]
-  (.getEmail email))
+(extend-type GeoPt
+  Deserialize
+  (deserialize [location] {:latitude (.getLatitude location) :longitude (.getLongitude location)}))
 
-(defmethod deserialize GeoPt [geo-point]
-  {:latitude (.getLatitude geo-point) :longitude (.getLongitude geo-point)})
+(extend-type IMHandle
+  Deserialize
+  (deserialize [handle] {:protocol (.getProtocol handle) :address (.getAddress handle)}))
 
-(defmethod deserialize IMHandle [im-handle]
-   {:protocol (.getProtocol im-handle) :address (.getAddress im-handle)})
+(extend-type Link
+  Deserialize
+  (deserialize [link] (.getValue link)))
 
-(defmethod deserialize Link [link]
-  (.getValue link))
+(extend-type PhoneNumber
+  Deserialize
+  (deserialize [phone-number] (.getNumber phone-number)))
 
-(defmethod deserialize PhoneNumber [phone-number]
-  (.getNumber phone-number))
+(extend-type PostalAddress
+  Deserialize
+  (deserialize [postal-address] (.getAddress postal-address)))
 
-(defmethod deserialize PostalAddress [postal-address]
-  (.getAddress postal-address))
+(extend-type Rating
+  Deserialize
+  (deserialize [rating] (.getRating rating)))
 
-(defmethod deserialize Rating [rating]
-  (.getRating rating))
+(extend-type ShortBlob
+  Deserialize
+  (deserialize [short-blob] (seq (.getBytes short-blob))))
 
-(defmethod deserialize ShortBlob [short-blob]
-  (seq (.getBytes short-blob)))
+(extend-type Text
+  Deserialize
+  (deserialize [text] (.getValue text)))
 
-(defmethod deserialize Text [text]
-  (.getValue text))
-
-(defmethod deserialize :default [instance]
-  instance)
+(extend-type Object
+  Deserialize
+  (deserialize [object] object))
 
 (defmulti serialize
   "Serialize the value into the type.

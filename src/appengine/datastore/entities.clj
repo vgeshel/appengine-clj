@@ -6,8 +6,8 @@ optional parent Entity, a kind (represented as an arbitrary string),
 and a set of zero or more typed properties." }
   appengine.datastore.entities
   (:import (com.google.appengine.api.datastore Entity EntityNotFoundException Key))
-  (:require [appengine.datastore.types :as types]
-            [appengine.datastore.service :as datastore])
+  (:require [appengine.datastore.service :as datastore]
+            [appengine.datastore.types :as types])
   (:use [clojure.contrib.string :only (blank? join lower-case)]
         [clojure.contrib.seq :only (includes?)]
         [appengine.datastore.utils :only (assert-new)]
@@ -69,7 +69,7 @@ Examples:
 (defn- set-property
   "Set the entity's property to value and return the modified entity."
   [entity name value]
-  (.setProperty entity (stringify name) (types/deserialize value))
+  (.setProperty entity (stringify name) (deserialize value))
   entity)
 
 (defn- set-properties
@@ -104,12 +104,12 @@ Examples:
     (fn [record]
       (if record
         (reduce
-         #(let [deserialize (%2 deserializers) value (%2 record)]            
+         #(let [deserializer (%2 deserializers) value (%2 record)]            
             (assoc %1 %2 
                    (cond
-                    (fn? deserialize) (deserialize value)
+                    (fn? deserializer) (deserializer value)
                     (nil? value) value
-                    :else (types/deserialize value))))
+                    :else (deserialize value))))
          record (keys record))))))
 
 (defn- deserialize-map [map]
