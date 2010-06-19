@@ -1,141 +1,51 @@
 (ns appengine.datastore.test.transactions
-  (:use clojure.test appengine.test appengine.datastore)
-  (:import (com.google.appengine.api.datastore
-            EntityNotFoundException
-            Query
-            DatastoreFailureException
-            Query$FilterOperator)))
+  (:import (com.google.appengine.api.datastore Entity KeyFactory))
+  (:use clojure.test appengine.datastore.transactions appengine.test)
+  (:require [appengine.datastore.service :as datastore]))
 
-;; (defentity Continent ()
-;;   (iso-3166-alpha-2 :key true)
-;;   (name))
+(defn example-entity []
+  (Entity. (KeyFactory/createKey "continent" "eu")))
 
-;; (defentity Country (Continent)
-;;   (iso-3166-alpha-2 :key true)
-;;   (iso-3166-alpha-3)
-;;   (name))
+(datastore-test test-active?
+  (let [transaction (datastore/begin-transaction)]
+    (is (active? transaction))
+    (commit transaction)
+    (is (not (active? transaction))))
+  (let [transaction (datastore/begin-transaction)]
+    (is (active? transaction))
+    (rollback transaction)
+    (is (not (active? transaction)))))
 
-;; (datastore-test create-in-transaction
-;;   (let [entity (with-transaction 
-;; 		(create {:kind "Person" :name "liz"}))]
-;;     (is (= "liz" (:name entity))))
-;;   (let [child (with-transaction
-;; 		(let [parent (create {:kind "Person" :name "jane"})]
-;; 		  (create {:kind "Person" :name "bob" 
-;; 				     :parent-key (:key parent)})))]
-;;     (is (= "bob" (:name child)))
-;;     (is (= ["jane"] 
-;; 	   (map :name (find-all 
-;; 		       (doto (Query. "Person") 
-;; 			 (.addFilter "name" 
-;; 				     Query$FilterOperator/EQUAL "jane"))))))))
+(datastore-test test-commit
+  (let [transaction (datastore/begin-transaction)
+        entity (datastore/put (example-entity))]
+    (is (nil? (datastore/get entity)))
+    (commit transaction)
+    (is (= (datastore/get entity) entity))))
 
-;; (datastore-test do-rollback-in-transaction
-;;    (let [[k1 k2] (with-transaction
-;; 		 (let [forget1 (create 
-;; 				{:kind "Person" :name "ForgetMe1"})
-;; 		       forget2 (create 
-;; 				{:kind "Person" :name "ForgetMe2"
-;; 				 :parent-key (:key forget1)})]
-;; 		   (rollback-transaction)
-;; 		   [(:key forget1) (:key forget2)]))]
-;;     (is (thrown? EntityNotFoundException (get-entity k1)))
-;;     (is (thrown? EntityNotFoundException (get-entity k2)))))
+(datastore-test test-rollback
+  (let [transaction (datastore/begin-transaction)
+        entity (datastore/put (example-entity))]
+    (rollback transaction)
+    (is (nil? (datastore/get entity)))))
 
-;; (defn always-fails []
-;;   (throw (DatastoreFailureException. "Test Error")))
+(datastore-test test-transaction?
+  (is (not (transaction? nil)))
+  (is (not (transaction? "")))
+  (let [transaction (datastore/begin-transaction)]
+    (is (transaction? transaction))
+    (commit transaction)))
 
-;; (datastore-test multiple-tries-in-transaction
-;;   (is (thrown? DatastoreFailureException
-;; 	       (with-transaction
-;; 		(always-fails)))))
+(datastore-test test-with-commit-transaction
+  (let [entity (with-commit-transaction (datastore/put (example-entity)))]
+    (is (= (datastore/get entity) entity))))
 
-;; (datastore-test non-transaction-datastore-operations-within-transactions
-;;   (let [[k1 k2 k3] 
-;; 	(with-transaction
-;; 	 (let [entity (create {:kind "Person" :name "Entity"})
-;; 	       same-entity-group-as-entity (create 
-;; 					    {:kind "Person" 
-;; 					     :name "SameEntityGroupAsEntity"
-;; 					     :parent-key (:key entity)})]
-;; 	   (is (thrown? IllegalArgumentException ;; wrong entity group
-;; 			(create {:kind "Person" 
-;; 					   :name "WrongEntityGroup"})))
-;; 	   (map :key 
-;; 		[entity same-entity-group-as-entity
-;; 		 (without-transaction  ;; do atomic request via macro
-;; 		  (create {:kind "Person" 
-;; 				     :name "DifferentEntityGroup"}))])))]
-;;     (is (= "Entity" (:name (get-entity k1))))
-;;     (is (= "SameEntityGroupAsEntity" (:name (get-entity k2))))
-;;     (is (= "DifferentEntityGroup" (:name (get-entity k3))))))
-
-;; (datastore-test nested-transactions
-;;   (let [[k1 k2 k3 k4]
-;; 	(with-transaction ;; transaction for first entity group
-;; 	 (let [entity (create {:kind "Person" :name "Entity"})
-;; 	       same-entity-group-as-entity (create 
-;; 					    {:kind "Person" 
-;; 					     :name "SameEntityGroupAsEntity"
-;; 					     :parent-key (:key entity)})
-;; 	       [entity2 same-entity-group-as-entity2]
-;; 		(with-transaction ;; nested for a second entity group
-;; 		 (let [entity2 (create {:kind "Person" 
-;; 						  :name "Entity2"})
-;; 		       same-entity-group-as-entity2 (create 
-;; 						     {:kind "Person" 
-;; 						      :name "SameEntityGroupAsEntity2"
-;; 						      :parent-key (:key entity2)})]
-;; 		   [entity2 same-entity-group-as-entity2]))]
-;; 	   [entity same-entity-group-as-entity
-;; 	    entity2 same-entity-group-as-entity2]))]
-;;     (is (= "Entity" (:name (get-entity k1))))
-;;     (is (= "SameEntityGroupAsEntity" (:name (get-entity k2))))
-;;     (is (= "Entity2" (:name (get-entity k3))))
-;;     (is (= "SameEntityGroupAsEntity2" (:name (get-entity k4))))))
-
-;; (datastore-test updates-with-transactions
-;;   (let [entity (create {:kind "Person" :name "Entity"})]
-;;     (with-transaction
-;;      (is (= "Entity" (:name entity)))
-;;      (update-entity entity {:day-job "hacker" :favorite-sport "beach volley"})
-;;      (update-entity entity {:day-job "entrepreneur" :night-job "hacker++"})))
-;;   (let [[entity] (find-all
-;; 		  (doto (Query. "Person")
-;; 		    (.addFilter "day-job" 
-;; 				Query$FilterOperator/EQUAL "entrepreneur")))]
-;;     (is (= "hacker++" (:night-job entity)))
-;;     (is (= "Entity" (:name entity)))
-;;     (is (nil? (:favorite-sport entity))))) 
-;;     ;; remember how ds's put works: only commit the latest Entity put
-;;     ;; in case the same entity is put multiple times
-
-;; ;; transactions and find-all works, but is restricted as per 
-;; ;; http://code.google.com/appengine/docs/java/datastore/queriesandindexes.html
-;; ;; text-search for Ancestor Queries
-	      
-;; (datastore-test deletes-with-transactions
-;;   (let [entity (create {:kind "Person" :name "Entity"})
-;; 	entity2 (create {:kind "Person" :name "Entity2"})]
-;;     (with-transaction
-;;      (delete-entity entity)
-;;      (is (thrown? IllegalArgumentException (delete-entity entity2))))
-;;     (is (thrown? EntityNotFoundException (get-entity (:key entity))))
-;;     (is (= "Entity2" (:name (get-entity (:key entity2)))))
-;;     (with-transaction
-;;      (delete-entity entity2)
-;;      (rollback-transaction))
-;;     (is (= "Entity2" (:name (get-entity (:key entity2)))))
-;;     (with-transaction
-;;      (delete-entity entity2))
-;;     (is (thrown? EntityNotFoundException (get-entity (:key entity2))))))
-
-;; (datastore-test test-create-with-child-within-transaction
-;;   (with-transaction
-;;     (let [continent (create-continent {:iso-3166-alpha-2 "eu"})]
-;;       (create-country continent {:iso-3166-alpha-2 "de"})))
-;;   (is (= (dissoc (find-continent-by-iso-3166-alpha-2 "eu") :key)
-;;          {:iso-3166-alpha-2 "eu", :kind "continent"}))
-;;   (is (= (dissoc (find-country-by-iso-3166-alpha-2 "de") :key)
-;;          {:iso-3166-alpha-2 "de", :kind "country"})))
-
+(datastore-test test-with-rollback-transaction
+  (let [exception (Exception. "datastore exception")]
+    (try
+      (with-rollback-transaction
+        (datastore/put (example-entity))
+        (throw exception))
+      (catch Exception catched
+        (is (= catched exception))
+        (is (nil? (datastore/get (example-entity))))))))
