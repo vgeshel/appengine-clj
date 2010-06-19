@@ -7,8 +7,8 @@
         clojure.test))
 
 (defn make-sequence []
-  (seq [(make-key "continent" "eu")
-        (Entity. (make-key "continent" "af"))]))
+  [(make-key "continent" "eu")
+   (Entity. (make-key "continent" "af"))])
 
 (datastore-test test-create
   (let [entities (create (make-sequence))]

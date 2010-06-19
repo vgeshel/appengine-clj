@@ -1,6 +1,7 @@
 (ns #^{:author "Roman Scherer"
        :doc "The datastore protocols."}
-  appengine.datastore.protocols)
+  appengine.datastore.protocols
+  (:use appengine.utils))
 
 (defprotocol Record
   (create [record]
@@ -17,13 +18,16 @@
     datastore."))
 
 (defprotocol Lifecycle
-  (deserialize [object] "Deserialize an object from the datastore.")
-  (serialize [record] "Serialize the record into an entity."))
+  (deserialize [object]
+    "Deserialize an object into a clojure data structure.")
+  (serialize [record]
+    "Serialize the record into an entity."))
 
-(extend-type clojure.lang.ISeq
+(extend-type clojure.lang.Seqable
   Record
   (create [records] (map create records))
   (delete [records] (map delete records))
   (lookup [records] (map lookup records))
   (save   [records] (map save records))
   (update [records key-vals] (map #(update % key-vals) records)))
+
