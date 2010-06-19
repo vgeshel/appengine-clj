@@ -11,8 +11,6 @@
 
 (refer-private 'appengine.datastore.entities)
 
-(defrecord Person [name])
-
 (defentity Person ()
   ((name)))
 
@@ -20,24 +18,6 @@
   ((iso-3166-alpha-2 :key lower-case)
    (location :serialize GeoPt)
    (name)))
-
- ;; (pprint (macroexpand '(defentity Continent ()
- ;;                         (iso-3166-alpha-2 :key lower-case)
- ;;                         (location :serialize GeoPt)
- ;;                         (name))))
-
-;; (with-local-datastore
-;;   (let [europe (continent :iso-3166-alpha-2 "eu" :name "Europe" :location {:latitude 1 :longitude 2})]
-;;     (deserialize europe)
-;;     (save europe)
-;;     (select europe)
-;;     ))
-
-;; (with-local-datastore
-;;   (let [europe (person :name "Bob")]
-;;     (save europe)
-;;     ;; (select europe)
-;;     ))
 
 (defentity Country (Continent)
   ((iso-3166-alpha-2 :key lower-case)

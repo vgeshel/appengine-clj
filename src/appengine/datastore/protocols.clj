@@ -16,6 +16,8 @@
     "Update the entities with the key-vals and save them in the
     datastore."))
 
-(defprotocol Serialization
-  (deserialize [record] "Deserialize the datastore record.")
+(defprotocol Deserialize
+  (deserialize [record] "Deserialize the datastore record."))
+
+(defprotocol Serialize
   (serialize [record] "Serialize the datastore record into an entity."))

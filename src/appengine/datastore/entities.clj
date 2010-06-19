@@ -4,11 +4,8 @@
 immutable identifier (contained in the Key) object, a reference to an
 optional parent Entity, a kind (represented as an arbitrary string),
 and a set of zero or more typed properties." }
-appengine.datastore.entities
-  (:import (com.google.appengine.api.datastore 
-	    Entity EntityNotFoundException Key Query Query$FilterOperator
-            GeoPt
-            ))
+  appengine.datastore.entities
+  (:import (com.google.appengine.api.datastore Entity EntityNotFoundException Key))
   (:require [appengine.datastore.types :as types]
             [appengine.datastore.service :as datastore])
   (:use [clojure.contrib.string :only (blank? join lower-case)]
@@ -102,17 +99,6 @@ Examples:
    (Entity. (or (:key map) (:kind map)))
    (dissoc map :key :kind)))
 
-(defn deserialize-fn [record & deserializers]
-  (let [record (blank-record record)
-        deserializers (apply hash-map deserializers)]
-    (fn [entity]
-      (if entity
-        (let [entries (.entrySet (.getProperties entity))]
-          (reduce
-           #(assoc %1 (keyword (key %2)) (types/deserialize (val %2)))
-           (assoc record :key (.getKey entity) :kind (.getKind entity))
-           entries))))))
-
 (defn deserialize-fn [& deserializers]
   (let [deserializers (apply hash-map deserializers)]
     (fn [record]
@@ -125,6 +111,11 @@ Examples:
                     (nil? value) value
                     :else (types/deserialize value))))
          record (keys record))))))
+
+(defn- deserialize-map [map]
+  (if-let [record (resolve (symbol (:kind map)))]
+    (deserialize (merge (blank-record record) map))
+    map))
 
 (defn serialize-fn [& serializers]
   (let [serializers (apply hash-map serializers)]
@@ -265,17 +256,10 @@ Examples:
          (~'save   [~entity-sym#] (save (serialize ~entity-sym#)))
          (~'select [~entity-sym#] (select (serialize ~entity-sym#)))
          (~'update [~entity-sym# ~'key-vals] (update (serialize ~entity-sym#) ~'key-vals))
-         Serialization
+         Deserialize
          (~'deserialize [~entity-sym#] ((deserialize-fn ~@deserializer#) ~entity-sym#))
-         (~'serialize [~entity-sym#] ((serialize-fn ~@serializer#) ~entity-sym#)))
-
-       
-       ;; (in-ns 'appengine.datastore.types)
-       ;; (defmethod ~'deserialize ~(entity-kind (resolve entity)) [~'entity]
-       ;;            ((deserialize-fn ~(resolve entity) ~@deserializer#) ~'entity))
-       ;; (in-ns '~(symbol (str ns#)))
-         
-       )))
+         Serialize
+         (~'serialize [~entity-sym#] ((serialize-fn ~@serializer#) ~entity-sym#))))))
 
 (extend-type Entity
   Datastore
@@ -284,8 +268,9 @@ Examples:
   (select [entity] (select (.getKey entity)))
   (save   [entity] (deserialize (datastore/put entity)))
   (update [entity key-vals] (save (set-properties entity key-vals)))
-  Serialization
+  Deserialize
   (deserialize [entity] (deserialize (entity->map entity)))
+  Serialize
   (serialize [entity] entity))
 
 (extend-type clojure.lang.IPersistentMap
@@ -295,194 +280,7 @@ Examples:
   (save   [map] (save (serialize map)))
   (select [map] (select (serialize map)))
   (update [map key-vals] (update (serialize map) key-vals))
-  Serialization
-  (deserialize [map]
-               (if-let [record (resolve (symbol (:kind map)))]
-                 (deserialize (merge (blank-record record) map))
-                 map))
+  Deserialize
+  (deserialize [map] (deserialize-map map))
+  Serialize
   (serialize [map] ((serialize-fn) map)))
-
-;; (use 'appengine.test)
-
-;; (with-local-datastore
-;;   (serialize {:kind "continent"}))
-
-;; (with-local-datastore
-;;   (serialize (array-map :kind "continent")))
-
-;; (with-local-datastore
-;;   ((make-entity-key-fn 'Continent 'Country :iso-3166-alpha-2 #'lower-case)
-;;    (make-key "continent" "eu") :iso-3166-alpha-2 "DE" :name "Germany"))
-
-;; (with-local-datastore
-;;   ((make-entity-key-fn nil 'Continent :iso-3166-alpha-2 #'lower-case :name #'lower-case)
-;;    :iso-3166-alpha-2 "EU" :name "Europe"))
-
-;; (defentity Continent ()
-;;   (iso-3166-alpha-2 :key lower-case)
-;;   (location :type GeoPt)
-;;   (name))
-
-;; (defentity Country (Continent)
-;;   (iso-3166-alpha-2 :key true)
-;;   (location :type GeoPt)
-;;   (name))
-
-;; (make-continent :name "Europe")
-;; (meta (make-continent :name "Europe"))
-;; assoc
-
-;; (defn- set-property [entity record property]
-;;   (let [value ((serialze-property-fn record property) (property record))]
-;;     (.setProperty entity (str property) value)
-;;     entity))
-
-;; (defprotocol Serialize
-;;   (serialize [entity] "Serialize the entity."))
-
-;; (defprotocol Deserialize
-;;   (deserialize [entity] "Deserialize the entity."))
-
-;; (extend-type clojure.lang.PersistentArrayMap
-;;   Serialize
-;;   (serialize [map]
-;;     (let [entity (blank-entity (or (:key map) (:kind map)))]
-;;       (set-properties entity map))))
-
-;; (class {})
-
-;; (serialize {})
-
-;; (defn- entity-key? [entity-specs]
-;;   (let [[attribute & options] entity-specs]
-;;     (= (:key (apply hash-map options)) true)))
-
-;; (defn- entity-keys [entity-specs]
-;;   (map first (filter #(entity-key? %) entity-specs)))
-
-;; (defn- find-entities-fn-doc [entity property]
-;;   (str "Find all " (pluralize (str entity)) " by " property "."))
-
-;; (defn- find-entities-fn-name [entity property]
-;;   (str "find-all-" (pluralize (str entity)) "-by-" property))
-
-;; (defn- find-entity-fn-doc [entity property]
-;;   (str "Find the first " entity " by " property "."))
-
-;; (defn- find-entity-fn-name [entity property]
-;;   (str "find-" entity "-by-" property))
-
-;; (defn- filter-query [entity property value & [operator]]
-;;   "Returns a query, where the value of the property matches using the
-;; operator."
-;;   (doto (Query. (str entity))
-;;     (.addFilter
-;;      (str property)
-;;      (or operator Query$FilterOperator/EQUAL)
-;;      (if (map? value) ((keyword value) value) value))))
-
-;; (defn filter-fn [entity property & [operator]]
-;;   "Returns a filter function that returns all entities, where the
-;; property matches the operator."
-;;   (let [operator (or operator Query$FilterOperator/EQUAL)]
-;;     (fn [property-val]
-;;       (ds/find-all
-;;        (filter-query entity property property-val operator)))))
-
-;; (defn- key-fn-name [entity]
-;;   "Returns the name of the key builder fn for the given entity."
-;;   (str "make-" (str entity) "-key"))
-
-;; (defmacro def-key-fn [entity entity-keys & [parent]]
-;;   "Defines a function to build a key from the entity-keys
-;; propertoes. If entity-keys is empty the fn returns nil."
-;;   (let [entity# entity entity-keys# entity-keys parent# parent]
-;;     `(defn ~(symbol (key-fn-name entity#)) [~@(compact [parent#]) ~'attributes]
-;;        ~(if-not (empty? entity-keys#)
-;;           `(ds/make-key
-;;             (:key ~parent#)
-;;             ~(str entity#)
-;;             (join "-" [~@(map #(list (if (keyword? %) % (keyword %)) 'attributes) entity-keys#)]))))))
-
-;; (defmacro def-make-fn [entity parent & properties]
-;;   "Defines a function to build entity hashes."
-;;   (let [entity# entity parent# (first parent)
-;;         properties# properties
-;;         args# (compact [parent# 'attributes])]
-;;     `(defn ~(symbol (str "make-" entity#)) [~@args#]       
-;;        (merge (assoc (select-keys ~'attributes [~@(map (comp keyword first) properties#)])
-;;                 :kind ~(str entity#))
-;; 	      (let [key# (~(symbol (key-fn-name entity)) ~@args#)]
-;; 		(if-not (nil? key#) {:key key#} {}))))))
-
-;; (defmacro def-create-fn [entity & [parent]]
-;;   "Defines a function to build and save entity hashes."
-;;   (let [entity# entity parent# parent
-;;         args# (compact [parent# 'attributes])]
-;;     `(defn ~(symbol (str "create-" entity#)) [~@args#]
-;;        (ds/create-entity (~(symbol (str "make-" entity#)) ~@args#)))))
-
-;; (defmacro deffilter [entity name doc-string [property operator] & [result-fn]]
-;;   "Defines a finder function for the entity."
-;;   (let [property# property]
-;;     `(defn ~(symbol name) ~doc-string
-;;        [~property#]
-;;        (~(or result-fn 'identity)
-;;         ((filter-fn '~entity '~property# ~operator) ~property#)))))
-
-;; (defmacro def-find-all-by-property-fns [entity & properties]
-;;   "Defines a function for each property, that find all entities by a property."
-;;   (let [entity# entity]
-;;     `(do
-;;        ~@(for [property# properties]
-;;            `(do
-;;               (deffilter ~entity#
-;;                 ~(symbol (find-entities-fn-name entity# property#))
-;;                 ~(find-entities-fn-doc entity# property#)
-;;                 (~property#)))))))
-
-;; (defmacro def-find-first-by-property-fns [entity & properties]
-;;   "Defines a function for each property, that finds the first entitiy by a property."
-;;   (let [entity# entity]
-;;     `(do
-;;        ~@(for [property# properties]
-;;            `(do
-;;               (deffilter ~entity#
-;;                 ~(symbol (find-entity-fn-name entity# property#))
-;;                 ~(find-entity-fn-doc entity# property#)
-;;                 (~property#) first))))))
-
-;; (defmacro def-delete-fn [entity]
-;;   "Defines a delete function for the entity."
-;;   (let [entity# entity]
-;;     `(defn ~(symbol (str "delete-" entity#)) [& ~'args]
-;;        (ds/delete-entity ~'args))))
-
-;; (defmacro def-find-all-fn [entity]
-;;   "Defines a function that returns all entities."
-;;   (let [entity# entity]
-;;     `(defn ~(symbol (str "find-" (pluralize (str entity#)))) []
-;;        (ds/find-all (Query. ~(str entity#))))))
-
-;; (defmacro def-update-fn [entity]
-;;   "Defines an update function for the entity."
-;;   (let [entity# entity]
-;;     `(defn ~(symbol (str "update-" entity#)) [~entity# ~'properties]
-;;        (ds/update-entity ~entity ~'properties))))
-
-;; (defmacro defentity [entity parent & properties]
-;;   "Defines helper functions for the entity. Note that
-;;    if no property is qualified by :key true, then the data
-;;    store will create a unique key for this object.  However
-;;    note that the result of calling make-*entity*-key for any 
-;;    such object is nil and not a proper key."
-;;   (let [entity# entity parent# parent properties# properties]
-;;     `(do
-;;        (def-key-fn ~entity# ~(entity-keys properties) ~@parent#)
-;;        (def-make-fn ~entity# ~parent# ~@properties#)
-;;        (def-create-fn ~entity# ~@parent#)
-;;        (def-delete-fn ~entity#)
-;;        (def-find-all-by-property-fns ~entity# ~@(map first properties#))
-;;        (def-find-all-fn ~entity#)
-;;        (def-find-first-by-property-fns ~entity# ~@(map first properties#))
-;;        (def-update-fn ~entity#))))
