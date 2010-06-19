@@ -83,7 +83,7 @@ Examples:
   (delete [key]
     (datastore/delete-entity key))
   (save [key]
-    (save (Entity. key)))
+    (deserialize (datastore/put-entity (Entity. key) )))
   (select [key]          
           (try (if-let [entity (datastore/get-entity key)]
                  (deserialize entity))
