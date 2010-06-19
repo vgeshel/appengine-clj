@@ -9,9 +9,11 @@ query can be retrieved in a single list, or with an unbounded
 iterator."}
   appengine.datastore.query
   (:import (com.google.appengine.api.datastore Key Query Query$FilterOperator Query$SortDirection))
-  (:use appengine.utils
-        [appengine.datastore.service :only (datastore current-transaction)]
-        [clojure.contrib.seq :only (includes?)]))
+  (:use [appengine.datastore.service :only (datastore current-transaction)]
+        [clojure.contrib.seq :only (includes?)]
+        appengine.datastore.entities
+        appengine.datastore.protocols
+        appengine.utils))
 
 (defprotocol QueryProtocol
   (execute [query] "Execute the query against the datastore.")
@@ -146,7 +148,30 @@ Examples:
 
 (defn- execute-query
   [#^Query query]
-  (iterator-seq (.asQueryResultIterator (prepare-query query))))
+  (map deserialize (iterator-seq (.asQueryResultIterator (prepare-query query)))))
+
+(defmacro compile-query
+  "A macro that transforms the select clause, and any number of
+where and order-by clauses into a -> form to produce a query.
+
+Examples:
+
+  (select \"continent\")
+  ; => #<Query SELECT * FROM continent>
+
+  (select \"countries\" (make-key \"continent\" \"eu\") where (= :name \"Germany\"))
+  ; => #<Query SELECT * FROM countries WHERE name = Germany AND __ancestor__ is continent(\"eu\")>
+
+  (select \"continent\"
+    where (= :name \"Europe\") (> :updated-at \"2010-01-01\")
+    order-by (:name) (:updated-at :desc)))
+  ; => #<Query SELECT * FROM continent WHERE name = Europe AND updated-at > 2010-01-01 ORDER BY name, updated-at DESC>
+"
+  [& args]
+  (let [[query-clauses filter-clauses sort-clauses] (extract-clauses args)]
+    ` (-> (query ~@query-clauses)
+          ~@(map (fn [args] `(filter-by ~@args)) filter-clauses)
+          ~@(map (fn [args] `(order-by ~@args)) sort-clauses))))
 
 (defmacro select
   "A macro that transforms the select clause, and any number of
@@ -167,9 +192,7 @@ Examples:
 "
   [& args]
   (let [[query-clauses filter-clauses sort-clauses] (extract-clauses args)]
-    `(-> (query ~@query-clauses)
-         ~@(map (fn [args] `(filter-by ~@args)) filter-clauses)
-         ~@(map (fn [args] `(order-by ~@args)) sort-clauses))))
+    `(execute (compile-query ~@args))))
 
 (extend-type Query
   QueryProtocol

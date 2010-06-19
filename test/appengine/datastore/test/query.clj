@@ -1,7 +1,8 @@
 (ns appengine.datastore.test.query
   (:import (com.google.appengine.api.datastore Query Query$FilterOperator Query$SortDirection))
   (:use clojure.test
-        ;; appengine.datastore.protocols
+        appengine.datastore.entities
+        appengine.datastore.protocols
         appengine.datastore.keys
         appengine.datastore.query
         appengine.test))
@@ -94,28 +95,45 @@
     nil false
     "" false))
 
-(datastore-test test-select
-  (let [q (select)]
-    (is (query? q))
-    (is (= (str q) "SELECT *")))
-  (let [q (select "continents")]
-    (is (query? q))
-    (is (= (str q) "SELECT * FROM continents")))
-  (let [q (select (make-key "continent" "eu"))]
-    (is (query? q)))
-  (let [q (select "countries" (make-key "continent" "eu"))]
-    (is (query? q))
-    (is (= (str q) "SELECT * FROM countries WHERE __ancestor__ is continent(\"eu\")")))
-  (let [q (select "continents" where (= :name "Europe") order-by (:name))]
-    (is (query? q))
-    (is (= (str q) "SELECT * FROM continents WHERE name = Europe ORDER BY name")))
-  (let [q (select "continents" order-by (:name) where (= :name "Europe"))]
-    (is (query? q))
-    (is (= (str q) "SELECT * FROM continents WHERE name = Europe ORDER BY name")))
-  (let [q (select "continents" where (= :name "Europe") (> :updated-at "2010-01-01") order-by (:name) (:updated-at :desc))]
-    (is (query? q))
-    (is (= (str q) "SELECT * FROM continents WHERE name = Europe AND updated-at > 2010-01-01 ORDER BY name, updated-at DESC"))))
+(datastore-test test-compile-query
+  (are [query gql]
+    (do
+      (is (query? query))
+      (is (= (str query) gql)))
+    (compile-query)
+    "SELECT *"
+    (compile-query "continents")
+    "SELECT * FROM continents"
+    (compile-query (make-key "continent" "eu"))
+    "SELECT * WHERE __ancestor__ is continent(\"eu\")"
+    (compile-query "countries" (make-key "continent" "eu"))
+    "SELECT * FROM countries WHERE __ancestor__ is continent(\"eu\")"
+    (compile-query "continents" where (= :name "Europe") order-by (:name))
+    "SELECT * FROM continents WHERE name = Europe ORDER BY name"
+    (compile-query "continents" order-by (:name) where (= :name "Europe"))
+    "SELECT * FROM continents WHERE name = Europe ORDER BY name"
+    (compile-query "continents" where (= :name "Europe") (> :updated-at "2010-01-01") order-by (:name) (:updated-at :desc))
+    "SELECT * FROM continents WHERE name = Europe AND updated-at > 2010-01-01 ORDER BY name, updated-at DESC"))
 
-;; (with-local-datastore
-;;   (create )
-;;   (select "countries" (make-key "continent" "eu")))
+(datastore-test test-select
+  (let [result (select)]
+    (is seq? result))
+  (let [result (select "continents")]
+    (is seq? result))
+  (let [result (select (make-key "continent" "eu"))]
+    (is seq? result))
+  (let [result (select "countries" (make-key "continent" "eu"))]
+    (is seq? result))
+  (let [result (select "continents" where (= :name "Europe") order-by (:name))]
+    (is seq? result))
+  (let [result (select "continents" order-by (:name) where (= :name "Europe"))]
+    (is seq? result))
+  (let [result (select "continents" where (= :name "Europe") (> :updated-at "2010-01-01") order-by (:name) (:updated-at :desc))]
+    (is seq? result)))
+
+(with-local-datastore
+  (let [continent (create (make-key "continent" "eu"))]
+    (select "continent")))
+
+
+
