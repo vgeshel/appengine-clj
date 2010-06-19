@@ -9,7 +9,12 @@ query can be retrieved in a single list, or with an unbounded
 iterator."}
   appengine.datastore.query
   (:import (com.google.appengine.api.datastore Key Query Query$FilterOperator Query$SortDirection))
-  (:use appengine.utils [clojure.contrib.seq :only (includes?)]))
+  (:use appengine.utils
+        [appengine.datastore.service :only (datastore current-transaction)]
+        [clojure.contrib.seq :only (includes?)]))
+
+(defprotocol QueryProtocol
+  (prepare [query] "Prepare a query for execution."))
 
 (defn filter-operator
   "Returns the FilterOperator enum for the given operator. The
@@ -68,10 +73,10 @@ Examples:
   (query \"continent\")
   ; => #<Query SELECT * FROM continent>
 
-  (query (create-key \"continent\" \"eu\"))
+  (query (make-key \"continent\" \"eu\"))
   ; => #<Query SELECT * WHERE __ancestor__ is continent(\"eu\")>
 
-  (query \"countries\" (create-key \"continent\" \"eu\"))
+  (query \"countries\" (make-key \"continent\" \"eu\"))
   ; => #<Query SELECT * FROM countries WHERE __ancestor__ is continent(\"eu\")>
 "
   (fn [& args] (map class args)))
@@ -144,7 +149,7 @@ Examples:
   (select \"continent\")
   ; => #<Query SELECT * FROM continent>
 
-  (select \"countries\" (create-key \"continent\" \"eu\") where (= :name \"Germany\"))
+  (select \"countries\" (make-key \"continent\" \"eu\") where (= :name \"Germany\"))
   ; => #<Query SELECT * FROM countries WHERE name = Germany AND __ancestor__ is continent(\"eu\")>
 
   (select \"continent\"
@@ -157,3 +162,15 @@ Examples:
     `(-> (query ~@query-clauses)
          ~@(map (fn [args] `(filter-by ~@args)) filter-clauses)
          ~@(map (fn [args] `(order-by ~@args)) sort-clauses))))
+
+(defn- prepare-query
+  [#^Query query] (.prepare (datastore) (current-transaction) query))
+
+(defn- execute-query
+  [#^Query query] (prepare-query query))
+
+(extend-type Query
+  QueryProtocol
+  (execute [query] (execute-query query))
+  (prepare [query] (prepare-query query)))
+

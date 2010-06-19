@@ -1,9 +1,13 @@
 (ns appengine.datastore.test.service
   (:refer-clojure :exclude (get))
-  (:import (com.google.appengine.api.datastore DatastoreService DatastoreServiceConfig$Builder
-            DatastoreServiceFactory DatastoreServiceImpl Entity))
+  (:import (com.google.appengine.api.datastore
+            DatastoreService DatastoreServiceConfig$Builder
+            DatastoreServiceFactory DatastoreServiceImpl Entity
+            Query PreparedQuery Transaction))
   (:use clojure.test appengine.datastore.entities appengine.datastore.keys
         appengine.datastore.service appengine.test))
+
+(refer-private 'appengine.datastore.service)
 
 (defn make-example-key []
   (make-key "continent" "eu"))
@@ -11,13 +15,36 @@
 (defn make-example-entity[]
   (Entity. (make-example-key)))
 
-(deftest test-current-transaction
-  (current-transaction)) ;; TODO
+(defn transaction?
+  "Returns true if arg is a transaction, else false."
+  [arg] (isa? (class arg) Transaction))
+
+(datastore-test test-begin-transaction  
+  (let [transaction (begin-transaction)]
+    (is (transaction? transaction))
+    (is (= transaction (current-transaction)))
+    (commit-transaction transaction)))
+
+(datastore-test test-active-transactions
+  (begin-transaction)
+  (let [transactions (active-transactions)]
+    (is (every? transaction? transactions))
+    (commit-transaction (current-transaction))))
+
+(datastore-test test-current-transaction
+  (is (nil? (current-transaction)))  
+  (begin-transaction)
+  (is (transaction? (current-transaction)))
+  (commit-transaction (current-transaction))) 
 
 (deftest test-datastore  
-  (is (isa? (class (datastore)) DatastoreService))
-  (is (isa? (class (datastore (DatastoreServiceConfig$Builder/withDefaults)))
-            DatastoreService)))
+  (is (datastore? (datastore)))
+  (is (datastore? (datastore (DatastoreServiceConfig$Builder/withDefaults)))))
+
+(deftest test-datastore?
+  (is (not (datastore? nil)))
+  (is (not (datastore? "")))
+  (is (datastore? (datastore))))
 
 (datastore-test test-delete-with-entity
   (is (delete (make-example-entity)))
@@ -57,3 +84,7 @@
     (is (= (.getKey entity) key))
     (is (= (get key) entity))
     (is (= (put (.getKey entity)) entity))))
+
+;; (datastore-test test-prepare
+;;   (let [query (prepare (Query. "continent"))]
+;;     (is (isa? (class query) PreparedQueryImpl))))

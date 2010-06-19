@@ -1,27 +1,23 @@
 (ns #^{:author "Roman Scherer"
        :doc
        "Entity is the fundamental unit of data storage. It has an
-  immutable identifier (contained in the Key) object, a reference to
-  an optional parent Entity, a kind (represented as an arbitrary
-  string), and a set of zero or more typed properties." }
-  appengine.datastore.entities
+immutable identifier (contained in the Key) object, a reference to an
+optional parent Entity, a kind (represented as an arbitrary string),
+and a set of zero or more typed properties." }
+appengine.datastore.entities
   (:import (com.google.appengine.api.datastore 
 	    Entity EntityNotFoundException Key Query Query$FilterOperator
             GeoPt
             ))
-  (:require [appengine.datastore.core :as ds]
-            [appengine.datastore.types :as types])
-  (:use [clojure.contrib.string :only (join lower-case)]
+  (:require [appengine.datastore.types :as types]
+            [appengine.datastore.service :as datastore])
+  (:use [clojure.contrib.string :only (blank? join lower-case)]
         [clojure.contrib.seq :only (includes?)]
+        [appengine.datastore.utils :only (assert-new)]
+        appengine.datastore.protocols
         appengine.datastore.keys
         appengine.utils
         inflections))
-
-(defprotocol Deserialize
-  (deserialize [entity] "Deserialize the entity into a record."))
-
-(defprotocol Serialize
-  (serialize [record] "Serialize the record into an entity."))
 
 (defn blank-entity
   "Returns a blank Entity. If called with one parameter, key-or-kind
@@ -35,7 +31,7 @@ Examples:
   (blank-entity \"continent\")
   ; => #<Entity [continent(no-id-yet)]>
 
-  (blank-entity (create-key \"continent\" \"eu\"))
+  (blank-entity (make-key \"continent\" \"eu\"))
   ; => #<Entity [continent(\"eu\")]>"
   ([key-or-kind]
      (Entity. key-or-kind))
@@ -51,16 +47,84 @@ Examples:
   "Returns true if arg is an Entity, else false."
   [arg] (isa? (class arg) Entity))
 
+(defn entity->map
+  "Converts a Entity into a map. The properties of the entity are
+  stored under their keyword names, the entity's kind under the :kind
+  and the entity's key under the :key key.
+
+Examples:
+
+   (entity->map (Entity. \"continent\"))
+   ; => {:kind \"continent\", :key #<Key continent(no-id-yet)>}
+
+   (entity->map (doto (Entity. \"continent\")
+                      (.setProperty \"name\" \"Europe\")))
+   ; => {:name \"Europe\", :kind \"continent\", :key #<Key continent(no-id-yet)>}"
+  [#^Entity entity]
+  (reduce #(assoc %1 (keyword (key %2)) (val %2))
+	  (merge {:kind (.getKind entity) :key (.getKey entity)})
+	  (.entrySet (.getProperties entity))))
+
+(defn entity-kind
+  "Returns the ind of the entity as a string."
+  [record] (if record (pr-str record)))
+
+(defn- set-property
+  "Set the entity's property to value and return the modified entity."
+  [entity name value]
+  (.setProperty entity (stringify name) (types/deserialize value))
+  entity)
+
+(defn- set-properties
+  "Set the entity's properties to the values and return the modified
+  entity."
+  [entity key-vals]
+  (reduce #(set-property %1 (first %2) (second %2)) entity key-vals))
+
+"Converts a map into an entity. The kind of the entity is determined
+by one of the :key or the :kind keys, which must be in the map."
+
+(defn map->entity
+  "Converts a map into an entity. The kind of the entity is determined
+by one of the :key or the :kind keys, which must be in the map.
+
+Examples:
+
+  (map->entity {:kind \"person\" :name \"Bob\"})
+  ; => #<Entity <Entity [person(no-id-yet)]:
+  ;        name = Bob
+
+  (map->entity {:key (make-key \"continent\" \"eu\") :name \"Europe\"})
+  ; => #<Entity <Entity [continent(\"eu\")]:
+  ;        name = Europe"
+  [map]
+  (set-properties
+   (Entity. (or (:key map) (:kind map)))
+   (dissoc map :key :kind)))
+
 (defn deserialize-fn [record & deserializers]
-  (let [deserializers (apply hash-map deserializers)]
+  (let [record (blank-record record)
+        deserializers (apply hash-map deserializers)]
     (fn [entity]
       (if entity
         (let [entries (.entrySet (.getProperties entity))]
           (reduce
            #(assoc %1 (keyword (key %2)) (types/deserialize (val %2)))
-           (assoc (blank-record record)
-             :key (.getKey entity) :kind (.getKind entity))
+           (assoc record :key (.getKey entity) :kind (.getKind entity))
            entries))))))
+
+(defn deserialize-fn [& deserializers]
+  (let [deserializers (apply hash-map deserializers)]
+    (fn [record]
+      (if record
+        (reduce
+         #(let [deserialize (%2 deserializers) value (%2 record)]            
+            (assoc %1 %2 
+                   (cond
+                    (fn? deserialize) (deserialize value)
+                    (nil? value) value
+                    :else (types/deserialize value))))
+         record (keys record))))))
 
 (defn serialize-fn [& serializers]
   (let [serializers (apply hash-map serializers)]
@@ -69,10 +133,10 @@ Examples:
         (reduce
          #(let [serialize (%2 serializers) value (%2 record)]
             (.setProperty
-             %1 (name %2)
-             (cond
+             %1 (name %2) 
+            (cond
               (fn? serialize) (serialize value)
-              (nil? serialize) value
+              (nil? serialize) (types/serialize (class value) value)
               (nil? value) value
               :else (types/serialize serialize value)))
             %1)
@@ -83,13 +147,10 @@ Examples:
   (symbol (str (hyphenize record) "?")))
 
 (defn- make-entity-name [record]
-  (symbol (str "make-" (hyphenize (demodulize record)))))
+  (symbol (hyphenize (demodulize record))))
 
 (defn- make-key-name [entity]
   (symbol (str (make-entity-name entity) "-key")))
-
-(defn entity-kind [record]
-  (hyphenize (demodulize (pr-str record))))
 
 (defn make-entity-key-fn [parent entity & key-fns]  
   (let [entity-kind (entity-kind entity)
@@ -97,15 +158,14 @@ Examples:
     (if parent
       (fn [parent & properties]
         (if-not (empty? key-fns)
-          (create-key parent entity-kind (key-name-fn properties))))
+          (make-key parent entity-kind (key-name-fn properties))))
       (fn [& properties]
         (if-not (empty? key-fns)
-          (create-key entity-kind (key-name-fn properties)))))))
+          (make-key entity-kind (key-name-fn properties)))))))
 
-(defn make-entity-fn [parent entity & property-keys]  
+(defn make-entity-fn [parent entity key-fn & property-keys]
   (let [entity-kind (entity-kind entity)
         record (blank-record entity)
-        key-fn (resolve (make-key-name entity))
         builder-fn (fn [key properties]
                      (-> record
                          (merge {:key key :kind entity-kind})
@@ -113,7 +173,7 @@ Examples:
     (if parent
       (fn [parent & properties]
         (builder-fn (apply key-fn parent properties) properties))
-      (fn [& properties]        
+      (fn [& properties]
         (builder-fn (apply key-fn properties) properties)))))
 
 (defn- deserialize-name [record]
@@ -143,13 +203,11 @@ Examples:
   (flat-seq (merge (extract-option property-specs :serialize)
                    (extract-option property-specs :deserialize))))
 
-(defn- make-meta-data [entity parent property-specs]  
+(defn- extract-meta-data [entity parent property-specs]  
   {:key-fns (extract-key-fns property-specs)
-   :kind (hyphenize entity)
-   :parent (if parent (hyphenize parent))
+   :kind (entity-kind entity)
+   :parent (entity-kind parent)
    :properties (extract-properties property-specs)})
-
-
 
 (defmacro defentity
   "A macro to define entitiy records.
@@ -174,6 +232,8 @@ Examples:
         key-fns#      (extract-key-fns property-specs)
         deserializer# (extract-deserializer property-specs)
         serializer#   (extract-serializer property-specs)
+        entity-sym#   (symbol (hyphenize (demodulize entity)))
+        ns# *ns*
         ]
     `(do
 
@@ -183,35 +243,83 @@ Examples:
          ~(str "Returns true if arg is a " entity ", else false.")
          [~'arg] (isa? (class ~'arg) ~entity))
 
-       (defn ~(make-key-name entity)
-         ~(str "Make a " entity " Key.")
-         [~@arglists#] (apply (make-entity-key-fn ~parent ~entity ~@key-fns#) ~@params#))
+       (let [key-fn# (make-entity-key-fn ~parent ~entity ~@key-fns#)
+             entity-fn# (make-entity-fn ~parent ~entity key-fn# ~@properties#)]
 
-       (defn ~(make-entity-name entity)
-         ~(str "Make a " entity " record.")
-         [~@arglists#] (apply (make-entity-fn ~parent ~entity ~@properties#) ~@params#))
+         (defn ~(make-key-name entity)
+           ~(str "Make a " entity " Key.")
+           [~@arglists#] (apply key-fn# ~@params#))
 
-       (defn ~(serialize-name entity)
-         ~(str "Serialize the " entity " record into an Entity.")
-         [~'record] ((serialize-fn ~@serializer#) ~'record))
+         (defn ~(make-entity-name entity)
+           ~(str "Make a " entity " record.")
+           [~@arglists#]
+           ;; (apply (make-entity-fn ~parent ~entity ~@properties#) ~@params#)
+           (apply entity-fn# ~@params#)
+           ))
 
-       (defn ~(deserialize-name entity)
-         ~(str "Deserialize the Entity into a " entity " record.")
-         [~'entity] ((deserialize-fn ~entity ~@deserializer#) ~'entity))
-
+       
        (extend-type ~entity
-         Serialize
-         (~'serialize [~'record] (~(serialize-name entity) ~'record))))))
+         Datastore
+         (~'create [~entity-sym#] (create (serialize ~entity-sym#)))
+         (~'delete [~entity-sym#] (delete (serialize ~entity-sym#)))
+         (~'save   [~entity-sym#] (save (serialize ~entity-sym#)))
+         (~'select [~entity-sym#] (select (serialize ~entity-sym#)))
+         (~'update [~entity-sym# ~'key-vals] (update (serialize ~entity-sym#) ~'key-vals))
+         Serialization
+         (~'deserialize [~entity-sym#] ((deserialize-fn ~@deserializer#) ~entity-sym#))
+         (~'serialize [~entity-sym#] ((serialize-fn ~@serializer#) ~entity-sym#)))
+
+       
+       ;; (in-ns 'appengine.datastore.types)
+       ;; (defmethod ~'deserialize ~(entity-kind (resolve entity)) [~'entity]
+       ;;            ((deserialize-fn ~(resolve entity) ~@deserializer#) ~'entity))
+       ;; (in-ns '~(symbol (str ns#)))
+         
+       )))
 
 (extend-type Entity
-  Deserialize
-  (deserialize [entity]
-    (let [record (symbol (camelize (.getKind entity)))]                 
-      ((resolve (deserialize-name record)) entity))))
+  Datastore
+  (create [entity]
+    (assert-new entity)
+    (save entity))
+  (delete [entity]
+    (delete (.getKey entity)))
+  (select [entity]
+          (if-let [entity (select (.getKey entity))]
+            (deserialize entity)))
+  (save [entity]        
+        (deserialize (datastore/put entity)))
+  (update [entity key-vals]          
+    (save (set-properties entity key-vals)))
+  Serialization
+  (deserialize [entity] (deserialize (entity->map entity)))
+  (serialize [entity] entity))
+
+(extend-type clojure.lang.IPersistentMap
+  Datastore
+  (create [map] (create (serialize map)))
+  (delete [map] (delete (serialize map)))
+  (save   [map] (save (serialize map)))
+  (select [map] (select (serialize map)))
+  (update [map key-vals] (update (serialize map) key-vals))
+  Serialization
+  (deserialize [map]
+               (if-let [record (resolve (symbol (:kind map)))]
+                 (deserialize (merge (blank-record record) map))
+                 map))
+  (serialize [map] ((serialize-fn) map)))
+
+;; (use 'appengine.test)
+
+;; (with-local-datastore
+;;   (serialize {:kind "continent"}))
+
+;; (with-local-datastore
+;;   (serialize (array-map :kind "continent")))
 
 ;; (with-local-datastore
 ;;   ((make-entity-key-fn 'Continent 'Country :iso-3166-alpha-2 #'lower-case)
-;;    (create-key "continent" "eu") :iso-3166-alpha-2 "DE" :name "Germany"))
+;;    (make-key "continent" "eu") :iso-3166-alpha-2 "DE" :name "Germany"))
 
 ;; (with-local-datastore
 ;;   ((make-entity-key-fn nil 'Continent :iso-3166-alpha-2 #'lower-case :name #'lower-case)
@@ -298,7 +406,7 @@ Examples:
 ;;   (let [entity# entity entity-keys# entity-keys parent# parent]
 ;;     `(defn ~(symbol (key-fn-name entity#)) [~@(compact [parent#]) ~'attributes]
 ;;        ~(if-not (empty? entity-keys#)
-;;           `(ds/create-key
+;;           `(ds/make-key
 ;;             (:key ~parent#)
 ;;             ~(str entity#)
 ;;             (join "-" [~@(map #(list (if (keyword? %) % (keyword %)) 'attributes) entity-keys#)]))))))

@@ -3,170 +3,221 @@
   appengine.datastore.core
   (:import (com.google.appengine.api.datastore
             DatastoreServiceFactory DatastoreServiceConfig DatastoreServiceConfig$Builder
+            EntityNotFoundException
             Entity Key Query KeyFactory Transaction))
   (:use appengine.utils [clojure.contrib.def :only (defvar)]))
 
-(defvar *transaction* nil
-  "The current datastore transaction. If set to nil, all operations
-  are done without a transaction (the default behaviour).")
+;; (defvar *transaction* nil
+;;   "The current datastore transaction. If set to nil, all operations
+;;   are done without a transaction (the default behaviour).")
 
-(defn datastore
-  "Creates a DatastoreService using the default or the provided
-configuration.
+;; (defn datastore
+;;   "Creates a DatastoreService using the default or the provided
+;; configuration.
 
-Examples:
+;; Examples:
 
-  (datastore)
-  ; => #<DatastoreServiceImpl com.google.appengine.api.datastore.DatastoreServiceImpl@a7b68a>"  
-  [ & [configuration]]
-  (DatastoreServiceFactory/getDatastoreService
-   (or configuration (DatastoreServiceConfig$Builder/withDefaults))))
+;;   (datastore)
+;;   ; => #<DatastoreServiceImpl com.google.appengine.api.datastore.DatastoreServiceImpl@a7b68a>"  
+;;   [ & [configuration]]
+;;   (DatastoreServiceFactory/getDatastoreService
+;;    (or configuration (DatastoreServiceConfig$Builder/withDefaults))))
 
-(defn entity->map
-  "Converts a com.google.appengine.api.datastore.Entity instance to a
-PersistentHashMap. The properties of the entity are stored under their
-keyword names, the entity kind under :kind and the entity key
-under :key.
+;; (defprotocol Datastore
+;;   (create [entities] "Create the entities in the datastore.")
+;;   (delete [entities] "Delete the keys or entities from the datastore.")
+;;   (select [entities] "Select entities from the datastore.")
+;;   (save   [entities] "Save the entities in the datastore.")
+;;   (update [entities key-vals] "Update the entities in the datastore."))
 
-Examples:
+;; (extend-type Entity
+;;   Datastore
+;;   (create [entity]
+;;     (assert-new entity)
+;;     (save entity))
+;;   (delete [entity]
+;;     (delete (.getKey entity)))
+;;   (select [entity]
+;;     (select (.getKey entity)))
+;;   (save [entity]
+;;     (.put (datastore) *transaction* entity)
+;;     entity)
+;;   (update [entity key-vals]
+;;     (doseq [[property-key property-value] key-vals]
+;;       (.setProperty entity (stringify property-key) property-value))
+;;     (save entity)))
 
-   (entity->map (doto (Entity. \"continent\") (.setProperty \"name\" \"Europe\")))
-   ; => {:name \"Europe\", :kind \"continent\", :key #<Key continent(no-id-yet)>}"
-  [#^Entity entity]
-  (reduce #(assoc %1 (keyword (key %2)) (val %2))
-	  (merge {:kind (.getKind entity) :key (.getKey entity)})
-	  (.entrySet (.getProperties entity))))
+;; (extend-type Key
+;;   Datastore
+;;   (create [key]
+;;     (assert-new key)
+;;     (save key))
+;;   (delete [key]
+;;     (.delete (datastore) *transaction* (into-array [key])))
+;;   (select [key]
+;;     (try (.get (datastore) *transaction* key)
+;;          (catch EntityNotFoundException _ nil)))
+;;   (save [key]
+;;     (save (Entity. key)))
+;;   (update [key key-vals]
+;;     (if-let [entity (select key)]
+;;       (update entity key-vals)
+;;       (update (create key) key-vals)))) ;; OPTIMIZE: remove the create!
 
-(declare properties)
 
-(defn map->entity
-  "Converts a map or struct to an Entity. The map must have the key or
-kind of the entity stored under the :key or a :kind keywords.
 
-Examples:
 
-   (map->entity {:key \"continent\" :name \"Europe\"})
-   ; => #<Entity <Entity [continent(no-id-yet)]:
-   ;      name = Europe"
-  [map]
-  (let [map (map-keyword map)]
-   (reduce #(do (.setProperty %1 (name (first %2)) (second %2)) %1)
-           (if (and (:kind map) (:parent-key map))
-             (Entity. (:kind map) (:parent-key map))
-             (Entity. (or (:key map) (:kind map))))
-           (properties map))))
 
-(defmulti properties
-  "Returns the properties of the given record as a map."
-  class)
 
-(defmethod properties Entity [#^Entity entity]
-  (properties (entity->map entity)))
 
-(defmethod properties :default [map]
-  (dissoc (merge {} map) :key :kind))
 
-(defn filter-keys [keys]
-  "Takes a sequences and returns a sequence of Key objects, doing
-   conversions from Entity or map (with a :key), if possible."
-  (remove nil? (map #(cond (instance? Key %) %
-			   (instance? Entity %) (.getKey %)
-			   (instance? Key (:key %)) (:key %)) keys)))
 
-(defmulti get-entity
-  "Retrieves a PersistentHashMap of an Entity in the datastore. The
-  entity can be retrieved by an instance of Key, Entity, a
-  PersistentHashMap with a :key keyword, or an ISeq of keys, in which 
-  case a PersistentHashMap of appengine Keys to PersistentHashmaps of
-  Entities is returned."
-  class)
 
-(defmethod get-entity Entity [#^Entity entity]
-  (get-entity (.getKey entity)))
+;; (defn entity->map
+;;   "Converts a com.google.appengine.api.datastore.Entity instance to a
+;; PersistentHashMap. The properties of the entity are stored under their
+;; keyword names, the entity kind under :kind and the entity key
+;; under :key.
 
-(defmethod get-entity Key [#^Key key]
-  (entity->map (.get (datastore) *transaction* key)))
+;; Examples:
 
-(defmethod get-entity clojure.lang.PersistentVector [keys]
-  (get-entity (seq keys)))
+;;    (entity->map (doto (Entity. \"continent\") (.setProperty \"name\" \"Europe\")))
+;;    ; => {:name \"Europe\", :kind \"continent\", :key #<Key continent(no-id-yet)>}"
+;;   [#^Entity entity]
+;;   (reduce #(assoc %1 (keyword (key %2)) (val %2))
+;; 	  (merge {:kind (.getKind entity) :key (.getKey entity)})
+;; 	  (.entrySet (.getProperties entity))))
 
-(defmethod get-entity clojure.lang.ISeq [keys]
-  (into {} (for [[key entity] (.get (datastore) *transaction* (filter-keys keys))] 
-	     [key (entity->map entity)])))
+;; (declare properties)
 
-(defmethod get-entity :default [map]
-  (if-let [key (:key map)]
-    (entity->map (.get (datastore) *transaction* key))))
+;; (defn map->entity
+;;   "Converts a map or struct to an Entity. The map must have the key or
+;; kind of the entity stored under the :key or a :kind keywords.
 
-(defmulti put-entity
-  "Puts the given record into the datastore and returns a
-  PersistentHashMap of the record. The record must be an instance of
-  Entity or PersistentHashMap."
-  class)
+;; Examples:
 
-(defmethod put-entity Entity [#^Entity entity]
-  (let [key (.put (datastore) *transaction* entity)]
-    (assoc (entity->map entity) :key key)))
+;;    (map->entity {:key \"continent\" :name \"Europe\"})
+;;    ; => #<Entity <Entity [continent(no-id-yet)]:
+;;    ;      name = Europe"
+;;   [map]
+;;   (let [map (map-keyword map)]
+;;     (reduce #(do (.setProperty %1 (name (first %2)) (second %2)) %1)
+;;             (if (and (:kind map) (:parent-key map))
+;;               (Entity. (:kind map) (:parent-key map))
+;;               (Entity. (or (:key map) (:kind map))))
+;;             (properties map))))
 
-(defmethod put-entity :default [map]
-  (put-entity (map->entity map)))
+;; (defmulti properties
+;;   "Returns the properties of the given record as a map."
+;;   class)
 
-(defn find-all
-  "Executes the given com.google.appengine.api.datastore.Query
-  and returns the results as a lazy sequence of items converted 
-  with entity->map."
-  [#^Query query]
-  (let [data-service (datastore)
-        results (.asIterable (.prepare data-service *transaction* query))]
-    (map entity->map results)))
+;; (defmethod properties Entity [#^Entity entity]
+;;            (properties (entity->map entity)))
 
-(defn create-entity 
-  "Takes a map of keyword-value pairs or struct and creates a new Entity
-in the Datastore.  The map or struct must include a :kind
-String. Returns the saved Entity converted with entity->map (which
-will include the assigned :key)."
-  [record]
-  (put-entity record))
+;; (defmethod properties :default [map]
+;;            (dissoc (merge {} map) :key :kind))
 
-(defmulti update-entity
-  "Updates the record with the given properites. The record must be an
-instance of Entity, Key or PersistentHashMap. If one of the
-attributes' values is :remove, then the correponding property name is
-removed from that entity.  If one of the attributes't values is nil,
-then the corresponding property name is set to Java's null for that
-property."
-  (fn [record attributes] (class record)))
+;; (defn filter-keys [keys]
+;;   "Takes a sequences and returns a sequence of Key objects, doing
+;;    conversions from Entity or map (with a :key), if possible."
+;;   (remove nil? (map #(cond (instance? Key %) %
+;; 			   (instance? Entity %) (.getKey %)
+;; 			   (instance? Key (:key %)) (:key %)) keys)))
 
-(defmethod update-entity Entity [#^Entity entity attributes]
-  (doseq [[attribute value] attributes]
-    (if (not= value :remove)
-      (.setProperty entity (name attribute) value)
-      (.removeProperty entity (name attribute))))
-  (put-entity entity))
+;; (defmulti get-entity
+;;   "Retrieves a PersistentHashMap of an Entity in the datastore. The
+;;   entity can be retrieved by an instance of Key, Entity, a
+;;   PersistentHashMap with a :key keyword, or an ISeq of keys, in which 
+;;   case a PersistentHashMap of appengine Keys to PersistentHashmaps of
+;;   Entities is returned."
+;;   class)
 
-(defmethod update-entity Key [#^Key key attributes]
-  (update-entity (get-entity key) attributes))
+;; (defmethod get-entity Entity [#^Entity entity]
+;;            (get-entity (.getKey entity)))
 
-(defmethod update-entity :default [map attributes]
-  (update-entity (map->entity map) attributes))
+;; (defmethod get-entity Key [#^Key key]
+;;            (entity->map (.get (datastore) *transaction* key)))
 
-(defmulti delete-entity class)
+;; (defmethod get-entity clojure.lang.PersistentVector [keys]
+;;            (get-entity (seq keys)))
 
-(defmethod delete-entity Entity [#^Entity entity]
-  (delete-entity (.getKey entity)))
+;; (defmethod get-entity clojure.lang.ISeq [keys]
+;;            (into {} (for [[key entity] (.get (datastore) *transaction* (filter-keys keys))] 
+;;                       [key (entity->map entity)])))
 
-(defmethod delete-entity Key [key]
-  (.delete (datastore) *transaction* (into-array [key])))
+;; (defmethod get-entity :default [map]
+;;            (if-let [key (:key map)]
+;;              (entity->map (.get (datastore) *transaction* key))))
 
-(defmethod delete-entity clojure.lang.PersistentVector [keys]
-  (delete-entity (seq keys)))
+;; (defmulti put-entity
+;;   "Puts the given record into the datastore and returns a
+;;   PersistentHashMap of the record. The record must be an instance of
+;;   Entity or PersistentHashMap."
+;;   class)
 
-(defmethod delete-entity clojure.lang.ISeq [keys]
-  (.delete (datastore) *transaction* (filter-keys keys)))
+;; (defmethod put-entity Entity [#^Entity entity]
+;;            (let [key (.put (datastore) *transaction* entity)]
+;;              (assoc (entity->map entity) :key key)))
 
-(defmethod delete-entity :default [map]
-  (if-let [key (:key map)]
-    (delete-entity key)))
+;; (defmethod put-entity :default [map]
+;;            (put-entity (map->entity map)))
+
+;; (defn find-all
+;;   "Executes the given com.google.appengine.api.datastore.Query
+;;   and returns the results as a lazy sequence of items converted 
+;;   with entity->map."
+;;   [#^Query query]
+;;   (let [data-service (datastore)
+;;         results (.asIterable (.prepare data-service *transaction* query))]
+;;     (map entity->map results)))
+
+;; (defn create-entity 
+;;   "Takes a map of keyword-value pairs or struct and creates a new Entity
+;; in the Datastore.  The map or struct must include a :kind
+;; String. Returns the saved Entity converted with entity->map (which
+;; will include the assigned :key)."
+;;   [record]
+;;   (put-entity record))
+
+;; (defmulti update-entity
+;;   "Updates the record with the given properites. The record must be an
+;; instance of Entity, Key or PersistentHashMap. If one of the
+;; attributes' values is :remove, then the correponding property name is
+;; removed from that entity.  If one of the attributes't values is nil,
+;; then the corresponding property name is set to Java's null for that
+;; property."
+;;   (fn [record attributes] (class record)))
+
+;; (defmethod update-entity Entity [#^Entity entity attributes]
+;;            (doseq [[attribute value] attributes]
+;;              (if (not= value :remove)
+;;                (.setProperty entity (name attribute) value)
+;;                (.removeProperty entity (name attribute))))
+;;            (put-entity entity))
+
+;; (defmethod update-entity Key [#^Key key attributes]
+;;            (update-entity (get-entity key) attributes))
+
+;; (defmethod update-entity :default [map attributes]
+;;            (update-entity (map->entity map) attributes))
+
+;; (defmulti delete-entity class)
+
+;; (defmethod delete-entity Entity [#^Entity entity]
+;;            (delete-entity (.getKey entity)))
+
+;; (defmethod delete-entity Key [key]
+;;            (.delete (datastore) *transaction* (into-array [key])))
+
+;; (defmethod delete-entity clojure.lang.PersistentVector [keys]
+;;            (delete-entity (seq keys)))
+
+;; (defmethod delete-entity clojure.lang.ISeq [keys]
+;;            (.delete (datastore) *transaction* (filter-keys keys)))
+
+;; (defmethod delete-entity :default [map]
+;;            (if-let [key (:key map)]
+;;              (delete-entity key)))
 
 
 

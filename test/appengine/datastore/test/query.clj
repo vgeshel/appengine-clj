@@ -34,9 +34,8 @@
       (is (query? query))
       (is (nil? (.getKind query)))
       (is (= (str query) "SELECT *"))))
-  (testing "Build a new Query that finds Entity objects with the
-  specified Key as an ancestor."
-    (let [query (query (create-key "continent" "eu"))]
+  (testing "Build a new Query that finds Entity objects with the specified Key as an ancestor."
+    (let [query (query (make-key "continent" "eu"))]
       (is (query? query))
       (is (nil? (.getKind query)))
       (is (= (str query) "SELECT * WHERE __ancestor__ is continent(\"eu\")"))))
@@ -48,7 +47,7 @@
       (is (= (str query) "SELECT * FROM continent"))))
   (testing "Build a new Query that finds Entity objects with the
   specified kind and with Key as an ancestor."
-    (let [query (query "countries" (create-key "continent" "eu"))]
+    (let [query (query "countries" (make-key "continent" "eu"))]
       (is (query? query))
       (is (= (.getKind query) "countries"))
       (is (= (str query) "SELECT * FROM countries WHERE __ancestor__ is continent(\"eu\")"))))
@@ -89,10 +88,11 @@
     "SELECT * FROM continents ORDER BY iso-3166-alpha-2, name DESC"))
 
 (datastore-test test-query?
-  (are [arg expected] (is (= (query? arg) expected))
-       (Query.) true
-       nil false
-       "" false))
+  (are [arg expected]
+    (is (= (query? arg) expected))
+    (Query.) true
+    nil false
+    "" false))
 
 (datastore-test test-select
   (let [q (select)]
@@ -101,9 +101,9 @@
   (let [q (select "continents")]
     (is (query? q))
     (is (= (str q) "SELECT * FROM continents")))
-  (let [q (select (create-key "continent" "eu"))]
+  (let [q (select (make-key "continent" "eu"))]
     (is (query? q)))
-  (let [q (select "countries" (create-key "continent" "eu"))]
+  (let [q (select "countries" (make-key "continent" "eu"))]
     (is (query? q))
     (is (= (str q) "SELECT * FROM countries WHERE __ancestor__ is continent(\"eu\")")))
   (let [q (select "continents" where (= :name "Europe") order-by (:name))]

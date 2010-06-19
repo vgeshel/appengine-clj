@@ -9,8 +9,7 @@
   quoted when used in HTML or in URLs."}
   appengine.datastore.keys
   (:import (com.google.appengine.api.datastore Entity EntityNotFoundException Key KeyFactory))
-  (:use [appengine.datastore.transactions :only (*transaction*)]
-        [appengine.datastore.utils :only (assert-new)]
+  (:use [appengine.datastore.utils :only (assert-new)]
         [clojure.contrib.string :only (join replace-re)]
         appengine.datastore.protocols)
   (:require [appengine.datastore.service :as datastore]
