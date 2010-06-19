@@ -4,10 +4,10 @@
   (:refer-clojure :exclude (get))
   (:import (com.google.appengine.api.datastore
             DatastoreService DatastoreServiceFactory DatastoreServiceConfig
-            DatastoreServiceConfig$Builder Entity EntityNotFoundException Key Query))
+            DatastoreServiceConfig$Builder Entity EntityNotFoundException Key Transaction Query))
   (:use [clojure.contrib.def :only (defvar)]))
 
-(defprotocol DatastoreProtocol
+(defprotocol Datastore
   (delete [entity]
           "Delete the entity, key or sequence of entities and
   keys from the datastore.")
@@ -76,33 +76,33 @@ Examples:
 
 (defn commit-transaction
   "Commits the transaction. If no transaction is given"
-  [& [transaction]]
+  [& [#^Transaction transaction]]
   (if-let [transaction (or transaction (current-transaction))]
     (.commit transaction)))
 
-(defn- get-entity
+(defn get-entity
   [#^Key key]
   (if key
     (try
       (.get (datastore) (current-transaction) key)
       (catch EntityNotFoundException _ nil))))
 
-(defn- delete-entity
+(defn delete-entity
   [#^Key key]
   (if key (.delete (datastore) (current-transaction) (into-array [key]))) key)
 
-(defn- put-entity
+(defn put-entity
   [#^Entity entity]
   (if entity (do (.put (datastore) (current-transaction) entity) entity)))
 
 (extend-type Entity
-  DatastoreProtocol
+  Datastore
   (delete [entity] (delete-entity (.getKey entity)))
   (get [entity] (get-entity (.getKey entity)))
   (put [entity] (put-entity entity)))
 
 (extend-type Key
-  DatastoreProtocol
+  Datastore
   (delete [key] (delete-entity key))
   (get [key] (get-entity key))
   (put [key] (put-entity (Entity. key))))

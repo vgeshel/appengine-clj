@@ -12,8 +12,7 @@
   (:use [appengine.datastore.utils :only (assert-new)]
         [clojure.contrib.string :only (join replace-re)]
         appengine.datastore.protocols)
-  (:require [appengine.datastore.service :as datastore]
-            [appengine.datastore.types :as types]))
+  (:require [appengine.datastore.service :as datastore]))
 
 (defn key?
   "Returns true if arg is a Key, else false."
@@ -86,7 +85,8 @@ Examples:
   (save [key]
     (save (Entity. key)))
   (select [key]          
-    (try (types/deserialize (datastore/get key))
+          (try (if-let [entity (datastore/get key)]
+                 (deserialize entity))
          (catch EntityNotFoundException _ nil)))
   (update [key key-vals]
     (if-let [entity (select key)]

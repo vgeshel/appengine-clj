@@ -215,17 +215,17 @@ Examples:
 Examples:
 
   (defentity Continent ()
-    (iso-3166-alpha-2 :key lower-case :serialize lower-case))
-    (location :serialize GeoPt)
-    (name))
+    ((iso-3166-alpha-2 :key lower-case :serialize lower-case)
+     (location :serialize GeoPt)
+     (name)))
 
   (defentity Country (Continent)
-    (iso-3166-alpha-2 :key lower-case :serialize lower-case))
-    (location :serialize GeoPt)
-    (name))
+    ((iso-3166-alpha-2 :key lower-case :serialize lower-case)
+     (location :serialize GeoPt)
+     (name)))
 
 "
-  [entity [parent] & property-specs]
+  [entity [parent] property-specs]
   (let [properties#   (map (comp keyword first) property-specs)
         arglists#     (if parent '(parent & properties) '(& properties))
         params#       (remove #(= % '&) arglists#)
@@ -279,18 +279,11 @@ Examples:
 
 (extend-type Entity
   Datastore
-  (create [entity]
-    (assert-new entity)
-    (save entity))
-  (delete [entity]
-    (delete (.getKey entity)))
-  (select [entity]
-          (if-let [entity (select (.getKey entity))]
-            (deserialize entity)))
-  (save [entity]        
-        (deserialize (datastore/put entity)))
-  (update [entity key-vals]          
-    (save (set-properties entity key-vals)))
+  (create [entity] (save (assert-new entity)))
+  (delete [entity] (delete (.getKey entity)))
+  (select [entity] (select (.getKey entity)))
+  (save   [entity] (deserialize (datastore/put entity)))
+  (update [entity key-vals] (save (set-properties entity key-vals)))
   Serialization
   (deserialize [entity] (deserialize (entity->map entity)))
   (serialize [entity] entity))

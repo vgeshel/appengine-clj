@@ -11,13 +11,15 @@
 
 (refer-private 'appengine.datastore.entities)
 
+(defrecord Person [name])
+
 (defentity Person ()
-  (name))
+  ((name)))
 
 (defentity Continent ()
-  (iso-3166-alpha-2 :key lower-case)
-  (location :serialize GeoPt)
-  (name))
+  ((iso-3166-alpha-2 :key lower-case)
+   (location :serialize GeoPt)
+   (name)))
 
  ;; (pprint (macroexpand '(defentity Continent ()
  ;;                         (iso-3166-alpha-2 :key lower-case)
@@ -38,14 +40,14 @@
 ;;     ))
 
 (defentity Country (Continent)
-  (iso-3166-alpha-2 :key lower-case)
-  (location :serialize GeoPt)
-  (name))
+  ((iso-3166-alpha-2 :key lower-case)
+   (location :serialize GeoPt)
+   (name)))
 
 (defentity Region (Country)
-  (country-id :key lower-case)
-  (location :serialize GeoPt)
-  (name :key lower-case))
+  ((country-id :key lower-case)
+   (location :serialize GeoPt)
+   (name :key lower-case)))
 
 (defn europe-seq []
   [:iso-3166-alpha-2 "eu"

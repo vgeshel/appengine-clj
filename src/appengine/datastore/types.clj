@@ -9,10 +9,7 @@
 
 (defmulti deserialize
   "Deserialize the instance into a clojure data structure."
-  (fn [instance]
-    (if (isa? (class instance) Entity)
-      (.getKind instance)
-      (class instance))))
+  (fn [instance] (class instance)))
 
 (defmethod deserialize Blob [blob]
   (seq (.getBytes blob)))
@@ -48,11 +45,7 @@
   (.getValue text))
 
 (defmethod deserialize :default [instance]
-  (if (isa? (class instance) Entity)
-    (reduce #(assoc %1 (keyword (key %2)) (deserialize (val %2)))
-            {:kind (.getKind instance) :key (.getKey instance)}
-            (.entrySet (.getProperties instance)))
-    instance))
+  instance)
 
 (defmulti serialize
   "Serialize the value into the type.

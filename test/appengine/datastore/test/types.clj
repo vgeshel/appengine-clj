@@ -17,16 +17,16 @@
   (let [property (deserialize (Email. "info@example.com"))]
     (is (= property "info@example.com"))))
 
-(datastore-test test-deserialize-entity
-  (let [entity (deserialize (Entity. (make-key "continent" "eu")))]
-    (is (= (:key entity) (make-key "continent" "eu")))
-    (is (= (:kind entity) "continent")))
-  (let [entity (deserialize
-                (doto (Entity. (make-key "continent" "eu"))
-                  (.setProperty "location" (GeoPt. 54.52 15.25))))]
-    (is (= (:key entity) (make-key "continent" "eu")))
-    (is (= (:kind entity) "continent"))
-    (is (= (:location entity) {:latitude (float 54.52) :longitude (float 15.25)}))))
+;; (datastore-test test-deserialize-entity
+;;   (let [entity (deserialize (Entity. (make-key "continent" "eu")))]
+;;     (is (= (:key entity) (make-key "continent" "eu")))
+;;     (is (= (:kind entity) "continent")))
+;;   (let [entity (deserialize
+;;                 (doto (Entity. (make-key "continent" "eu"))
+;;                   (.setProperty "location" (GeoPt. 54.52 15.25))))]
+;;     (is (= (:key entity) (make-key "continent" "eu")))
+;;     (is (= (:kind entity) "continent"))
+;;     (is (= (:location entity) {:latitude (float 54.52) :longitude (float 15.25)}))))
 
 (deftest test-deserialize-geopt
   (let [property (deserialize (GeoPt. 1 2))]
