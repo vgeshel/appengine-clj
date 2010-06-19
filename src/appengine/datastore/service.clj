@@ -95,6 +95,10 @@ Examples:
   [#^Entity entity]
   (if entity (do (.put (datastore) (current-transaction) entity) entity)))
 
+(defn prepare-query
+  [#^Query query]
+  (if query (.prepare (datastore) (current-transaction) query)))
+
 (extend-type Entity
   Datastore
   (delete [entity] (delete-entity (.getKey entity)))

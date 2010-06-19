@@ -46,45 +46,26 @@
   (is (not (datastore? "")))
   (is (datastore? (datastore))))
 
-(datastore-test test-delete-with-entity
-  (is (delete (make-example-entity)))
-  (let [entity (put (make-example-entity))]
-    (is (= (get entity) entity))
-    (is (delete entity))
-    (is (nil? (get entity)))))
+(datastore-test test-delete-entity
+  (let [entity (put-entity (make-example-entity)) key (.getKey entity)]
+    (is (= (get-entity key) entity))
+    (is (delete-entity key))
+    (is (nil? (get-entity key)))
+    (is (delete-entity key))))
 
-(datastore-test test-delete-with-key
-  (let [key (make-example-key) entity (put key)]
-    (is (= (get key) entity))
-    (is (delete key))
-    (is (nil? (get key)))
-    (is (delete key))))
+(datastore-test test-get-entity
+  (let [entity (make-example-entity) key (.getKey entity)]
+    (is (nil? (get-entity key)))
+    (let [entity (put-entity entity)]
+      (is (= (get-entity key) entity)))))
 
-(datastore-test test-get-with-entity
-  (is (nil? (get (make-example-entity))))    
-  (let [entity (put (make-example-entity))]
-    (is (= (get entity) entity))))
-
-(datastore-test test-get-with-key
-  (let [key (make-example-key)]
-    (is (nil? (get key)))
-    (let [entity (put key)]
-      (is (= (get key) entity)))))
-
-(datastore-test test-put-with-entity
-  (let [entity (put (make-example-entity))]
+(datastore-test test-put-entity
+  (let [entity (put-entity (make-example-entity)) key (.getKey entity)]
     (is (entity? entity))
-    (is (= (.getKey entity) (.getKey (make-example-entity))))
-    (is (= (get entity) entity))
-    (is (= (put entity) entity))))
+    (is (= key (.getKey (make-example-entity))))
+    (is (= (get-entity key) entity))
+    (is (= (put-entity entity) entity))))
 
-(datastore-test test-put-with-key
-  (let [key (make-example-key) entity (put key)]
-    (is (entity? entity))
-    (is (= (.getKey entity) key))
-    (is (= (get key) entity))
-    (is (= (put (.getKey entity)) entity))))
-
-;; (datastore-test test-prepare
-;;   (let [query (prepare (Query. "continent"))]
-;;     (is (isa? (class query) PreparedQueryImpl))))
+(datastore-test test-prepare
+  (let [query (prepare-query (Query. "continent"))]
+    (is (isa? (class query) PreparedQuery))))
