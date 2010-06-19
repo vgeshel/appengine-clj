@@ -256,9 +256,8 @@ Examples:
          (~'save   [~entity-sym#] (save (serialize ~entity-sym#)))
          (~'select [~entity-sym#] (select (serialize ~entity-sym#)))
          (~'update [~entity-sym# ~'key-vals] (update (serialize ~entity-sym#) ~'key-vals))
-         Deserialize
+         Lifecycle
          (~'deserialize [~entity-sym#] ((deserialize-fn ~@deserializer#) ~entity-sym#))
-         Serialize
          (~'serialize [~entity-sym#] ((serialize-fn ~@serializer#) ~entity-sym#))))))
 
 (extend-type Entity
@@ -268,9 +267,8 @@ Examples:
   (select [entity] (select (.getKey entity)))
   (save   [entity] (deserialize (datastore/put entity)))
   (update [entity key-vals] (save (set-properties entity key-vals)))
-  Deserialize
+  Lifecycle
   (deserialize [entity] (deserialize (entity->map entity)))
-  Serialize
   (serialize [entity] entity))
 
 (extend-type clojure.lang.IPersistentMap
@@ -280,7 +278,6 @@ Examples:
   (save   [map] (save (serialize map)))
   (select [map] (select (serialize map)))
   (update [map key-vals] (update (serialize map) key-vals))
-  Deserialize
+  Lifecycle
   (deserialize [map] (deserialize-map map))
-  Serialize
   (serialize [map] ((serialize-fn) map)))
