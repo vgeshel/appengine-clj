@@ -2,7 +2,7 @@
        :doc "The datastore protocols."}
   appengine.datastore.protocols)
 
-(defprotocol Datastore
+(defprotocol Record
   (create [entities]
     "Create new entities in the datastore. If one of the entities
     already exists, the functions throws an exception.")

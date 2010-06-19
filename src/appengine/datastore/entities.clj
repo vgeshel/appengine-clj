@@ -250,7 +250,7 @@ Examples:
 
        
        (extend-type ~entity
-         Datastore
+         Record
          (~'create [~entity-sym#] (create (serialize ~entity-sym#)))
          (~'delete [~entity-sym#] (delete (serialize ~entity-sym#)))
          (~'save   [~entity-sym#] (save (serialize ~entity-sym#)))
@@ -261,7 +261,7 @@ Examples:
          (~'serialize [~entity-sym#] ((serialize-fn ~@serializer#) ~entity-sym#))))))
 
 (extend-type Entity
-  Datastore
+  Record
   (create [entity] (save (assert-new entity)))
   (delete [entity] (delete (.getKey entity)))
   (select [entity] (select (.getKey entity)))
@@ -272,7 +272,7 @@ Examples:
   (serialize [entity] entity))
 
 (extend-type clojure.lang.IPersistentMap
-  Datastore
+  Record
   (create [map] (create (serialize map)))
   (delete [map] (delete (serialize map)))
   (save   [map] (save (serialize map)))

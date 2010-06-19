@@ -76,7 +76,7 @@ Examples:
   [string] (KeyFactory/stringToKey string))
 
 (extend-type Key
-  Datastore
+  Record
   (create [key]
     (assert-new key)
     (save key))
