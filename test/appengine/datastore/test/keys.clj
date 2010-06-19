@@ -16,32 +16,32 @@
 (datastore-test test-create
   (let [entity (create (make-europe))]
     (is (map? entity))
-    (is (= (select entity) entity))
+    (is (= (lookup entity) entity))
     (is (thrown? Exception (create (.getKey entity))))))
 
 (datastore-test test-delete
   (let [entity (create-europe)]
     (is (map? entity))
-    (is (= (select entity) entity))
+    (is (= (lookup entity) entity))
     (delete (:key entity))
-    (is (nil? (select entity)))))
+    (is (nil? (lookup entity)))))
 
 (datastore-test test-save
   (testing "with complete key"
     (let [entity (save (make-europe))]
       (is (map? entity))
-      (is (= entity (select entity)))))
+      (is (= entity (lookup entity)))))
   (testing "with incomplete key"
     (let [entity (save (doto (Entity. "person") (.setProperty "name" "Bob")))]
       (is (map? entity))
-      (is (= entity (select entity))))))
+      (is (= entity (lookup entity))))))
 
-(datastore-test test-select
-  (is (nil? (select (make-europe))))
-  (is (not (nil? (select (:key (create-europe))))))
+(datastore-test test-lookup
+  (is (nil? (lookup (make-europe))))
+  (is (not (nil? (lookup (:key (create-europe))))))
   (let [entity (create-europe)]
     (is (map? entity))
-    (is (= (select (:key entity)) entity))))
+    (is (= (lookup (:key entity)) entity))))
 
 (datastore-test test-update
   (testing "with saved key"    

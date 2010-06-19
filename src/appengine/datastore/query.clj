@@ -14,6 +14,7 @@ iterator."}
         [clojure.contrib.seq :only (includes?)]))
 
 (defprotocol QueryProtocol
+  (execute [query] "Execute the query against the datastore.")
   (prepare [query] "Prepare a query for execution."))
 
 (defn filter-operator
@@ -140,6 +141,13 @@ Examples:
   (let [[query k1 v1 k2 v2] (partition-by #(includes? ['where 'order-by] %1) (first args))]
     (if (= (first k1) 'where) [query v1 v2] [query v2 v1])))
 
+(defn- prepare-query
+  [#^Query query] (.prepare (datastore) (current-transaction) query))
+
+(defn- execute-query
+  [#^Query query]
+  (iterator-seq (.asQueryResultIterator (prepare-query query))))
+
 (defmacro select
   "A macro that transforms the select clause, and any number of
 where and order-by clauses into a -> form to produce a query.
@@ -162,12 +170,6 @@ Examples:
     `(-> (query ~@query-clauses)
          ~@(map (fn [args] `(filter-by ~@args)) filter-clauses)
          ~@(map (fn [args] `(order-by ~@args)) sort-clauses))))
-
-(defn- prepare-query
-  [#^Query query] (.prepare (datastore) (current-transaction) query))
-
-(defn- execute-query
-  [#^Query query] (prepare-query query))
 
 (extend-type Query
   QueryProtocol

@@ -254,7 +254,7 @@ Examples:
          (~'create [~entity-sym#] (create (serialize ~entity-sym#)))
          (~'delete [~entity-sym#] (delete (serialize ~entity-sym#)))
          (~'save   [~entity-sym#] (save (serialize ~entity-sym#)))
-         (~'select [~entity-sym#] (select (serialize ~entity-sym#)))
+         (~'lookup [~entity-sym#] (lookup (serialize ~entity-sym#)))
          (~'update [~entity-sym# ~'key-vals] (update (serialize ~entity-sym#) ~'key-vals))
          Lifecycle
          (~'deserialize [~entity-sym#] ((deserialize-fn ~@deserializer#) ~entity-sym#))
@@ -264,7 +264,7 @@ Examples:
   Record
   (create [entity] (save (assert-new entity)))
   (delete [entity] (delete (.getKey entity)))
-  (select [entity] (select (.getKey entity)))
+  (lookup [entity] (lookup (.getKey entity)))
   (save   [entity] (deserialize (datastore/put entity)))
   (update [entity key-vals] (save (set-properties entity key-vals)))
   Lifecycle
@@ -276,7 +276,7 @@ Examples:
   (create [map] (create (serialize map)))
   (delete [map] (delete (serialize map)))
   (save   [map] (save (serialize map)))
-  (select [map] (select (serialize map)))
+  (lookup [map] (lookup (serialize map)))
   (update [map key-vals] (update (serialize map) key-vals))
   Lifecycle
   (deserialize [map] (deserialize-map map))

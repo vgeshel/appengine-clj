@@ -1,7 +1,7 @@
 (ns appengine.datastore.test.query
   (:import (com.google.appengine.api.datastore Query Query$FilterOperator Query$SortDirection))
   (:use clojure.test
-        appengine.datastore.core
+        ;; appengine.datastore.protocols
         appengine.datastore.keys
         appengine.datastore.query
         appengine.test))
@@ -115,3 +115,7 @@
   (let [q (select "continents" where (= :name "Europe") (> :updated-at "2010-01-01") order-by (:name) (:updated-at :desc))]
     (is (query? q))
     (is (= (str q) "SELECT * FROM continents WHERE name = Europe AND updated-at > 2010-01-01 ORDER BY name, updated-at DESC"))))
+
+;; (with-local-datastore
+;;   (create )
+;;   (select "countries" (make-key "continent" "eu")))

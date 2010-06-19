@@ -84,7 +84,7 @@ Examples:
     (datastore/delete-entity key))
   (save [key]
     (deserialize (datastore/put-entity (Entity. key) )))
-  (select [key]          
+  (lookup [key]          
           (try (if-let [entity (datastore/get-entity key)]
                  (deserialize entity))
          (catch EntityNotFoundException _ nil)))

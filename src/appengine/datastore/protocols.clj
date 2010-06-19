@@ -8,8 +8,8 @@
     already exists, the functions throws an exception.")
   (delete [entities]
     "Delete the keys or entities from the datastore.")
-  (select [entities]
-    "Select entities from the datastore.")
+  (lookup [entities]
+    "Lookup entities from the datastore.")
   (save [entities]
     "Save the entities in the datastore.")
   (update [entities key-vals]

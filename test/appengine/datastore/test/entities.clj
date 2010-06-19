@@ -534,10 +534,10 @@
 (datastore-test test-create  
   (are [object]
     (do
-      (is (nil? (select object)))
+      (is (nil? (lookup object)))
       (let [entity (create object)]
         (is (map? entity))        
-        (is (= (select entity) entity))
+        (is (= (lookup entity) entity))
         (is (thrown? Exception (create object)))
         (is (delete entity))))
     (europe-array-map)
@@ -549,9 +549,9 @@
   (are [record]
     (do
       (create record)
-      (is (not (nil? (select record))))
+      (is (not (nil? (lookup record))))
       (is (delete record))
-      (is (nil? (select record)))
+      (is (nil? (lookup record)))
       (is (delete record)))
     (europe-array-map)
     (europe-entity)
@@ -562,7 +562,7 @@
   (are [object]        
     (let [entity (save object)]
       (is (continent? entity))        
-      (is (= (select entity) entity))
+      (is (= (lookup entity) entity))
       (is (map? (save object)))
       (is (delete entity))
       )
@@ -571,13 +571,13 @@
     (europe-hash-map)
     (europe-record)))
 
-(datastore-test test-select
+(datastore-test test-lookup
   (are [object]        
     (let [entity (save object)]
-      (is (continent? (select entity)))
-      (is (= (select entity) entity))
+      (is (continent? (lookup entity)))
+      (is (= (lookup entity) entity))
       (is (delete entity))
-      (is (nil? (select entity)))
+      (is (nil? (lookup entity)))
       )
     (europe-array-map)
     (europe-entity)
