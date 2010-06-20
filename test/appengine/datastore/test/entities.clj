@@ -591,14 +591,23 @@
     (europe-record)))
 
 (datastore-test test-update
-  (are [object key-vals]
-    (do
-      (is (delete object))
-      (let [entity (update object key-vals)]
-        (is (map? entity))        
-        (is (= (select-keys entity (keys key-vals)) key-vals))        
-        (is (= (update object key-vals) entity))))
-    (europe-array-map) {:name "Asia"}
-    (europe-entity) {:name "Asia"}
-    (europe-hash-map) {:name "Asia"}
-    (europe-record) {:name "Asia"}))
+  (;let [updates {:name "Asia" :location {:latitude 1 :longitude 2}}]
+   let [updates {:name "Asia"}]
+    (are [object key-vals]
+     (do
+       (is (delete object))
+       (let [entity (update object key-vals)]
+         (doseq [[key value] key-vals]
+           (is (= (key entity) value)))
+         (is (map? entity))        
+         (is (= (select-keys entity (keys key-vals)) key-vals))        
+         (is (= (update object key-vals) entity))))
+     (europe-array-map) updates
+     (europe-entity) updates
+     (europe-hash-map) updates
+     (europe-record) updates)))
+
+;; (with-local-datastore
+;;   (update (europe-record) {:location {:latitude 1 :longitude 2}})
+;;   ;; (update (europe-record) {:name "Europa"})
+;;   )

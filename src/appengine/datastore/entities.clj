@@ -114,8 +114,9 @@ Examples:
          record (keys record))))))
 
 (defn- map->record [map]
-  (if-let [record (resolve (symbol (or (:kind map) (.getKind (:key map)))))]
-    (merge (blank-record record) map)))
+  (if (or (:key map) (:kind map))
+    (if-let [record (resolve (symbol (or (:kind map) (.getKind (:key map)))))]
+      (merge (blank-record record) map))))
 
 (defn- deserialize-map [map]
   (if-let [record (map->record map)]
