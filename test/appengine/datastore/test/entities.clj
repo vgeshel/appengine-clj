@@ -640,11 +640,14 @@
       ;; (europe-array-map) updates
       ;; (europe-entity) updates
       ;; (europe-hash-map) updates
-      ;; (europe-record) updates
+      (europe-record) updates
       )))
 
+(with-local-datastore
+  (update (europe-record) {:name "Asia" :location {:latitude 1 :longitude 2}}))
+
 ;; (with-local-datastore
-;;   (update (europe-record) {:name "Asia" :location {:latitude 1 :longitude 2}}))
+;;   (update (europe-hash-map) {:name "Asia" :location {:latitude 1 :longitude 2}}))
 
 ;; (with-local-datastore
 ;;   (update (europe-record) {:name "Asia"}))

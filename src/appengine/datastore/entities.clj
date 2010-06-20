@@ -291,7 +291,8 @@ Examples:
          (~'delete [~entity-sym#] (delete (serialize ~entity-sym#)))
          (~'save   [~entity-sym#] (save (serialize ~entity-sym#)))
          (~'lookup [~entity-sym#] (lookup (serialize ~entity-sym#)))
-         (~'update [~entity-sym# ~'key-vals] (update (serialize ~entity-sym#) ~'key-vals))
+         ;; (~'update [~entity-sym# ~'key-vals] (update (serialize ~entity-sym#) ~'key-vals))
+         (~'update [~entity-sym# ~'key-vals] (save (merge ~entity-sym# ~'key-vals)))
          Serialization
          (~'deserialize [~entity-sym#] ((deserialize-fn ~@deserializer#) ~entity-sym#))
          (~'serialize [~entity-sym#] ((serialize-fn ~@serializer#) ~entity-sym#))))))
