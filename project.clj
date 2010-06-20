@@ -8,7 +8,7 @@
                  [inflections "0.4-SNAPSHOT"]
                  [org.clojure/clojure "1.2.0-master-SNAPSHOT"]
                  [org.clojure/clojure-contrib "1.2.0-SNAPSHOT"]
-                 [org.clojars.paraseba/ring-servlet "0.2.0"]]
+                 [ring/ring-servlet "0.2.3"]]
   :dev-dependencies [[autodoc "0.7.1-SNAPSHOT"]
                      [lein-clojars "0.5.0"]
                      [com.google.appengine/appengine-api-labs "1.3.4"]
@@ -16,6 +16,6 @@
                      [com.google.appengine/appengine-local-runtime "1.3.4"]
                      ;; [com.google.appengine/appengine-local-runtime-shared "1.3.4"]
                      [com.google.appengine/appengine-testing "1.3.4"]
-                     [org.clojars.paraseba/ring-jetty-adapter "0.2.0"]
+                     [ring/ring-jetty-adapter "0.2.3"]
                      [swank-clojure "1.2.1"]]
   :repositories [["maven-gae-plugin" "http://maven-gae-plugin.googlecode.com/svn/repository"]])
