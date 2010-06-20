@@ -2,11 +2,21 @@
 Jean-Denis Greze."
        :doc "Clojure API for the Google App Engine datastore service." }
   appengine.datastore
-  (:use [clojure.contrib.ns-utils :only (immigrate)]))
+  (:use [appengine.utils :only (immigrate-symbols)]))
 
-(immigrate
- 'appengine.datastore.entities
- 'appengine.datastore.keys
+(immigrate-symbols
+ 'appengine.datastore.entities 'defentity)
+
+(immigrate-symbols
+ 'appengine.datastore.keys 'key? 'make-key 'key->string 'string->key)
+
+(immigrate-symbols
  'appengine.datastore.protocols
- 'appengine.datastore.query
- 'appengine.datastore.transactions)
+ 'create 'delete 'lookup 'safe 'update)
+
+(immigrate-symbols
+ 'appengine.datastore.query 'select 'query?)
+
+(immigrate-symbols
+ 'appengine.datastore.transactions
+ 'active? 'commit 'rollback 'with-commit-transaction 'with-rollback-transaction)
