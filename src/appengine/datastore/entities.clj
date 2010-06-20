@@ -113,14 +113,18 @@ Examples:
                     :else (deserialize value))))
          record (keys record))))))
 
+(defn- map->record [map]
+  (if-let [record (resolve (symbol (or (:kind map) (.getKind (:key map)))))]
+    (merge (blank-record record) map)))
+
 (defn- deserialize-map [map]
-  (if-let [record (resolve (symbol (:kind map)))]
-    (deserialize (merge (blank-record record) map))
+  (if-let [record (map->record map)]
+    (deserialize (merge record map))
     map))
 
 (defn- serialize-map [map]
-  (if-let [record (resolve (symbol (or (:kind map) (.getKind (:key map)))))]
-    (serialize (merge (blank-record record) map))
+  (if-let [record (map->record map)]
+    (serialize (merge record map))
     (map->entity map)))
 
 (defn serialize-fn [& serializers]
