@@ -3,6 +3,24 @@
   appengine.datastore.protocols
   (:use appengine.utils))
 
+(defprotocol Lifecycle
+  (before-validation [record]
+    "Callback fns to evaluate before validating the record.")
+  (before-validation-on-create [record]
+    "Callback fns to evaluate before validating a new record.")
+  (after-validation [record]
+    "Callback fns to evaluate after validation.")
+  (after-validation-on-create [record]
+    "Callback fns to evaluate after validating a new record.")
+  (before-save [record]
+    "Callback fns to evaluate before saving the record.")
+  (before-create [record]
+    "Callback fns to evaluate before creating the record.")
+  (after-create [record]
+    "Callback fns to evaluate after creating the record.")
+  (after-save [record]
+    "Callback fns to evaluate after saving the record."))
+
 (defprotocol Record
   (create [record]
     "Create new record in the datastore. If the record already exists,
