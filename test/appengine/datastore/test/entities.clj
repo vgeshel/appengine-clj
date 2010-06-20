@@ -6,8 +6,7 @@
         appengine.test
         appengine.utils
         clojure.test
-        [clojure.contrib.string :only (join lower-case)]
-        [clojure.contrib.pprint :only (pprint)]))
+        [clojure.contrib.string :only (join lower-case)]))
 
 (refer-private 'appengine.datastore.entities)
 
@@ -115,9 +114,11 @@
 (datastore-test test-record-with-hash-map
   (let [europe (record (europe-hash-map))]
     (is (continent? europe))
-    (is (key? (:key europe)))
+    (let [key (:key europe)]
+      (is (key? key))
+      (is (= key (:key (europe-hash-map)))))
     (is (isa? (class (:kind europe)) String))
-    (is (= (seq europe)) (seq (europe-hash-map)))))
+    (is (= (:kind europe) (:kind (europe-hash-map))))))
 
 (datastore-test test-record-with-resolveable  
   (are [kind]
@@ -609,9 +610,9 @@
     (europe-hash-map)
     (europe-record)))
 
+; [updates {:name "Asia" :location {:latitude 1 :longitude 2}}]
 (datastore-test test-update
-  (;let [updates {:name "Asia" :location {:latitude 1 :longitude 2}}]
-   let [updates {:name "Asia"}]
+  (let [updates {:name "Asia"}]
     (are [object key-vals]
      (do
        (is (delete object))
@@ -625,8 +626,3 @@
      (europe-entity) updates
      (europe-hash-map) updates
      (europe-record) updates)))
-
-;; (with-local-datastore
-;;   (update (europe-record) {:location {:latitude 1 :longitude 2}})
-;;   ;; (update (europe-record) {:name "Europa"})
-;;   )

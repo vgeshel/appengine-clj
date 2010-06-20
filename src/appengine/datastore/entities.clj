@@ -135,12 +135,12 @@ Examples:
 
 (defn- deserialize-map [map]
   (if-let [record (record map)]
-    (deserialize (merge record map))
+    (deserialize record)
     map))
 
 (defn- serialize-map [map]
   (if-let [record (record map)]
-    (serialize (merge record map))
+    (serialize record)
     (map->entity map)))
 
 (defn serialize-fn [& serializers]
