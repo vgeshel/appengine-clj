@@ -95,24 +95,24 @@
     nil false
     "" false))
 
-(datastore-test test-compile-query
+(datastore-test test-compile-select
   (are [query gql]
     (do
       (is (query? query))
       (is (= (str query) gql)))
-    (compile-query)
+    (compile-select)
     "SELECT *"
-    (compile-query "continents")
+    (compile-select "continents")
     "SELECT * FROM continents"
-    (compile-query (make-key "continent" "eu"))
+    (compile-select (make-key "continent" "eu"))
     "SELECT * WHERE __ancestor__ is continent(\"eu\")"
-    (compile-query "countries" (make-key "continent" "eu"))
+    (compile-select "countries" (make-key "continent" "eu"))
     "SELECT * FROM countries WHERE __ancestor__ is continent(\"eu\")"
-    (compile-query "continents" where (= :name "Europe") order-by (:name))
+    (compile-select "continents" where (= :name "Europe") order-by (:name))
     "SELECT * FROM continents WHERE name = Europe ORDER BY name"
-    (compile-query "continents" order-by (:name) where (= :name "Europe"))
+    (compile-select "continents" order-by (:name) where (= :name "Europe"))
     "SELECT * FROM continents WHERE name = Europe ORDER BY name"
-    (compile-query "continents" where (= :name "Europe") (> :updated-at "2010-01-01") order-by (:name) (:updated-at :desc))
+    (compile-select "continents" where (= :name "Europe") (> :updated-at "2010-01-01") order-by (:name) (:updated-at :desc))
     "SELECT * FROM continents WHERE name = Europe AND updated-at > 2010-01-01 ORDER BY name, updated-at DESC"))
 
 (datastore-test test-select

@@ -1,6 +1,6 @@
 (ns #^{:author "Roman Scherer"
-       :doc "The query namespace provides functionality to select
-entities from App Engine's datastore.
+       :doc "The query namespace provides functions and macros to
+select entities from the App Engine datastore.
 
 A Query encapsulates a request for zero or more Entity objects out of
 the datastore. It supports querying on zero or more properties,
@@ -150,19 +150,19 @@ Examples:
   [#^Query query]
   (map deserialize (iterator-seq (.asQueryResultIterator (prepare-query query)))))
 
-(defmacro compile-query
+(defmacro compile-select
   "A macro that compiles the select clause, and any number of where
 and order-by clauses into a -> form to produce a query.
 
 Examples:
 
-  (compile-query \"continent\")
+  (compile-select \"continent\")
   ; => #<Query SELECT * FROM continent>
 
-  (compile-query \"country\" (make-key \"continent\" \"eu\") where (= :name \"Germany\"))
+  (compile-select \"country\" (make-key \"continent\" \"eu\") where (= :name \"Germany\"))
   ; => #<Query SELECT * FROM country WHERE name = Germany AND __ancestor__ is continent(\"eu\")>
 
-  (compile-query \"continent\"
+  (compile-select \"continent\"
     where (= :name \"Europe\") (> :updated-at \"2010-01-01\")
     order-by (:name) (:updated-at :desc)))
   ; => #<Query SELECT * FROM continent WHERE name = Europe AND updated-at > 2010-01-01 ORDER BY name, updated-at DESC>
@@ -194,7 +194,7 @@ Examples:
 "
   [& args]
   (let [[query-clauses filter-clauses sort-clauses] (extract-clauses args)]
-    `(execute (compile-query ~@args))))
+    `(execute (compile-select ~@args))))
 
 (extend-type Query
   QueryProtocol
