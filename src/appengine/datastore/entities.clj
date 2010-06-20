@@ -314,7 +314,7 @@ Examples:
   (delete [map] (delete (serialize map)))
   (save   [map] (save (serialize map)))
   (lookup [map] (lookup (serialize map)))
-  (update [map key-vals] (update (serialize map) key-vals))
+  (update [map key-vals] (save (merge map key-vals)))
   Serialization
   (deserialize [map] (deserialize-map map))
   (serialize [map] (serialize-map map)))
