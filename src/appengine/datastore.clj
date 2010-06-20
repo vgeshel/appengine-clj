@@ -5,7 +5,6 @@ Jean-Denis Greze."
   (:use [clojure.contrib.ns-utils :only (immigrate)]))
 
 (immigrate
- 'appengine.datastore.core
  'appengine.datastore.entities
  'appengine.datastore.keys
  'appengine.datastore.protocols
