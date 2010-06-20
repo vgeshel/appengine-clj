@@ -130,10 +130,3 @@
     (is seq? result))
   (let [result (select "continents" where (= :name "Europe") (> :updated-at "2010-01-01") order-by (:name) (:updated-at :desc))]
     (is seq? result)))
-
-(with-local-datastore
-  (let [continent (create (make-key "continent" "eu"))]
-    (select "continent")))
-
-
-

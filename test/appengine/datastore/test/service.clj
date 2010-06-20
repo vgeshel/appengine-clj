@@ -69,3 +69,10 @@
 (datastore-test test-prepare
   (let [query (prepare-query (Query. "continent"))]
     (is (isa? (class query) PreparedQuery))))
+
+(with-local-datastore
+  (let [entity (put-entity (Entity. (make-key "continent" "eu")))]
+    (println (delete-entity (.getKey entity)))))
+
+(with-local-datastore
+  (println (prepare-query (Query. "continent"))))

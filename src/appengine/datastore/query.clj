@@ -9,7 +9,7 @@ query can be retrieved in a single list, or with an unbounded
 iterator."}
   appengine.datastore.query
   (:import (com.google.appengine.api.datastore Key Query Query$FilterOperator Query$SortDirection))
-  (:use [appengine.datastore.service :only (datastore current-transaction)]
+  (:use [appengine.datastore.service :only (datastore current-transaction prepare-query)]
         [clojure.contrib.seq :only (includes?)]
         appengine.datastore.entities
         appengine.datastore.protocols
@@ -18,6 +18,16 @@ iterator."}
 (defprotocol QueryProtocol
   (execute [query] "Execute the query against the datastore.")
   (prepare [query] "Prepare a query for execution."))
+
+(defn- extract-clauses
+  "Extract and return the query, where and order-by clauses."
+  [& args]
+  (let [[query k1 v1 k2 v2] (partition-by #(includes? ['where 'order-by] %1) (first args))]
+    (if (= (first k1) 'where) [query v1 v2] [query v2 v1])))
+
+(defn- execute-query
+  [#^Query query]
+  (map deserialize (iterator-seq (.asQueryResultIterator (prepare-query query)))))
 
 (defn filter-operator
   "Returns the FilterOperator enum for the given operator. The
@@ -137,21 +147,8 @@ Examples:
   "Returns true, if the arg is an instance of Query."
   [arg] (isa? (class arg) Query))
 
-(defn- extract-clauses
-  "Extract and return the query, where and order-by clauses."
-  [& args]
-  (let [[query k1 v1 k2 v2] (partition-by #(includes? ['where 'order-by] %1) (first args))]
-    (if (= (first k1) 'where) [query v1 v2] [query v2 v1])))
-
-(defn- prepare-query
-  [#^Query query] (.prepare (datastore) (current-transaction) query))
-
-(defn- execute-query
-  [#^Query query]
-  (map deserialize (iterator-seq (.asQueryResultIterator (prepare-query query)))))
-
 (defmacro compile-select
-  "A macro that compiles the select clause, and any number of where
+  "A macro that transforms the select clause, and any number of where
 and order-by clauses into a -> form to produce a query.
 
 Examples:
@@ -175,9 +172,9 @@ Examples:
 
 (defmacro select
   "A macro that compiles the select clause, and any number of where
-and order-by clauses into query which will be executed against the
-datastore. The function returns a sequence of entities or an empty
-sequence if no entities were found.
+and order-by clauses into query which will be prepared and executed
+against the datastore. The function returns a sequence of entities or
+an empty sequence if no entities were found.
 
 Examples:
 
