@@ -36,11 +36,6 @@ Examples:
   ([#^Key parent #^String kind #^String key-name]
      (Entity. kind key-name parent)))
 
-(defn- blank-record [record]
-  (let [record (if (symbol? record) (resolve record) record)
-        number-of-args (apply min (map count (map #(.getParameterTypes %) (.getConstructors record))))]
-    (eval `(new ~record ~@(repeat number-of-args nil)))))
-
 (defmulti record
   "Returns a blank record for the given key or kind." class)
 
@@ -58,6 +53,11 @@ Examples:
 (defmethod record Class [class]
   (let [blanks (repeat (min-constructor-args class) nil)]
     (eval `(new ~class ~@blanks))))
+
+(defmethod record clojure.lang.IPersistentMap [map]
+  (if-let [kind (or (:key map) (:kind map))]
+    (if-let [record (record kind)]
+      (merge record map))))
 
 (defn entity?
   "Returns true if arg is an Entity, else false."
@@ -82,7 +82,7 @@ Examples:
 	  (.entrySet (.getProperties entity))))
 
 (defn entity-kind
-  "Returns the ind of the entity as a string."
+  "Returns the kind of the entity as a string."
   [record] (if record (pr-str record)))
 
 (defn- set-property
@@ -184,7 +184,7 @@ Examples:
 
 (defn make-entity-fn [parent entity key-fn & property-keys]
   (let [entity-kind (entity-kind entity)
-        record (blank-record entity)
+        record (record entity)
         builder-fn (fn [key properties]
                      (-> record
                          (merge {:key key :kind entity-kind})

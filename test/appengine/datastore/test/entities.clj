@@ -120,6 +120,13 @@
     (continent-key :iso-3166-alpha-2 "eu")
     (entity-kind Continent)))
 
+(datastore-test test-record-with-hash-map
+  (let [europe (record (europe-hash-map))]
+    (is (continent? europe))
+    ;; (println (seq europe))
+    ;; (println (seq (europe-hash-map)))
+    ))
+
 (datastore-test test-record-with-unresolveable  
   (are [kind]
     (is (nil? (record kind)))
