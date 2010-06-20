@@ -32,6 +32,7 @@
 (defn europe-seq []
   [:iso-3166-alpha-2 "eu"
    :key (make-key (entity-kind Continent) "eu")
+   :kind (entity-kind Continent)
    :location {:latitude (float 54.52) :longitude (float 15.25)}
    :name "Europe"])
 
@@ -111,6 +112,13 @@
     (is (empty? (.getProperties entity)))
     (is (= (.getKey entity) key))))
 
+(datastore-test test-record-with-hash-map
+  (let [europe (record (europe-hash-map))]
+    (is (continent? europe))
+    (is (key? (:key europe)))
+    (is (isa? (class (:kind europe)) String))
+    (is (= (seq europe)) (seq (europe-hash-map)))))
+
 (datastore-test test-record-with-resolveable  
   (are [kind]
     (is (continent? (record kind)))
@@ -119,13 +127,6 @@
     (pr-str Continent)
     (continent-key :iso-3166-alpha-2 "eu")
     (entity-kind Continent)))
-
-(datastore-test test-record-with-hash-map
-  (let [europe (record (europe-hash-map))]
-    (is (continent? europe))
-    ;; (println (seq europe))
-    ;; (println (seq (europe-hash-map)))
-    ))
 
 (datastore-test test-record-with-unresolveable  
   (are [kind]

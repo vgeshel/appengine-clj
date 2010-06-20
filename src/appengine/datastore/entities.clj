@@ -36,29 +36,6 @@ Examples:
   ([#^Key parent #^String kind #^String key-name]
      (Entity. kind key-name parent)))
 
-(defmulti record
-  "Returns a blank record for the given key or kind." class)
-
-(defmethod record :default [_] nil)
-
-(defmethod record Key [key]
-  (record (.getKind key)))
-
-(defmethod record String [kind-str]
-  (if-not (blank? kind-str) (record (symbol kind-str))))
-
-(defmethod record clojure.lang.Symbol [kind-sym]
-  (record (resolve kind-sym)))
-
-(defmethod record Class [class]
-  (let [blanks (repeat (min-constructor-args class) nil)]
-    (eval `(new ~class ~@blanks))))
-
-(defmethod record clojure.lang.IPersistentMap [map]
-  (if-let [kind (or (:key map) (:kind map))]
-    (if-let [record (record kind)]
-      (merge record map))))
-
 (defn entity?
   "Returns true if arg is an Entity, else false."
   [arg] (isa? (class arg) Entity))
@@ -131,17 +108,42 @@ Examples:
                     :else (deserialize value))))
          record (keys record))))))
 
+(defmulti record
+  "Returns a blank record for the given key or kind." class)
+
+(defmethod record :default [_] nil)
+
+(defmethod record Key [key]
+  (record (.getKind key)))
+
+(defmethod record String [kind-str]
+  (if-not (blank? kind-str) (record (symbol kind-str))))
+
+(defmethod record clojure.lang.Symbol [kind-sym]
+  (record (resolve kind-sym)))
+
+(defmethod record Class [class]
+  (let [blanks (repeat (min-constructor-args class) nil)]
+    (eval `(new ~class ~@blanks))))
+
+(defmethod record clojure.lang.IPersistentMap [map]
+  (if-let [kind (or (:key map) (:kind map))]
+    (if-let [record (record kind)]
+      (assoc (merge record map)
+        :key (:key map)
+        :kind (or (try (.getKind (:key map))) (:kind map))))))
+
 (defn- map->record [map]
   (if-let [record (record (or (:kind map) (try (.getKind (:key map)))))]
     (merge record map)))
 
 (defn- deserialize-map [map]
-  (if-let [record (map->record map)]
+  (if-let [record (record map)]
     (deserialize (merge record map))
     map))
 
 (defn- serialize-map [map]
-  (if-let [record (map->record map)]
+  (if-let [record (record map)]
     (serialize (merge record map))
     (map->entity map)))
 
