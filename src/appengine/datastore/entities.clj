@@ -133,10 +133,6 @@ Examples:
         :key (:key map)
         :kind (or (try (.getKind (:key map))) (:kind map))))))
 
-(defn- map->record [map]
-  (if-let [record (record (or (:kind map) (try (.getKind (:key map)))))]
-    (merge record map)))
-
 (defn- deserialize-map [map]
   (if-let [record (record map)]
     (deserialize (merge record map))
