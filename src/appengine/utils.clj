@@ -6,6 +6,14 @@
 (defn compact [seq]
   (remove nil? seq))
 
+(defn constructor-types
+  "Returns the parameter types of all constuctors."
+  [class] (map #(.getParameterTypes %) (.getConstructors class)))
+
+(defn min-constructor-args
+  "Returns the minimum number of constuctor arguments."
+  [class] (apply min (map count (constructor-types class))))
+
 (defn flat-seq [arg]
   (flatten (seq arg)))
 
