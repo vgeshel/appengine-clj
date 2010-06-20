@@ -48,6 +48,7 @@
   (continent
    :iso-3166-alpha-2 "eu"
    :key (make-key (entity-kind Continent) "eu")
+   :kind (entity-kind Continent)
    :location {:latitude (float 54.52) :longitude (float 15.25)}
    :name "Europe"))
 
@@ -603,14 +604,12 @@
       (is (continent? (lookup entity)))
       (is (= (lookup entity) entity))
       (is (delete entity))
-      (is (nil? (lookup entity)))
-      )
+      (is (nil? (lookup entity))))
     (europe-array-map)
     (europe-entity)
     (europe-hash-map)
     (europe-record)))
 
-; [updates {:name "Asia" :location {:latitude 1 :longitude 2}}]
 (datastore-test test-update
   (let [updates {:name "Asia"}]
     (are [object key-vals]
@@ -626,3 +625,26 @@
      (europe-entity) updates
      (europe-hash-map) updates
      (europe-record) updates)))
+
+(datastore-test test-update-with-location
+  (let [updates {:name "Asia" :location {:latitude 1 :longitude 2}}]
+    (are [object key-vals]
+      (do
+        (is (delete object))
+        (let [entity (update object key-vals)]
+          (doseq [[key value] key-vals]
+            (is (= (key entity) value)))
+          (is (map? entity))        
+          (is (= (select-keys entity (keys key-vals)) key-vals))        
+          (is (= (update object key-vals) entity))))
+      ;; (europe-array-map) updates
+      ;; (europe-entity) updates
+      ;; (europe-hash-map) updates
+      ;; (europe-record) updates
+      )))
+
+;; (with-local-datastore
+;;   (update (europe-record) {:name "Asia" :location {:latitude 1 :longitude 2}}))
+
+;; (with-local-datastore
+;;   (update (europe-record) {:name "Asia"}))
