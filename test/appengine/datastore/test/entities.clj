@@ -111,8 +111,19 @@
     (is (empty? (.getProperties entity)))
     (is (= (.getKey entity) key))))
 
-(deftest test-blank-record
-  (is (person? (blank-record Person))))
+(datastore-test test-record-with-resolveable  
+  (are [kind]
+    (is (continent? (record kind)))
+    Continent
+    'appengine.datastore.test.entities.Continent
+    (pr-str Continent)
+    (continent-key :iso-3166-alpha-2 "eu")
+    (entity-kind Continent)))
+
+(datastore-test test-record-with-unresolveable  
+  (are [kind]
+    (is (nil? (record kind)))
+    nil "" "UNRESOLVEABLE-RECORD-CLASS" 'UNRESOLVEABLE-RECORD-SYM))
 
 (datastore-test test-entity?
   (is (not (entity? nil)))

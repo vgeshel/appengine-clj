@@ -41,6 +41,24 @@ Examples:
         number-of-args (apply min (map count (map #(.getParameterTypes %) (.getConstructors record))))]
     (eval `(new ~record ~@(repeat number-of-args nil)))))
 
+(defmulti record
+  "Returns a blank record for the given key or kind." class)
+
+(defmethod record :default [_] nil)
+
+(defmethod record Key [key]
+  (record (.getKind key)))
+
+(defmethod record String [kind-str]
+  (if-not (blank? kind-str) (record (symbol kind-str))))
+
+(defmethod record clojure.lang.Symbol [kind-sym]
+  (record (resolve kind-sym)))
+
+(defmethod record Class [class]
+  (let [blanks (repeat (min-constructor-args class) nil)]
+    (eval `(new ~class ~@blanks))))
+
 (defn entity?
   "Returns true if arg is an Entity, else false."
   [arg] (isa? (class arg) Entity))
@@ -114,9 +132,8 @@ Examples:
          record (keys record))))))
 
 (defn- map->record [map]
-  (if (or (:key map) (:kind map))
-    (if-let [record (resolve (symbol (or (:kind map) (.getKind (:key map)))))]
-      (merge (blank-record record) map))))
+  (if-let [record (record (or (:kind map) (try (.getKind (:key map)))))]
+    (merge record map)))
 
 (defn- deserialize-map [map]
   (if-let [record (map->record map)]
