@@ -1,6 +1,7 @@
 (ns #^{:author "Roman Scherer"
        :doc "Utility functions used by other namespaces."}
-  appengine.utils)
+  appengine.utils
+  (:use [clojure.contrib.seq :only (includes?)]))
 
 (defn compact [seq]
   (remove nil? seq))
@@ -34,6 +35,20 @@ Examples:
   [keyword]
   (let [string (str keyword)]
     (if (= (first string) \:) (apply str (rest string)) string)))
+
+(defn immigrate-symbols
+  "Create a public var in this namespace for each public var in the
+namespace that is included in the symbols list. The created vars have
+the same name, root binding, and metadata as the original except that
+their :ns metadata value is this namespace."
+  [namespace & symbols]
+  (require namespace)  
+  (doseq [[sym var] (ns-publics namespace)]    
+    (if (includes? symbols sym)
+      (let [sym (with-meta sym (assoc (meta var) :ns *ns*))]
+        (if (.hasRoot var)
+          (intern *ns* sym (.getRoot var))
+          (intern *ns* sym))))))
 
 (defn stringify
   "Returns a stringified version of the given argument. Keywords are
