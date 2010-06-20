@@ -149,9 +149,9 @@
   (is (not (entity? "")))
   (is (entity? (Entity. "person"))))
 
-(deftest test-entity?-name
+(deftest test-entity?-fn-name
   (are [record name]
-    (is (= (entity?-name record) name))
+    (is (= (entity?-fn-name record) name))
     'Continent 'continent?
     'CountryFlag 'country-flag?))
 
@@ -161,36 +161,24 @@
     nil nil
     Continent "appengine.datastore.test.entities.Continent"))
 
-(deftest test-deserialize-name
+(deftest test-find-entities-fn-name
   (are [record name]
-    (is (= (deserialize-name record) name))
-    'Continent 'deserialize-continent
-    'CountryFlag 'deserialize-country-flag))
-
-(deftest test-find-entities-name
-  (are [record name]
-    (is (= (find-entities-name record) name))
+    (is (= (find-entities-fn-name record) name))
     'Continent 'find-continents
     'CountryFlag 'find-country-flags))
 
-(deftest test-make-key-name
+(deftest test-key-fn-name
   (are [record name]
-    (is (= (make-key-name record) name))
+    (is (= (key-fn-name record) name))
     'Continent 'continent-key
     'CountryFlag 'country-flag-key))
 
-(deftest test-make-entity-name
+(deftest test-entity-fn-name
   (are [record name]
-    (is (= (make-entity-name record) name))
+    (is (= (entity-fn-name record) name))
     Continent 'continent
     'Continent 'continent
     'CountryFlag 'country-flag))
-
-(deftest test-serialize-name
-  (are [record name]
-    (is (= (serialize-name record) name))
-    'Continent 'serialize-continent
-    'CountryFlag 'serialize-country-flag))
 
 (datastore-test test-blank-entity-with-parent-kind-and-named-key
   (let [parent-key (make-key (entity-kind Continent) "eu")
@@ -224,24 +212,6 @@
   (is (= (extract-key-fns region-specification)
          [:country-id '#'lower-case :name '#'lower-case])))
 
-(deftest test-extract-meta-data
-  (let [meta (extract-meta-data Continent nil continent-specification)]
-    (is (= (:key-fns meta) '[:iso-3166-alpha-2 (var lower-case)]))
-    (is (= (:kind meta) "appengine.datastore.test.entities.Continent"))
-    (is (nil? (:parent meta)))
-    (is (= (:properties meta)
-           '{:iso-3166-alpha-2 {:key (var lower-case)}
-             :location {:serialize GeoPt}
-             :name {}})))
-  (let [meta (extract-meta-data Region Country region-specification)]
-    (is (= (:key-fns meta) '[:country-id (var lower-case) :name (var lower-case)]))
-    (is (= (:kind meta) "appengine.datastore.test.entities.Region"))
-    (is (= (:parent meta) "appengine.datastore.test.entities.Country"))
-    (is (= (:properties meta)
-           '{:country-id {:key (var lower-case)}
-             :location {:serialize GeoPt}
-             :name {:key (var lower-case)}}))))
-
 (deftest test-extract-option
   (is (= (extract-option continent-specification :key)
          {:iso-3166-alpha-2 '(var lower-case)}))
@@ -265,13 +235,13 @@
 ;;     (is (not (empty? continents)))
 ;;     (is (= (first continents) europe))))
 
-(datastore-test test-make-entity-key-fn-with-person
-  (let [key-fn (make-entity-key-fn nil Person)]
+(datastore-test test-entity-key-fn-with-person
+  (let [key-fn (entity-key-fn nil Person)]
     (is (fn? key-fn))
     (is (nil? (key-fn :name "Bob")))))
 
-(datastore-test test-make-entity-key-fn-with-continent
-  (let [key-fn (make-entity-key-fn nil Continent :iso-3166-alpha-2 #'lower-case)]
+(datastore-test test-entity-key-fn-with-continent
+  (let [key-fn (entity-key-fn nil Continent :iso-3166-alpha-2 #'lower-case)]
     (is (fn? key-fn))
     (let [key (key-fn :iso-3166-alpha-2 "EU")]
       (is (key? key))
@@ -281,8 +251,8 @@
       (is (= (.getName key) "eu"))
       (is (.isComplete key)))))
 
-(datastore-test test-make-entity-key-fn-with-country
-  (let [key-fn (make-entity-key-fn Continent Country :iso-3166-alpha-2 #'lower-case)]
+(datastore-test test-entity-key-fn-with-country
+  (let [key-fn (entity-key-fn Continent Country :iso-3166-alpha-2 #'lower-case)]
     (is (fn? key-fn))
     (let [key (key-fn (europe-record) :iso-3166-alpha-2 "DE")]
       (is (key? key))
@@ -292,8 +262,8 @@
       (is (= (.getName key) "de"))
       (is (.isComplete key)))))
 
-(datastore-test test-make-entity-key-fn-with-region
-  (let [key-fn (make-entity-key-fn Country Region :iso-3166-alpha-2 #'lower-case :name #'lower-case)]
+(datastore-test test-entity-key-fn-with-region
+  (let [key-fn (entity-key-fn Country Region :iso-3166-alpha-2 #'lower-case :name #'lower-case)]
     (is (fn? key-fn))
     (let [key (key-fn (make-germany) :iso-3166-alpha-2 "DE" :name "Berlin")]
       (is (key? key))
@@ -303,16 +273,16 @@
       (is (= (.getName key) "de-berlin"))
       (is (.isComplete key)))))
 
-(datastore-test test-make-entity-fn-with-person
-  (make-entity-fn nil Person person-key :name)
-  (let [entity-fn (make-entity-fn nil Person person-key :name)]
+(datastore-test test-entity-fn-with-person
+  (entity-fn nil Person person-key :name)
+  (let [entity-fn (entity-fn nil Person person-key :name)]
     (is (fn? entity-fn))
     (let [person (entity-fn :name "Bob")]
       (is (nil? (:key person)))
       (is (= (:name person) "Bob")))))
 
-(datastore-test test-make-entity-fn-with-continent
-  (let [entity-fn (make-entity-fn nil Continent continent-key :iso-3166-alpha-2 :location :name)]
+(datastore-test test-entity-fn-with-continent
+  (let [entity-fn (entity-fn nil Continent continent-key :iso-3166-alpha-2 :location :name)]
     (is (fn? entity-fn))
     (let [location {:latitude 54.52 :longitude 15.25}
           continent (entity-fn :iso-3166-alpha-2 "EU" :location location :name "Europe")]
@@ -328,8 +298,8 @@
       (is (= (:iso-3166-alpha-2 continent) "EU"))
       (is (= (:location continent) location)))))
 
-(datastore-test test-make-entity-fn-with-country
-  (let [entity-fn (make-entity-fn Continent Country country-key :iso-3166-alpha-2 :location :name)]
+(datastore-test test-entity-fn-with-country
+  (let [entity-fn (entity-fn Continent Country country-key :iso-3166-alpha-2 :location :name)]
     (is (fn? entity-fn))
     (let [location {:latitude 51.16 :longitude 10.45}
           country (entity-fn (europe-record) :iso-3166-alpha-2 "DE" :location location :name "Germany")]
@@ -345,8 +315,8 @@
       (is (= (:iso-3166-alpha-2 country) "DE"))
       (is (= (:location country) location)))))
 
-(datastore-test test-make-entity-fn-with-region
-  (let [entity-fn (make-entity-fn Country Region region-key :country-id :location :name)]
+(datastore-test test-entity-fn-with-region
+  (let [entity-fn (entity-fn Country Region region-key :country-id :location :name)]
     (is (fn? entity-fn))
     (let [location {:latitude 52.52 :longitude 13.41}
           region (entity-fn (make-germany) :country-id "DE" :name "Berlin" :location location)]
