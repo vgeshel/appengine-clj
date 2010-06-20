@@ -1,6 +1,6 @@
 (ns appengine.test.server
   (:import org.mortbay.jetty.Server)
-  (:use clojure.test appengine.server ring.util.servlet))
+  (:use clojure.test appengine.server))
 
 (def *handler* "Hello World")
 (def *options* {:join? false :port 8123})
