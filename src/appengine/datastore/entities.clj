@@ -11,6 +11,7 @@ and a set of zero or more typed properties." }
   (:use [clojure.contrib.string :only (blank? join lower-case)]
         [clojure.contrib.seq :only (includes?)]
         [appengine.datastore.utils :only (assert-new)]
+        appengine.datastore.query
         appengine.datastore.protocols
         appengine.datastore.keys
         appengine.utils
@@ -167,6 +168,9 @@ Examples:
       (fn [& properties]
         (builder-fn (apply key-fn properties) properties)))))
 
+(defn- find-entities-name [record]
+  (symbol (str "find-" (hyphenize (pluralize (demodulize record))))))
+
 (defn- deserialize-name [record]
   (symbol (str "deserialize-" (hyphenize record))))
 
@@ -223,9 +227,7 @@ Examples:
         key-fns#      (extract-key-fns property-specs)
         deserializer# (extract-deserializer property-specs)
         serializer#   (extract-serializer property-specs)
-        entity-sym#   (symbol (hyphenize (demodulize entity)))
-        ns# *ns*
-        ]
+        entity-sym#   (symbol (hyphenize (demodulize entity)))]
     `(do
 
        (defrecord ~entity [~'key ~'kind ~@(map first property-specs)])
@@ -233,22 +235,23 @@ Examples:
        (defn ~(entity?-name entity)
          ~(str "Returns true if arg is a " entity ", else false.")
          [~'arg] (isa? (class ~'arg) ~entity))
-
-       (let [key-fn# (make-entity-key-fn ~parent ~entity ~@key-fns#)
-             entity-fn# (make-entity-fn ~parent ~entity key-fn# ~@properties#)]
-
-         (defn ~(make-key-name entity)
-           ~(str "Make a " entity " Key.")
-           [~@arglists#] (apply key-fn# ~@params#))
-
-         (defn ~(make-entity-name entity)
-           ~(str "Make a " entity " record.")
-           [~@arglists#]
-           ;; (apply (make-entity-fn ~parent ~entity ~@properties#) ~@params#)
-           (apply entity-fn# ~@params#)
-           ))
-
        
+       (defn ~(make-key-name entity)
+         ~(str "Make a " entity " Key.")
+         [~@arglists#] (apply (make-entity-key-fn ~parent ~entity ~@key-fns#) ~@params#))
+
+       (defn ~(make-entity-name entity)
+         ~(str "Make a " entity " record.")
+         [~@arglists#] (apply (make-entity-fn ~parent ~entity ~(make-key-name entity) ~@properties#) ~@params#))
+
+       ;; (defn ~(find-entities-name entity)
+       ;;   ~(str "Find all " entity " records.")
+       ;;   [] (select "appengine.datastore.test.entities.Continent"))
+
+       ;; (defn ~(find-entities-name entity)
+       ;;   ~(str "Find all " entity " records.")
+       ;;   [] (select ~(entity-kind (resolve entity))))
+
        (extend-type ~entity
          Record
          (~'create [~entity-sym#] (create (serialize ~entity-sym#)))

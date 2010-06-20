@@ -106,6 +106,9 @@ Examples:
 (defmethod query [String Key] [kind key]
   (Query. kind key))
 
+;; (defmethod query :default []
+;;   (Query.))
+
 (defn filter-by
   "Add a filter on the specified property to the query.
 
@@ -166,6 +169,7 @@ Examples:
 "
   [& args]
   (let [[query-clauses filter-clauses sort-clauses] (extract-clauses args)]
+    ;; (println query-clauses)
     ` (-> (query ~@query-clauses)
           ~@(map (fn [args] `(filter-by ~@args)) filter-clauses)
           ~@(map (fn [args] `(order-by ~@args)) sort-clauses))))
@@ -191,6 +195,7 @@ Examples:
 "
   [& args]
   (let [[query-clauses filter-clauses sort-clauses] (extract-clauses args)]
+    ;; (println `(execute (compile-select ~@args)))
     `(execute (compile-select ~@args))))
 
 (extend-type Query

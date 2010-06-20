@@ -56,37 +56,37 @@
     (are [q expected-sql]
       (do (is (query? q))
           (is (= (str q) expected-sql)))
-      (-> (query "continents")
+      (-> (query "continent")
           (filter-by = :iso-3166-alpha-2 "eu")
           (filter-by > :country-count 0)
           (order-by :iso-3166-alpha-2 :desc))
-      "SELECT * FROM continents WHERE iso-3166-alpha-2 = eu AND country-count > 0 ORDER BY iso-3166-alpha-2 DESC")))
+      "SELECT * FROM continent WHERE iso-3166-alpha-2 = eu AND country-count > 0 ORDER BY iso-3166-alpha-2 DESC")))
 
 (datastore-test test-filter-by
   (are [q expected-sql]
     (do (is (query? q))
         (is (= (str q) expected-sql)))
-    (filter-by (query "continents") = :iso-3166-alpha-2 "eu")
-    "SELECT * FROM continents WHERE iso-3166-alpha-2 = eu"
-    (-> (query "continents")
+    (filter-by (query "continent") = :iso-3166-alpha-2 "eu")
+    "SELECT * FROM continent WHERE iso-3166-alpha-2 = eu"
+    (-> (query "continent")
         (filter-by = :iso-3166-alpha-2 "eu")
         (filter-by = :name "Europe"))
-    "SELECT * FROM continents WHERE iso-3166-alpha-2 = eu AND name = Europe"))
+    "SELECT * FROM continent WHERE iso-3166-alpha-2 = eu AND name = Europe"))
 
 (datastore-test test-order-by
   (are [q expected-sql]
     (do (is (query? q))
         (is (= (str q) expected-sql)))
-    (order-by (query "continents") :iso-3166-alpha-2)
-    "SELECT * FROM continents ORDER BY iso-3166-alpha-2"
-    (order-by (query "continents") :iso-3166-alpha-2 :asc)
-    "SELECT * FROM continents ORDER BY iso-3166-alpha-2"
-    (order-by (query "continents") :iso-3166-alpha-2 :desc)
-    "SELECT * FROM continents ORDER BY iso-3166-alpha-2 DESC"
-    (-> (query "continents")
+    (order-by (query "continent") :iso-3166-alpha-2)
+    "SELECT * FROM continent ORDER BY iso-3166-alpha-2"
+    (order-by (query "continent") :iso-3166-alpha-2 :asc)
+    "SELECT * FROM continent ORDER BY iso-3166-alpha-2"
+    (order-by (query "continent") :iso-3166-alpha-2 :desc)
+    "SELECT * FROM continent ORDER BY iso-3166-alpha-2 DESC"
+    (-> (query "continent")
         (order-by :iso-3166-alpha-2)
         (order-by :name :desc))
-    "SELECT * FROM continents ORDER BY iso-3166-alpha-2, name DESC"))
+    "SELECT * FROM continent ORDER BY iso-3166-alpha-2, name DESC"))
 
 (datastore-test test-query?
   (are [arg expected]
@@ -102,31 +102,31 @@
       (is (= (str query) gql)))
     (compile-select)
     "SELECT *"
-    (compile-select "continents")
-    "SELECT * FROM continents"
+    (compile-select "continent")
+    "SELECT * FROM continent"
     (compile-select (make-key "continent" "eu"))
     "SELECT * WHERE __ancestor__ is continent(\"eu\")"
     (compile-select "countries" (make-key "continent" "eu"))
     "SELECT * FROM countries WHERE __ancestor__ is continent(\"eu\")"
-    (compile-select "continents" where (= :name "Europe") order-by (:name))
-    "SELECT * FROM continents WHERE name = Europe ORDER BY name"
-    (compile-select "continents" order-by (:name) where (= :name "Europe"))
-    "SELECT * FROM continents WHERE name = Europe ORDER BY name"
-    (compile-select "continents" where (= :name "Europe") (> :updated-at "2010-01-01") order-by (:name) (:updated-at :desc))
-    "SELECT * FROM continents WHERE name = Europe AND updated-at > 2010-01-01 ORDER BY name, updated-at DESC"))
+    (compile-select "continent" where (= :name "Europe") order-by (:name))
+    "SELECT * FROM continent WHERE name = Europe ORDER BY name"
+    (compile-select "continent" order-by (:name) where (= :name "Europe"))
+    "SELECT * FROM continent WHERE name = Europe ORDER BY name"
+    (compile-select "continent" where (= :name "Europe") (> :updated-at "2010-01-01") order-by (:name) (:updated-at :desc))
+    "SELECT * FROM continent WHERE name = Europe AND updated-at > 2010-01-01 ORDER BY name, updated-at DESC"))
 
 (datastore-test test-select
   (let [result (select)]
     (is seq? result))
-  (let [result (select "continents")]
+  (let [result (select "continent")]
     (is seq? result))
   (let [result (select (make-key "continent" "eu"))]
     (is seq? result))
   (let [result (select "countries" (make-key "continent" "eu"))]
     (is seq? result))
-  (let [result (select "continents" where (= :name "Europe") order-by (:name))]
+  (let [result (select "continent" where (= :name "Europe") order-by (:name))]
     (is seq? result))
-  (let [result (select "continents" order-by (:name) where (= :name "Europe"))]
+  (let [result (select "continent" order-by (:name) where (= :name "Europe"))]
     (is seq? result))
-  (let [result (select "continents" where (= :name "Europe") (> :updated-at "2010-01-01") order-by (:name) (:updated-at :desc))]
+  (let [result (select "continent" where (= :name "Europe") (> :updated-at "2010-01-01") order-by (:name) (:updated-at :desc))]
     (is seq? result)))

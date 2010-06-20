@@ -12,7 +12,7 @@ Jean-Denis Greze."
 
 (immigrate-symbols
  'appengine.datastore.protocols
- 'create 'delete 'lookup 'safe 'update)
+ 'create 'delete 'lookup 'save 'update)
 
 (immigrate-symbols
  'appengine.datastore.query 'select 'query?)
