@@ -17,7 +17,7 @@
     "Update the record with the key-vals and save it in the
     datastore."))
 
-(defprotocol Lifecycle
+(defprotocol Serialization
   (deserialize [object]
     "Deserialize an object into a clojure data structure.")
   (serialize [record]

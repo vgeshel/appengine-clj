@@ -277,7 +277,7 @@ Examples:
          (~'save   [~entity-sym#] (save (serialize ~entity-sym#)))
          (~'lookup [~entity-sym#] (lookup (serialize ~entity-sym#)))
          (~'update [~entity-sym# ~'key-vals] (update (serialize ~entity-sym#) ~'key-vals))
-         Lifecycle
+         Serialization
          (~'deserialize [~entity-sym#] ((deserialize-fn ~@deserializer#) ~entity-sym#))
          (~'serialize [~entity-sym#] ((serialize-fn ~@serializer#) ~entity-sym#))))))
 
@@ -288,7 +288,7 @@ Examples:
   (lookup [entity] (lookup (.getKey entity)))
   (save   [entity] (deserialize (datastore/put entity)))
   (update [entity key-vals] (save (set-properties entity key-vals)))
-  Lifecycle
+  Serialization
   (deserialize [entity] (deserialize (entity->map entity)))
   (serialize [entity] entity))
 
@@ -299,6 +299,6 @@ Examples:
   (save   [map] (save (serialize map)))
   (lookup [map] (lookup (serialize map)))
   (update [map key-vals] (update (serialize map) key-vals))
-  Lifecycle
+  Serialization
   (deserialize [map] (deserialize-map map))
   (serialize [map] (serialize-map map)))

@@ -6,54 +6,54 @@
            (java.net MalformedURLException URL ))
   (:use [clojure.contrib.string :only (lower-case trim)]
         [clojure.contrib.seq :only (includes?)]
-        [appengine.datastore.protocols :only (Lifecycle deserialize)]))
+        [appengine.datastore.protocols :only (Serialization deserialize)]))
 
 (extend-type Blob
-  Lifecycle
+  Serialization
   (deserialize [blob] (seq (.getBytes blob))))
 
 (extend-type Category
-  Lifecycle
+  Serialization
   (deserialize [category] (.getCategory category)))
 
 (extend-type Email
-  Lifecycle
+  Serialization
   (deserialize [email] (.getEmail email)))
 
 (extend-type GeoPt
-  Lifecycle
+  Serialization
   (deserialize [location] {:latitude (.getLatitude location) :longitude (.getLongitude location)}))
 
 (extend-type IMHandle
-  Lifecycle
+  Serialization
   (deserialize [handle] {:protocol (.getProtocol handle) :address (.getAddress handle)}))
 
 (extend-type Link
-  Lifecycle
+  Serialization
   (deserialize [link] (.getValue link)))
 
 (extend-type PhoneNumber
-  Lifecycle
+  Serialization
   (deserialize [phone-number] (.getNumber phone-number)))
 
 (extend-type PostalAddress
-  Lifecycle
+  Serialization
   (deserialize [postal-address] (.getAddress postal-address)))
 
 (extend-type Rating
-  Lifecycle
+  Serialization
   (deserialize [rating] (.getRating rating)))
 
 (extend-type ShortBlob
-  Lifecycle
+  Serialization
   (deserialize [short-blob] (seq (.getBytes short-blob))))
 
 (extend-type Text
-  Lifecycle
+  Serialization
   (deserialize [text] (.getValue text)))
 
 (extend-type Object
-  Lifecycle
+  Serialization
   (deserialize [object] object))
 
 (defmulti serialize
