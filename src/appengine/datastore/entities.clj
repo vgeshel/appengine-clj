@@ -116,6 +116,10 @@ Examples:
 (defmethod record Key [key]
   (record (.getKind key)))
 
+(defmethod record Entity [entity]
+  (if-let [record (record (.getKind entity))]
+    (deserialize (merge record (entity->map entity)))))
+
 (defmethod record String [kind-str]
   (if-not (blank? kind-str) (record (symbol kind-str))))
 
@@ -145,7 +149,8 @@ Examples:
 
 (defn serialize-fn [& serializers]
   (let [serializers (apply hash-map serializers)]
-    (fn [record]      
+    (fn [record]
+      ;; (println record)
       (if record
         (reduce
          #(let [serialize (%2 serializers) value (%2 record)]
@@ -291,11 +296,17 @@ Examples:
          (~'delete [~entity-sym#] (delete (serialize ~entity-sym#)))
          (~'save   [~entity-sym#] (save (serialize ~entity-sym#)))
          (~'lookup [~entity-sym#] (lookup (serialize ~entity-sym#)))
-         ;; (~'update [~entity-sym# ~'key-vals] (update (serialize ~entity-sym#) ~'key-vals))
          (~'update [~entity-sym# ~'key-vals] (save (merge ~entity-sym# ~'key-vals)))
          Serialization
          (~'deserialize [~entity-sym#] ((deserialize-fn ~@deserializer#) ~entity-sym#))
          (~'serialize [~entity-sym#] ((serialize-fn ~@serializer#) ~entity-sym#))))))
+
+(defn- update-entity [entity key-vals]
+  ;; (println (record (entity->map entity)))
+  ;; (println key-vals)
+  (if-let [record (record entity)]
+    (update record key-vals)
+    (save (set-properties entity key-vals))))
 
 (extend-type Entity
   Record
@@ -303,7 +314,7 @@ Examples:
   (delete [entity] (delete (.getKey entity)))
   (lookup [entity] (lookup (.getKey entity)))
   (save   [entity] (deserialize (datastore/put entity)))
-  (update [entity key-vals] (save (set-properties entity key-vals)))
+  (update [entity key-vals] (update-entity entity key-vals))
   Serialization
   (deserialize [entity] (deserialize (entity->map entity)))
   (serialize [entity] entity))

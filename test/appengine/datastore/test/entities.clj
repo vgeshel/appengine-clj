@@ -112,6 +112,15 @@
     (is (empty? (.getProperties entity)))
     (is (= (.getKey entity) key))))
 
+(datastore-test test-record-with-entity
+  (let [europe (record (europe-entity))]
+    (is (continent? europe))
+    (let [key (:key europe)]
+      (is (key? key))
+      (is (= key (:key (europe-hash-map)))))
+    (is (isa? (class (:kind europe)) String))
+    (is (= (:kind europe) (:kind (europe-hash-map))))))
+
 (datastore-test test-record-with-hash-map
   (let [europe (record (europe-hash-map))]
     (is (continent? europe))
@@ -638,13 +647,15 @@
           (is (= (select-keys entity (keys key-vals)) key-vals))        
           (is (= (update object key-vals) entity))))
       (europe-array-map) updates
-      ;; (europe-entity) updates
+      (europe-entity) updates
       (europe-hash-map) updates
-      (europe-record) updates
-      )))
+      (europe-record) updates)))
 
-(with-local-datastore
-  (update (europe-record) {:name "Asia" :location {:latitude 1 :longitude 2}}))
+;; (with-local-datastore
+;;   (update (europe-entity) {:name "Asia" :location {:latitude 1 :longitude 2}}))
+
+;; (with-local-datastore
+;;   (update (europe-entity) {:name "Asia"}))
 
 ;; (with-local-datastore
 ;;   (update (europe-record) {:name "Asia"}))
