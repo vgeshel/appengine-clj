@@ -64,15 +64,16 @@ Examples:
 
 (defn- set-property
   "Set the entity's property to value and return the modified entity."
-  [entity name value]
+  [#^Entity entity name value]
   (.setProperty entity (stringify name) (deserialize value))
   entity)
 
 (defn- set-properties
   "Set the entity's properties to the values and return the modified
   entity."
-  [entity key-vals]
-  (reduce #(set-property %1 (first %2) (second %2)) entity key-vals))
+  [#^Entity entity key-vals]
+  (reduce #(set-property %1 (first %2) (second %2))
+          entity (dissoc key-vals :key :kind)))
 
 "Converts a map into an entity. The kind of the entity is determined
 by one of the :key or the :kind keys, which must be in the map."
@@ -90,10 +91,7 @@ Examples:
   (map->entity {:key (make-key \"continent\" \"eu\") :name \"Europe\"})
   ; => #<Entity <Entity [continent(\"eu\")]:
   ;        name = Europe"
-  [map]
-  (set-properties
-   (Entity. (or (:key map) (:kind map)))
-   (dissoc map :key :kind)))
+  [map] (set-properties (Entity. (or (:key map) (:kind map))) map))
 
 (defn deserialize-fn [& deserializers]
   (let [deserializers (apply hash-map deserializers)]
@@ -136,16 +134,6 @@ Examples:
       (assoc (merge record map)
         :key (:key map)
         :kind (or (try (.getKind (:key map))) (:kind map))))))
-
-(defn- deserialize-map [map]
-  (if-let [record (record map)]
-    (deserialize record)
-    map))
-
-(defn- serialize-map [map]
-  (if-let [record (record map)]
-    (serialize record)
-    (map->entity map)))
 
 (defn serialize-fn [& serializers]
   (let [serializers (apply hash-map serializers)]
@@ -301,9 +289,17 @@ Examples:
          (~'deserialize [~entity-sym#] ((deserialize-fn ~@deserializer#) ~entity-sym#))
          (~'serialize [~entity-sym#] ((serialize-fn ~@serializer#) ~entity-sym#))))))
 
-(defn- update-entity [entity key-vals]
-  ;; (println (record (entity->map entity)))
-  ;; (println key-vals)
+(defn- deserialize-map [map]
+  (if-let [record (record map)]
+    (deserialize record)
+    map))
+
+(defn- serialize-map [map]
+  (if-let [record (record map)]
+    (serialize record)
+    (map->entity map)))
+
+(defn- update-entity [#^Entity entity key-vals]
   (if-let [record (record entity)]
     (update record key-vals)
     (save (set-properties entity key-vals))))
