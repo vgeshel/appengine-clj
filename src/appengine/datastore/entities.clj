@@ -118,6 +118,11 @@ Examples:
     (deserialize (merge (blank-record record) map))
     map))
 
+(defn- serialize-map [map]
+  (if-let [record (resolve (symbol (or (:kind map) (.getKind (:key map)))))]
+    (serialize (merge (blank-record record) map))
+    (map->entity map)))
+
 (defn serialize-fn [& serializers]
   (let [serializers (apply hash-map serializers)]
     (fn [record]      
@@ -291,4 +296,4 @@ Examples:
   (update [map key-vals] (update (serialize map) key-vals))
   Lifecycle
   (deserialize [map] (deserialize-map map))
-  (serialize [map] ((serialize-fn) map)))
+  (serialize [map] (serialize-map map)))

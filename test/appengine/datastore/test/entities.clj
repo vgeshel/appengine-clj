@@ -32,7 +32,7 @@
 (defn europe-seq []
   [:iso-3166-alpha-2 "eu"
    :key (make-key (entity-kind Continent) "eu")
-   ;; :location {:latitude (float 54.52) :longitude (float 15.25)}
+   :location {:latitude (float 54.52) :longitude (float 15.25)}
    :name "Europe"])
 
 (defn europe-array-map []
