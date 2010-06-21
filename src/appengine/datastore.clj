@@ -37,7 +37,7 @@ Examples:
  'create 'delete 'lookup 'save 'update)
 
 (immigrate-symbols
- 'appengine.datastore.query 'select 'query?)
+ 'appengine.datastore.query 'select 'query? 'QueryProtocol)
 
 (immigrate-symbols
  'appengine.datastore.transactions
