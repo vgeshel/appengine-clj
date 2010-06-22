@@ -1,4 +1,4 @@
-(ns #^{:author "Roman Scherer with contributions by John D. Hume,
+(ns #^{:author "Roman Scherer with contributions by John D. Hume and
 Jean-Denis Greze."
        :doc "Clojure API for the Google App Engine datastore service.
 
@@ -37,7 +37,7 @@ Examples:
  'create 'delete 'lookup 'save 'update)
 
 (immigrate-symbols
- 'appengine.datastore.query 'select 'query? 'QueryProtocol)
+ 'appengine.datastore.query 'select 'query?)
 
 (immigrate-symbols
  'appengine.datastore.transactions
