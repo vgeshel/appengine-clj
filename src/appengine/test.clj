@@ -8,6 +8,7 @@
     LocalMemcacheServiceTestConfig
     LocalServiceTestHelper
     LocalTaskQueueTestConfig
+    LocalUserServiceTestConfig
     LocalURLFetchServiceTestConfig)
    (com.google.apphosting.api ApiProxy)))
 
@@ -43,6 +44,11 @@
         ~@body
         (finally (tear-down))))
 
+(defmacro with-local-user [& body]
+  `(try (.setUp (local-service-test-helper (LocalUserServiceTestConfig.)))
+        ~@body
+        (finally (tear-down))))
+
 (defmacro datastore-test [name & body]
   `(deftest ~name
      (with-local-datastore ~@body)))
@@ -58,3 +64,7 @@
 (defmacro urlfetch-test [name & body]
   `(deftest ~name
      (with-local-urlfetch ~@body)))
+
+(defmacro user-test [name & body]
+  `(deftest ~name
+     (with-local-user ~@body)))
