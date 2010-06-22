@@ -167,6 +167,12 @@
     'Continent 'find-continents
     'CountryFlag 'find-country-flags))
 
+(deftest test-find-entities-property-fn-name
+  (are [record property name]
+    (is (= (find-entities-by-property-fn-name record property) name))
+    'Continent 'iso-3166-alpha-2 'find-continents-by-iso-3166-alpha-2
+    'CountryFlag 'iso-3166-alpha-2 'find-country-flags-by-iso-3166-alpha-2))
+
 (deftest test-key-fn-name
   (are [record name]
     (is (= (key-fn-name record) name))
@@ -228,12 +234,12 @@
   (is (= (extract-serializer continent-specification)
          [:location 'GeoPt])))
 
-;; (datastore-test test-find-continents
-;;   (let [europe (save (europe-record))
-;;         continents (find-continents)]
-;;     (is (seq? continents))
-;;     (is (not (empty? continents)))
-;;     (is (= (first continents) europe))))
+(datastore-test test-find-continents
+  (let [europe (save (europe-record))
+        continents (find-continents)]
+    (is (seq? continents))
+    (is (not (empty? continents)))
+    (is (= (first continents) europe))))
 
 (datastore-test test-entity-key-fn-with-person
   (let [key-fn (entity-key-fn nil Person)]

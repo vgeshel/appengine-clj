@@ -148,6 +148,9 @@ by one of the :key or the :kind keys, which must be in the map."
 (defn- find-entities-fn-name [record]
   (symbol (str "find-" (hyphenize (pluralize (demodulize record))))))
 
+(defn- find-entities-by-property-fn-name [record property]
+  (symbol (str "find-" (hyphenize (pluralize (demodulize record))) "-by-" (hyphenize property))))
+
 (defn- key-fn-name [entity]
   (symbol (str (entity-fn-name entity) "-key")))
 
@@ -280,9 +283,9 @@ Examples:
        ;;   ~(str "Find all " entity " records.")
        ;;   [] (select "appengine.datastore.test.entities.Continent"))
 
-       ;; (defn ~(find-entities-fn-name entity)
-       ;;   ~(str "Find all " entity " records.")
-       ;;   [] (select ~(entity-kind (resolve entity))))
+       (defn ~(find-entities-fn-name entity)
+         ~(str "Find all " entity " records.")
+         [& ~'options] (select (entity-kind ~entity)))
 
        (extend-type ~entity
          Record
