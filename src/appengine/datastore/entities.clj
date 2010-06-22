@@ -149,7 +149,7 @@ by one of the :key or the :kind keys, which must be in the map."
   (symbol (str "find-" (hyphenize (pluralize (demodulize record))))))
 
 (defn- find-entities-by-property-fn-name [record property]
-  (symbol (str "find-" (hyphenize (pluralize (demodulize record))) "-by-" (hyphenize property))))
+  (symbol (str "find-" (hyphenize (pluralize (demodulize record))) "-by-" (hyphenize (stringify property)))))
 
 (defn- key-fn-name [entity]
   (symbol (str (entity-fn-name entity) "-key")))
@@ -279,13 +279,16 @@ Examples:
          ~(str "Make a " entity " record.")
          [~@arglists#] (apply (entity-fn ~parent ~entity ~(key-fn-name entity) ~@properties#) ~@params#))
 
-       ;; (defn ~(find-entities-fn-name entity)
-       ;;   ~(str "Find all " entity " records.")
-       ;;   [] (select "appengine.datastore.test.entities.Continent"))
-
        (defn ~(find-entities-fn-name entity)
-         ~(str "Find all " entity " records.")
+         ~(str "Find all " (lower-case (pluralize (stringify entity))) ".")
          [& ~'options] (select (entity-kind ~entity)))
+
+       ~@(for [property# properties#]
+           `(defn ~(find-entities-by-property-fn-name entity property#)
+              ~(str "Find all " (lower-case (pluralize (stringify entity))) " by " (stringify property#) ".")
+              [~'value & ~'options]
+              (select (entity-kind ~entity)
+                      ~'where (= ~property# (types/serialize ~(property# (apply hash-map serializer#)) ~'value)))))
 
        (extend-type ~entity
          Record

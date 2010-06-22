@@ -6,7 +6,8 @@
         appengine.test
         appengine.utils
         clojure.test
-        [clojure.contrib.string :only (join lower-case)]))
+        [clojure.contrib.string :only (join lower-case)]
+        [clojure.contrib.seq :only (includes?)]))
 
 (refer-private 'appengine.datastore.entities)
 
@@ -171,6 +172,7 @@
   (are [record property name]
     (is (= (find-entities-by-property-fn-name record property) name))
     'Continent 'iso-3166-alpha-2 'find-continents-by-iso-3166-alpha-2
+    'Continent :iso-3166-alpha-2 'find-continents-by-iso-3166-alpha-2
     'CountryFlag 'iso-3166-alpha-2 'find-country-flags-by-iso-3166-alpha-2))
 
 (deftest test-key-fn-name
@@ -240,6 +242,27 @@
     (is (seq? continents))
     (is (not (empty? continents)))
     (is (= (first continents) europe))))
+
+(datastore-test test-find-continents-by-iso-3166-alpha-2
+  (let [europe (save (europe-record))
+        continents (find-continents-by-iso-3166-alpha-2 (:iso-3166-alpha-2 europe))]
+    (is (seq? continents))
+    (is (not (empty? continents)))
+    (is (includes? continents europe))))
+
+(datastore-test test-find-continents-by-name
+  (let [europe (save (europe-record))
+        continents (find-continents-by-name (:name europe))]
+    (is (seq? continents))
+    (is (not (empty? continents)))
+    (is (includes? continents europe))))
+
+(datastore-test test-find-continents-by-location
+  (let [europe (save (europe-record))
+        continents (find-continents-by-location (:location europe))]
+    (is (seq? continents))
+    (is (not (empty? continents)))
+    (is (includes? continents europe))))
 
 (datastore-test test-entity-key-fn-with-person
   (let [key-fn (entity-key-fn nil Person)]
@@ -633,5 +656,7 @@
 ;; (with-local-datastore
 ;;   (update (europe-entity) {:name "Asia"}))
 
-;; (with-local-datastore
-;;   (update (europe-record) {:name "Asia"}))
+(with-local-datastore
+  (let [continent (create (europe-record))]
+    (appengine.datastore.query/select "appengine.datastore.test.entities.Continent" where (= :iso-3166-alpha-2 "eu"))
+    ))
