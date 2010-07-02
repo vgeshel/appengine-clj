@@ -110,12 +110,3 @@
       (is (= (.getKind parent) "continent"))
       (is (= (.getId parent) 0))
       (is (= (.getName parent) "eu")))))
-
-(deftest test-key-name
-  (let [continent {:iso-3166-alpha-2 "EU" :name "Europe" :location {:latitude 54.5260, :longitude 15.2551}}]
-    (is (nil? (key-name continent)))    
-    ;; (is (thrown? IllegalArgumentException (key-name continent :asas #'identity)))
-    (is (= (key-name continent :iso-3166-alpha-2 #'identity) "EU"))
-    (is (= (key-name continent :iso-3166-alpha-2 #'lower-case) "eu"))
-    (is (= (key-name continent :iso-3166-alpha-2 #'lower-case :name #'lower-case) "eu-europe"))
-    (is (= (key-name continent :name #'lower-case :iso-3166-alpha-2 #'lower-case) "europe-eu"))))

@@ -38,19 +38,6 @@ Examples:
       (if (integer? identifier) (Long/valueOf (str identifier)) 
           (str identifier)))))
 
-(defn key-name
-  "Returns a named key from the properties map."
-  [properties & key-transform-fns]
-  (let [transformed-keys
-        (map (fn [[key transform-fn]]
-               (if-let [value (key properties)]
-                 (transform-fn value)
-                 (throw (IllegalArgumentException.
-                         (str "Can't find key " key " in " properties ".")))))
-             (partition 2 key-transform-fns))]
-    (if-not (empty? transformed-keys)
-      (join "-" transformed-keys))))
-
 (defn key->string
   "Returns a \"websafe\" string from the given Key.
 
