@@ -122,38 +122,38 @@ Examples:
   ([#^Key parent #^String kind key-or-id]
      (Entity. (make-key parent kind key-or-id))))
 
-(defmulti entity->map
+(defmulti deserialize-entity
   "Convert a Entity into a persistent map. The property values are
 stored under their property names converted to a keywords, the
 entity's key and kind under the :key and :kind keys.
 
 Examples:
 
-  (entity->map (Entity. \"continent\"))
+  (deserialize-entity (Entity. \"continent\"))
   ; => {:kind \"continent\", :key #<Key continent(no-id-yet)>}
 
-  (entity->map (doto (Entity. \"continent\")
+  (deserialize-entity (doto (Entity. \"continent\")
                      (.setProperty \"name\" \"Europe\")))
   ; => {:name \"Europe\", :kind \"continent\", :key #<Key continent(no-id-yet)>}
 "
   (fn [entity] (.getKind entity)))
 
-(defmethod entity->map :default [entity]
+(defmethod deserialize-entity :default [entity]
   (reduce #(assoc %1 (keyword (key %2)) (val %2))
 	  (merge {:kind (.getKind entity) :key (.getKey entity)})
 	  (.entrySet (.getProperties entity))))
 
-(defmulti map->entity
+(defmulti serialize-entity
   "Converts a map into an entity. The kind of the entity is determined
 by one of the :key or the :kind keys, which must be in the map.
 
 Examples:
 
-  (map->entity {:kind \"person\" :name \"Bob\"})
+  (serialize-entity {:kind \"person\" :name \"Bob\"})
   ; => #<Entity <Entity [person(no-id-yet)]:
   ;        name = Bob
 
-  (map->entity {:key (make-key \"continent\" \"eu\") :name \"Europe\"})
+  (serialize-entity {:key (make-key \"continent\" \"eu\") :name \"Europe\"})
   ; => #<Entity <Entity [continent(\"eu\")]:
   ;        name = Europe
 "
@@ -162,7 +162,7 @@ Examples:
       (.getKind key)
       (:kind map))))
 
-(defmethod map->entity :default [map]
+(defmethod serialize-entity :default [map]
   (set-properties (Entity. (or (:key map) (:kind map))) map))
 
 (defn deserialize-property
@@ -257,15 +257,16 @@ Examples:
                       ~'where (= ~property# (types/serialize
            ~(property# serializers#) ~'value)))))
 
-       (defmethod ~'entity->map ~kind# [~'entity]
-         (-> {:key (.getKey ~'entity) :kind (.getKind ~'entity)}
-             ~@(for [property# properties#]
-                 `(assoc ~property#
-                    (deserialize-property
-                     (.getProperty ~'entity ~(stringify property#))
-                     ~(property# deserializers#))))))
+       (defmethod ~'deserialize-entity ~kind# [~'entity]
+                  (new ~entity
+                       (.getKey ~'entity)
+                       (.getKind ~'entity)
+                       ~@(for [property# properties#]
+                           `(deserialize-property
+                             (.getProperty ~'entity ~(stringify property#))
+                             ~(property# deserializers#)))))
 
-       (defmethod ~'map->entity ~kind# [~'map]
+       (defmethod ~'serialize-entity ~kind# [~'map]
          (doto (Entity. (or (:key ~'map) (:kind ~'map)))
            ~@(for [property# properties#]
                `(.setProperty
@@ -289,19 +290,19 @@ Examples:
   (create [entity] (save (assert-new entity)))
   (delete [entity] (delete (.getKey entity)))
   (lookup [entity] (lookup (.getKey entity)))
-  (save   [entity] (entity->map (datastore/put entity)))
-  (update [entity key-vals] (update (entity->map entity) key-vals))
+  (save   [entity] (deserialize-entity (datastore/put entity)))
+  (update [entity key-vals] (update (deserialize-entity entity) key-vals))
   Serialization
-  (deserialize [entity] (entity->map entity))
+  (deserialize [entity] (deserialize-entity entity))
   (serialize   [entity] entity))
 
 (extend-type clojure.lang.IPersistentMap
   Record
   (create [map] (create (serialize map)))
   (delete [map] (delete (serialize map)))
-  (save   [map] (save (map->entity map)))
-  (lookup [map] (lookup (map->entity map)))
+  (save   [map] (save (serialize-entity map)))
+  (lookup [map] (lookup (serialize-entity map)))
   (update [map key-vals] (save (merge map key-vals)))
   Serialization
   (deserialize [map] map)
-  (serialize   [map] (map->entity map)))
+  (serialize   [map] (serialize-entity map)))

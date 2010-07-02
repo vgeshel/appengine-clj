@@ -167,15 +167,15 @@
       (is (isa? (class key) Key))
       (is (nil? (.getName key))))))
 
-(datastore-test test-entity->map
-  (let [entity (Entity. (make-key "color" "red")) map (entity->map entity)]
+(datastore-test test-deserialize-entity
+  (let [entity (Entity. (make-key "color" "red")) map (deserialize-entity entity)]
     (is (map? map))
     (is (= (count (keys map)) (+ 2 (count (.getProperties entity)))))
     (is (= (:key map) (.getKey entity)))
     (is (= (:kind map) (.getKind entity)))))
 
-(datastore-test test-entity->map-with-continent
-  (let [entity (europe-entity) map (entity->map entity)]
+(datastore-test test-deserialize-entity-with-continent
+  (let [entity (europe-entity) map (deserialize-entity entity)]
     (is (map? map))
     (is (= (count (keys map)) (+ 2 (count (.getProperties entity)))))
     (is (= (:key map) (.getKey entity)))
@@ -184,8 +184,8 @@
     (is (= (:name map) (.getProperty entity "name"))) 
     (is (= (:location map) (deserialize (.getProperty entity "location"))))))
 
-(datastore-test test-map->entity-with-person
-  (let [entity (map->entity {:kind "person" :name "Roman"})]
+(datastore-test test-serialize-entity-with-person
+  (let [entity (serialize-entity {:kind "person" :name "Roman"})]
     (is (entity? entity))
     (is (= (.getKind entity) "person"))
     (is (= (.getProperty entity "name") "Roman"))
@@ -197,8 +197,8 @@
       (is (nil? (.getParent key)))
       (is (not (.isComplete key))))))
 
-(datastore-test test-map->entity-with-color
-  (let [entity (map->entity {:kind "color" :key (make-key "color" "red")})]
+(datastore-test test-serialize-entity-with-color
+  (let [entity (serialize-entity {:kind "color" :key (make-key "color" "red")})]
     (is (entity? entity))
     (is (= (.getKind entity) "color"))
     (is (empty? (.getProperties entity)))
@@ -210,10 +210,10 @@
       (is (isa? (class key) Key))
       (is (nil? (.getParent key))))))
 
-(datastore-test test-map->entity-with-continent
-  (is (= (map->entity (europe-array-map)) (europe-entity)))
-  (is (= (map->entity (europe-hash-map)) (europe-entity)))
-  (is (= (map->entity (europe-record)) (europe-entity))))
+(datastore-test test-serialize-entity-with-continent
+  (is (= (serialize-entity (europe-array-map)) (europe-entity)))
+  (is (= (serialize-entity (europe-hash-map)) (europe-entity)))
+  (is (= (serialize-entity (europe-record)) (europe-entity))))
 
 (datastore-test test-entity?
   (is (not (entity? nil)))
