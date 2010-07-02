@@ -17,18 +17,6 @@ and a set of zero or more typed properties." }
         appengine.utils
         inflections))
 
-(defn entity?
-  "Returns true if arg is an Entity, false otherwise."
-  [arg] (isa? (class arg) Entity))
-
-(defn entity-kind
-  "Returns the kind of the entity as a string."
-  [record] (if record (pr-str record)))
-
-(defn entity-kind
-  "Returns the kind of the entity as a string."
-  [record] (if record (hyphenize (demodulize record))))
-
 (defn- extract-properties [property-specs]
   (reduce
    #(assoc %1 (keyword (first %2)) (apply hash-map (rest %2)))
@@ -89,18 +77,17 @@ and a set of zero or more typed properties." }
 (defn- key-name-fn-sym [entity]
   (symbol (str (entity-fn-sym entity) "-key-name")))
 
-(defn- set-property
-  "Set the entity's property to value and return the modified entity."
-  [#^Entity entity name value]
-  (.setProperty entity (stringify name) (deserialize value))
-  entity)
+(defn entity?
+  "Returns true if arg is an Entity, false otherwise."
+  [arg] (isa? (class arg) Entity))
 
-(defn- set-properties
-  "Set the entity's properties to the values and return the modified
-  entity."
-  [#^Entity entity key-vals]
-  (reduce #(set-property %1 (first %2) (second %2))
-          entity (dissoc key-vals :key :kind)))
+(defn entity-kind
+  "Returns the kind of the entity as a string."
+  [record] (if record (pr-str record)))
+
+(defn entity-kind
+  "Returns the kind of the entity as a string."
+  [record] (if record (hyphenize (demodulize record))))
 
 (defn make-blank-entity
   "Returns a blank Entity. If called with one parameter, key-or-kind
@@ -163,7 +150,9 @@ Examples:
       (:kind map))))
 
 (defmethod serialize-entity :default [map]
-  (set-properties (Entity. (or (:key map) (:kind map))) map))
+  (reduce #(.setProperty %1 (stringify (first %2)) (deserialize (second %2)))
+          (Entity. (or (:key map) (:kind map)))
+          (dissoc map :key :kind)))
 
 (defn deserialize-property
   "Deserialize the property value with the deserializer."
