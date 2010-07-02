@@ -5,8 +5,9 @@
            javax.servlet.http.HttpServlet
            [org.mortbay.jetty.servlet Context ServletHolder])
   (:use appengine.environment
+        ;; [appengine.jetty :only (run-jetty)]
         [ring.util.servlet :only (servlet)]
-        [appengine.jetty :only (run-jetty)]))
+        [ring.adapter.jetty :only (run-jetty)]))
 
 (defn start-server
   "Start the server.
