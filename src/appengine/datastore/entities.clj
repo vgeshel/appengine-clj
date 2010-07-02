@@ -206,17 +206,13 @@ Examples:
 
 "
   [entity [parent] property-specs]
-  (let [properties#   (map (comp keyword first) property-specs)
-        arglists#     (if parent '(parent & properties) '(& properties))
-        params#       (remove #(= % '&) arglists#)
-        key-properties# (map (fn [[key key-fn]] `(~key-fn (~key ~(last arglists#))))
+  (let [deserializers# (extract-deserializer property-specs)
+        kind# (entity-kind entity)
+        key-properties# (map (fn [[key key-fn]] `(~key-fn (~key ~'properties)))
                              (partition 2 (extract-key-fns property-specs)))
-        deserializers# (extract-deserializer property-specs)
-        serializers#   (extract-serializer property-specs)
-        separator#    "-"
-        entity-sym#   (symbol (hyphenize (demodulize entity)))
-        kind#  (entity-kind entity)
-        ns# (symbol (.getName *ns*))]
+        properties# (map (comp keyword first) property-specs)
+        separator# "-"
+        serializers# (extract-serializer property-specs)]
     `(do
        
        (defrecord ~entity [~'key ~'kind ~@(map first property-specs)])
@@ -253,37 +249,23 @@ Examples:
            `(defn ~(find-entities-by-property-fn-sym entity property#)
               ~(find-entities-by-property-fn-doc entity property#)
               [~'value & ~'options]
-              (select ~kind#
-                      ~'where (= ~property# (types/serialize
-           ~(property# serializers#) ~'value)))))
+              (select ~kind# ~'where (= ~property# (types/serialize ~(property# serializers#) ~'value)))))
 
        (defmethod ~'deserialize-entity ~kind# [~'entity]
-                  (new ~entity
-                       (.getKey ~'entity)
-                       (.getKind ~'entity)
-                       ~@(for [property# properties#]
-                           `(deserialize-property
-                             (.getProperty ~'entity ~(stringify property#))
-                             ~(property# deserializers#)))))
+         (new ~entity
+              (.getKey ~'entity)
+              (.getKind ~'entity)
+              ~@(for [property# properties#]
+                  `(deserialize-property
+                    (.getProperty ~'entity ~(stringify property#))
+                    ~(property# deserializers#)))))
 
        (defmethod ~'serialize-entity ~kind# [~'map]
          (doto (Entity. (or (:key ~'map) (:kind ~'map)))
            ~@(for [property# properties#]
                `(.setProperty
                  ~(stringify property#)
-                 (serialize-property (~property# ~'map) ~(property# deserializers#))))))       
-       
-       ;; (extend-type ~entity
-       ;;   Record
-       ;;   (~'create [~entity-sym#] (create (serialize ~entity-sym#)))
-       ;;   (~'delete [~entity-sym#] (delete (serialize ~entity-sym#)))
-       ;;   (~'save   [~entity-sym#] (save (serialize ~entity-sym#)))
-       ;;   (~'lookup [~entity-sym#] (lookup (serialize ~entity-sym#)))
-       ;;   (~'update [~entity-sym# ~'key-vals] (save (merge ~entity-sym# ~'key-vals)))
-       ;;   Serialization
-       ;;   (~'deserialize [~entity-sym#] ((deserialize-fn ~@deserializer#) ~entity-sym#))
-       ;;   (~'serialize [~entity-sym#] ((serialize-fn ~@serializer#) ~entity-sym#)))
-       )))
+                 (serialize-property (~property# ~'map) ~(property# deserializers#)))))))))
 
 (extend-type Entity
   Record
