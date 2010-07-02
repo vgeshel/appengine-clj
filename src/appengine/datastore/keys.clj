@@ -10,7 +10,6 @@
   appengine.datastore.keys
   (:import (com.google.appengine.api.datastore Entity EntityNotFoundException Key KeyFactory))
   (:use [appengine.datastore.utils :only (assert-new)]
-        [clojure.contrib.string :only (join replace-re)]
         appengine.datastore.protocols)
   (:require [appengine.datastore.service :as datastore]))
 
