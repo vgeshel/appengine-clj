@@ -27,7 +27,7 @@ Examples:
   (:use [appengine.utils :only (immigrate-symbols)]))
 
 (immigrate-symbols
- 'appengine.datastore.entities 'defentity)
+ 'appengine.datastore.entities 'defentity 'deserialize-entity 'serialize-entity)
 
 (immigrate-symbols
  'appengine.datastore.keys 'key? 'make-key 'key->string 'string->key)
