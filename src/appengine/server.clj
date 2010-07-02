@@ -1,7 +1,12 @@
 (ns #^{:author "Roman Scherer"}
   appengine.server
+  (:import org.mortbay.jetty.handler.ContextHandlerCollection
+           org.mortbay.jetty.Server
+           javax.servlet.http.HttpServlet
+           [org.mortbay.jetty.servlet Context ServletHolder])
   (:use appengine.environment
-        [ring.adapter.jetty :only (run-jetty)]))
+        [ring.util.servlet :only (servlet)]
+        [appengine.jetty :only (run-jetty)]))
 
 (defn start-server
   "Start the server.
@@ -32,7 +37,3 @@ Example:
   [server]
   (do (.stop server)
       server))
-
-;; (def *server* (start-server "Hello World" :directory "/tmp" :join? false :port 8123))
-;; *server*
-;; (stop-server *server*)
