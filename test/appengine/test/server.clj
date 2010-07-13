@@ -3,7 +3,7 @@
   (:use clojure.test appengine.server))
 
 (def *handler* "Hello World")
-(def *options* [:join? false :port 8123])
+(def *options* [:join? false :port 8123 :filename "test/fixures/appengine-web.xml"])
 
 (deftest test-start-server
   (let [server (apply start-server *handler* *options*)]

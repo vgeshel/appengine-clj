@@ -95,11 +95,11 @@ and a set of zero or more typed properties." }
   "Returns true if arg is an Entity, false otherwise."
   [arg] (isa? (class arg) Entity))
 
-(defn entity-kind
+(defn entity-kind-name
   "Returns the kind of the entity as a string."
   [record] (if record (pr-str record)))
 
-(defn entity-kind
+(defn entity-kind-name
   "Returns the kind of the entity as a string."
   [record] (if record (hyphenize (demodulize record))))
 
@@ -236,7 +236,7 @@ Examples:
 "
   [entity [parent] property-specs]
   (let [deserializers# (extract-deserializer property-specs)
-        kind# (entity-kind entity)
+        kind# (entity-kind-name entity)
         key-fns# (extract-key-fns property-specs)
         properties# (map (comp keyword first) property-specs)
         separator# "-"

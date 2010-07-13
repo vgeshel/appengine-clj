@@ -1,21 +1,36 @@
 (ns #^{:author "Roman Scherer"}
   appengine.environment
   (:import (com.google.apphosting.api ApiProxy ApiProxy$Environment)
-           (com.google.appengine.tools.development ApiProxyLocalFactory LocalServerEnvironment)))
+           (com.google.appengine.tools.development ApiProxyLocalFactory LocalServerEnvironment)
+           java.util.HashMap
+           java.io.File)
+  (:use clojure.contrib.zip-filter.xml))
+
+(def *application* "local")
+(def *version* "1")
+
+(defn- proxy-attributes
+  "Return a map of attributes for ApiProxy."
+  [& options]
+  (let [options (apply hash-map options)]
+    (doto (HashMap.)
+      (.put "com.google.appengine.server_url_key"
+            (str "http://localhost:" (or (:port options) 8080))))))
 
 (defn local-proxy
   "Returns a local api proxy environment."
   [& options]
   (let [options (apply hash-map options)]
     (proxy [ApiProxy$Environment] []
-      (isLoggedIn [] (not (nil? (:email options))))
-      (getAuthDomain [] "")
-      (getRequestNamespace [] "")
-      (getDefaultNamespace [] "")
+      (getAppId [] *application*)
       (getAttributes [] (java.util.HashMap.))
+      (getAuthDomain [] "")
+      (getDefaultNamespace [] "")
       (getEmail [] (or (:email options) ""))
+      (getRequestNamespace [] "")
+      (getVersionId [] *version*)
       (isAdmin [] (or (:admin options) true))
-      (getAppId [] (or (:app-id options) "local")))))
+      (isLoggedIn [] (not (nil? (:email options)))))))
 
 (defn local-server-environment
   "Returns a local server environment."  
@@ -28,15 +43,7 @@
   "Returns a local api proxy environment."
   [request]
   (let [email (:email (:session request))]
-    (proxy [ApiProxy$Environment] []
-      (isLoggedIn [] (boolean email))
-      (getAuthDomain [] "")
-      (getRequestNamespace [] "")
-      (getDefaultNamespace [] "")
-      (getAttributes [] (java.util.HashMap.))
-      (getEmail [] (or email ""))
-      (isAdmin [] true)
-      (getAppId [] "local"))))
+    (local-proxy :email email)))
 
 (defmacro with-appengine
   "Macro to set the environment for the current thread."
@@ -67,3 +74,27 @@
    (.create
     (ApiProxyLocalFactory.)
     (local-server-environment directory))))
+
+(defn- feed-to-zip [filename]
+  (clojure.zip/xml-zip (clojure.xml/parse filename)))
+
+(defn parse-configuration
+  "Read the appengine-web.xml file, extract and save all system
+  properties defined in this file."
+  [filename]    
+  (let [zipper (feed-to-zip filename)]
+    {:application (first (xml-> zipper :application text))
+     :version (first (xml-> zipper :version text))
+     :properties (reduce #(assoc %1 (attr %2 :name) (attr %2 :value))
+                         {} (xml-> zipper :system-properties :property))}))
+
+(defn set-system-properties
+  "Set the system properties."
+  [properties] (doall (map #(System/setProperty (first %) (last %)) properties)))
+
+(defmacro with-configuration [filename & body]
+  `(let [configuration# (parse-configuration ~filename)]
+     (binding [*application* (:application configuration#)
+               *version* (:version configuration#)]
+       (set-system-properties (:properties configuration#))
+       ~@body)))

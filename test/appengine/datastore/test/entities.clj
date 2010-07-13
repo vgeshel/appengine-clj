@@ -31,8 +31,8 @@
 
 (defn europe-seq []
   [:iso-3166-alpha-2 "eu"
-   :key (make-key (entity-kind Continent) "eu")
-   :kind (entity-kind Continent)
+   :key (make-key (entity-kind-name Continent) "eu")
+   :kind (entity-kind-name Continent)
    :location {:latitude (float 54.52) :longitude (float 15.25)}
    :name "Europe"])
 
@@ -52,8 +52,8 @@
 (defn europe-record []
   (continent
    :iso-3166-alpha-2 "eu"
-   :key (make-key (entity-kind Continent) "eu")
-   :kind (entity-kind Continent)
+   :key (make-key (entity-kind-name Continent) "eu")
+   :kind (entity-kind-name Continent)
    :location {:latitude (float 54.52) :longitude (float 15.25)}
    :name "Europe"))
 
@@ -211,9 +211,9 @@
     Continent 'continent?
     'CountryFlag 'country-flag?))
 
-(deftest test-entity-kind
+(deftest test-entity-kind-name
   (are [entity kind]
-    (is (= (entity-kind entity) kind))
+    (is (= (entity-kind-name entity) kind))
     nil nil
     Continent "continent"
     "Continent" "continent"))
@@ -370,7 +370,7 @@
     (is (key? key))
     (is (.isComplete key))
     (is (nil? (.getParent key)))    
-    (is (= (.getKind key) (entity-kind Continent)))
+    (is (= (.getKind key) (entity-kind-name Continent)))
     (is (= (.getId key) 0))
     (is (= (.getName key) "eu")))
   (is (= (continent-key :iso-3166-alpha-2 "eu")
@@ -409,7 +409,7 @@
       (is (key? key))
       (is (.isComplete key))    
       (is (nil? (.getParent key)))    
-      (is (= (.getKind key) (entity-kind Continent)))
+      (is (= (.getKind key) (entity-kind-name Continent)))
       (is (= (.getId key) 0))
       (is (= (.getName key) "eu")))
     (is (= (:iso-3166-alpha-2 continent) "eu"))
@@ -424,7 +424,7 @@
       (is (key? key))
       (is (.isComplete key))    
       (is (= (.getParent key) (:key (europe-record))))    
-      (is (= (.getKind key) (entity-kind Country)))
+      (is (= (.getKind key) (entity-kind-name Country)))
       (is (= (.getId key) 0))
       (is (= (.getName key) "de")))
     (is (= (:iso-3166-alpha-2 country) "de"))
@@ -439,7 +439,7 @@
       (is (key? key))
       (is (.isComplete key))    
       (is (= (.getParent key) (:key (make-germany))))    
-      (is (= (.getKind key) (entity-kind Region)))
+      (is (= (.getKind key) (entity-kind-name Region)))
       (is (= (.getId key) 0))
       (is (= (.getName key) "de-berlin")))
     (is (= (:country-id region) "de"))

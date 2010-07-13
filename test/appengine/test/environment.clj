@@ -18,3 +18,27 @@
 
 (deftest test-init-appengine
   (let [proxy (init-appengine)]))
+
+(deftest test-parse-configuration
+  (let [configuration (parse-configuration "test/fixures/appengine-web.xml")]
+    (is (= (:application configuration) "appengine"))
+    (is (= (:version configuration) "1"))
+    (is (= (:properties configuration)
+           {"myapp.notify-url" "http://www.example.com/signupnotify"
+            "myapp.notify-every-n-signups" "1000"
+            "myapp.maximum-message-length" "140"}))))
+
+(deftest test-set-system-properties
+  (set-system-properties {"property-name" "property-value"})
+  (is (= (System/getProperty "property-name") "property-value")))
+
+(deftest test-with-configuration
+  (with-configuration "test/fixures/appengine-web.xml"
+    (is (= *application* "appengine"))
+    (is (= *version* "1"))
+    (is (= (System/getProperty "myapp.notify-url") "http://www.example.com/signupnotify"))
+    (is (= (System/getProperty "myapp.notify-every-n-signups") "1000"))
+    (is (= (System/getProperty "myapp.maximum-message-length") "140"))))
+
+
+
