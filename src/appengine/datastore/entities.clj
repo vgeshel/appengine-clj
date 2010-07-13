@@ -245,21 +245,48 @@ Examples:
        
        (defrecord ~entity [~'key ~'kind ~@(map first property-specs)])
 
-       (defn ~(entity-p-fn-sym entity) ~(entity-p-fn-doc entity) [~'arg]
-         (cond (isa? (class ~'arg) ~entity) true
-               (entity? ~'arg) (= (.getKind ~'arg) ~kind#)
-               (map? ~'arg) (= (:kind ~'arg) ~kind#)))
+       (defprotocol ~(symbol (entity-protocol-name entity))
+         (~(entity-p-fn-sym entity) [~'entity] ~(entity-p-fn-doc entity))
+         (~(key-name-fn-sym entity) [~'entity] ~(key-name-fn-doc entity)))
+
+       (extend-type clojure.lang.IPersistentMap
+         ~(symbol (entity-protocol-name entity))
+         (~(entity-p-fn-sym entity) [~'entity]
+          (= (:kind ~'entity) ~kind#))
+         (~(key-name-fn-sym entity) [~'entity]          
+          (extract-key ~'entity ~key-fns#)))
+
+       (extend-type Entity
+         ~(symbol (entity-protocol-name entity))
+         (~(entity-p-fn-sym entity) [~'entity]
+          (= (.getKind ~'entity) ~kind#)))
+
+       (extend-type Object
+         ~(symbol (entity-protocol-name entity))
+         (~(entity-p-fn-sym entity) [~'entity]
+          false))
+
+       (extend-type nil
+         ~(symbol (entity-protocol-name entity))
+         (~(entity-p-fn-sym entity) [~'entity]
+          false))
+       
+
+       ;; (defn ~(entity-p-fn-sym entity) ~(entity-p-fn-doc entity) [~'arg]
+       ;;   (cond (isa? (class ~'arg) ~entity) true
+       ;;         (entity? ~'arg) (= (.getKind ~'arg) ~kind#)
+       ;;         (map? ~'arg) (= (:kind ~'arg) ~kind#)))
 
        ;; (defprotocol ~(entity-protocol-name entity))
 
-       (defn ~(key-name-fn-sym entity) ~(key-name-fn-doc entity) [& ~'properties]
-         ~(if-not (empty? key-fns#)
-            `(cond
-              (keyword? (first ~'properties))
-              (~(key-name-fn-sym entity) (apply hash-map ~'properties))
-              (map? (first ~'properties))
-              (let [~'properties (first ~'properties)]
-                (extract-key ~'properties ~key-fns#)))))
+       ;; (defn ~(key-name-fn-sym entity) ~(key-name-fn-doc entity) [& ~'properties]
+       ;;   ~(if-not (empty? key-fns#)
+       ;;      `(cond
+       ;;        (keyword? (first ~'properties))
+       ;;        (~(key-name-fn-sym entity) (apply hash-map ~'properties))
+       ;;        (map? (first ~'properties))
+       ;;        (let [~'properties (first ~'properties)]
+       ;;          (extract-key ~'properties ~key-fns#)))))
 
        (defn ~(key-fn-sym entity) ~(key-fn-doc entity) [~@(if parent '(parent & properties) '(& properties))]
          ~(if-not (empty? key-fns#)
