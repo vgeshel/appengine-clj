@@ -31,17 +31,6 @@ and a set of zero or more typed properties." }
     (if (every? (comp not nil?) values)
       (join "-" values))))
 
-
-
-;; (extract-key {}
-;;              [[:iso-3166-alpha-2 true] [:name lower-case]])
-
-;; (extract-key {:iso-3166-alpha-2 "de" :name "Berlin"}
-;;              (seq [:iso-3166-alpha-2 true] [:name lower-case]))
-
-;; (extract-key {}
-;;              [[:iso-3166-alpha-2 true] [:name lower-case]])
-
 (defn- extract-properties [property-specs]
   (reduce
    #(assoc %1 (keyword (first %2)) (apply hash-map (rest %2)))
@@ -223,11 +212,6 @@ Examples:
   (let [deserializers# (extract-deserializer property-specs)
         kind# (entity-kind entity)
         key-fns# (extract-key-fns property-specs)
-        ;; key-properties# (map (fn [[key key-fn]] `(~key-fn (~key ~'properties)))
-        ;;                      (partition 2 (extract-key-fns property-specs)))
-        ;; key-properties# (map (fn [[key key-fn]] `(if-let [value# (~key ~'properties)]
-        ;;                                           (~key-fn value#)))
-        ;;                      (partition 2 (extract-key-fns property-specs)))
         properties# (map (comp keyword first) property-specs)
         separator# "-"
         serializers# (extract-serializer property-specs)]
