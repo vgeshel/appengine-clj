@@ -103,6 +103,32 @@ and a set of zero or more typed properties." }
   "Returns the kind of the entity as a string."
   [record] (if record (hyphenize (demodulize record))))
 
+(defn entity-protocol-name
+  "Returns the protocol name for an entity. Entity can be a class,
+a symbol or a string. If the entity is blank the fn returns nil.
+
+Examples:
+
+  (entity-protocol-name nil)
+  ; => nil
+
+  (entity-protocol-name \"\")
+  ; => nil
+
+  (entity-protocol-name Continent)
+  ; => \"ContinentProtocol\"
+
+  (entity-protocol-name 'Continent)
+  ; => \"ContinentProtocol\"
+
+  (entity-protocol-name \"Continent\")
+  ; => \"ContinentProtocol\"
+"
+  [entity] (if-not (blank? (str entity)) (str (demodulize entity) "Protocol")))
+
+;; (entity-protocol-name nil)
+;; (entity-protocol-name 'Continent)
+
 (defn make-blank-entity
   "Returns a blank Entity. If called with one parameter, key-or-kind
   must be either a Key or a String, that specifies the kind of the
@@ -223,6 +249,8 @@ Examples:
          (cond (isa? (class ~'arg) ~entity) true
                (entity? ~'arg) (= (.getKind ~'arg) ~kind#)
                (map? ~'arg) (= (:kind ~'arg) ~kind#)))
+
+       ;; (defprotocol ~(entity-protocol-name entity))
 
        (defn ~(key-name-fn-sym entity) ~(key-name-fn-doc entity) [& ~'properties]
          ~(if-not (empty? key-fns#)

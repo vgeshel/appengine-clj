@@ -350,6 +350,17 @@
          (region-key-name {:country-id "de" :name "Berlin"})
          "de-berlin")))
 
+(deftest test-entity-protocol-name
+  (are [entity expected]
+    (is (= (entity-protocol-name entity) expected))
+    nil nil
+    "" ""
+    Continent "ContinentProtocol"
+    'Continent "ContinentProtocol"
+    "Continent" "ContinentProtocol"))
+
+(entity-protocol-name "")
+
 (datastore-test test-person-key
   (is (nil? (person-key :name "Roman"))))
 
