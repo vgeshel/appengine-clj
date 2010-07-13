@@ -17,6 +17,31 @@ and a set of zero or more typed properties." }
         appengine.utils
         inflections))
 
+(defn- extract-values [record keys & options]
+  (map (fn [[key key-fn]]
+         (if-let [value (get record key)]
+           (if (fn? key-fn)
+             (key-fn value) value)))
+       keys))
+
+(defn extract-key
+  "Extract the key from the record."
+  [record keys & options]
+  (let [values (extract-values record keys options)]
+    (if (every? (comp not nil?) values)
+      (join "-" values))))
+
+
+
+;; (extract-key {}
+;;              [[:iso-3166-alpha-2 true] [:name lower-case]])
+
+;; (extract-key {:iso-3166-alpha-2 "de" :name "Berlin"}
+;;              (seq [:iso-3166-alpha-2 true] [:name lower-case]))
+
+;; (extract-key {}
+;;              [[:iso-3166-alpha-2 true] [:name lower-case]])
+
 (defn- extract-properties [property-specs]
   (reduce
    #(assoc %1 (keyword (first %2)) (apply hash-map (rest %2)))
@@ -29,7 +54,7 @@ and a set of zero or more typed properties." }
      (array-map) (reverse (keys properties)))))
 
 (defn- extract-key-fns [property-specs]
-  (reduce concat (extract-option property-specs :key)))
+  (apply vector (seq (extract-option property-specs :key))))
 
 (defn- extract-serializer [property-specs]
   (apply hash-map (flat-seq (extract-option property-specs :serialize))))
@@ -197,8 +222,12 @@ Examples:
   [entity [parent] property-specs]
   (let [deserializers# (extract-deserializer property-specs)
         kind# (entity-kind entity)
-        key-properties# (map (fn [[key key-fn]] `(~key-fn (~key ~'properties)))
-                             (partition 2 (extract-key-fns property-specs)))
+        key-fns# (extract-key-fns property-specs)
+        ;; key-properties# (map (fn [[key key-fn]] `(~key-fn (~key ~'properties)))
+        ;;                      (partition 2 (extract-key-fns property-specs)))
+        ;; key-properties# (map (fn [[key key-fn]] `(if-let [value# (~key ~'properties)]
+        ;;                                           (~key-fn value#)))
+        ;;                      (partition 2 (extract-key-fns property-specs)))
         properties# (map (comp keyword first) property-specs)
         separator# "-"
         serializers# (extract-serializer property-specs)]
@@ -212,14 +241,16 @@ Examples:
                (map? ~'arg) (= (:kind ~'arg) ~kind#)))
 
        (defn ~(key-name-fn-sym entity) ~(key-name-fn-doc entity) [& ~'properties]
-         ~(if-not (empty? key-properties#)
-            `(if (map? (first ~'properties))
-               (let [~'properties (first ~'properties)]
-                 (join ~separator# [~@key-properties#]))
-               (~(key-name-fn-sym entity) (apply hash-map ~'properties)))))
+         ~(if-not (empty? key-fns#)
+            `(cond
+              (keyword? (first ~'properties))
+              (~(key-name-fn-sym entity) (apply hash-map ~'properties))
+              (map? (first ~'properties))
+              (let [~'properties (first ~'properties)]
+                (extract-key ~'properties ~key-fns#)))))
 
        (defn ~(key-fn-sym entity) ~(key-fn-doc entity) [~@(if parent '(parent & properties) '(& properties))]
-         ~(if-not (empty? key-properties#)
+         ~(if-not (empty? key-fns#)
             `(if (map? (first ~'properties))
                (make-key ~(if parent 'parent) ~kind# (~(key-name-fn-sym entity) (first ~'properties)))
                (~(key-fn-sym entity) ~@(if parent '(parent (apply hash-map properties)) '((apply hash-map properties)))))))

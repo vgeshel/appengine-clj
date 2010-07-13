@@ -270,11 +270,21 @@
   (is (= (extract-deserializer continent-specification)
          {:location 'GeoPt})))
 
+(deftest test-extract-key
+  (let [key-fns [[:iso-3166-alpha-2 true] [:name lower-case]]]
+    (is (= (extract-key nil key-fns)
+           (extract-key {} key-fns)
+           (extract-key {:iso-3166-alpha-2 "de"} key-fns)
+           (extract-key {:name "Berlin"} key-fns)
+           nil))
+    (is (= (extract-key {:iso-3166-alpha-2 "de" :name "Berlin"} key-fns)
+           "de-berlin"))))
+
 (deftest test-extract-key-fns
   (is (= (extract-key-fns continent-specification)
-         [:iso-3166-alpha-2 '#'lower-case]))
+         [[:iso-3166-alpha-2 '#'lower-case]]))
   (is (= (extract-key-fns region-specification)
-         [:country-id '#'lower-case :name '#'lower-case])))
+         [[:country-id '#'lower-case] [:name '#'lower-case]])))
 
 (deftest test-extract-option
   (is (= (extract-option continent-specification :key)
@@ -320,24 +330,33 @@
     (is (not (empty? continents)))
     (is (includes? continents europe))))
 
-(deftest test-xxx-key-name
-  (is (nil? (person-key-name :name "Roman")))
-  (is (= (person-key-name :name "Roman")
-         (person-key-name {:name "Roman"})))
-  (is (= (continent-key-name :iso-3166-alpha-2 "eu") "eu"))
-  (is (= (continent-key-name :iso-3166-alpha-2 "eu") "eu"
-         (continent-key-name {:iso-3166-alpha-2 "eu"})))
-  (is (= (country-key-name :iso-3166-alpha-2 "de") "de"))
+(deftest test-generated-entity-key-name
+  (is (= (continent-key-name)
+         (continent-key-name {})
+         (country-key-name)
+         (country-key-name {})
+         (region-key-name)
+         (region-key-name {})
+         (person-key-name :name "Roman")
+         (person-key-name {:name "Roman"})
+         nil))
+  (is (= (continent-key-name :iso-3166-alpha-2 "eu") 
+         (continent-key-name {:iso-3166-alpha-2 "eu"})
+         "eu"))
   (is (= (country-key-name :iso-3166-alpha-2 "de")
-         (country-key-name {:iso-3166-alpha-2 "de"})))
-  (is (= (region-key-name :country-id "de" :name "Berlin") "de-berlin"))
+         (country-key-name {:iso-3166-alpha-2 "de"})
+         "de"))
   (is (= (region-key-name :country-id "de" :name "Berlin")
-         (region-key-name {:country-id "de" :name "Berlin"}))))
+         (region-key-name {:country-id "de" :name "Berlin"})
+         "de-berlin")))
 
 (datastore-test test-person-key
   (is (nil? (person-key :name "Roman"))))
 
 (datastore-test test-continent-key
+  ;; (is (= (continent-key)
+  ;;        (continent-key {})
+  ;;        nil))
   (let [key (continent-key :iso-3166-alpha-2 "eu")]
     (is (key? key))
     (is (.isComplete key))
