@@ -237,6 +237,8 @@ Examples:
   [entity [parent] property-specs]
   (let [deserializers# (extract-deserializer property-specs)
         kind# (entity-kind-name entity)
+        entity# (symbol (entity-kind-name entity))
+        parent# (if parent (symbol (entity-kind-name parent)))
         key-fns# (extract-key-fns property-specs)
         properties# (map (comp keyword first) property-specs)
         separator# "-"
@@ -246,29 +248,29 @@ Examples:
        (defrecord ~entity [~'key ~'kind ~@(map first property-specs)])
 
        (defprotocol ~(symbol (entity-protocol-name entity))
-         (~(entity-p-fn-sym entity) [~'entity] ~(entity-p-fn-doc entity))
-         (~(key-name-fn-sym entity) [~'entity] ~(key-name-fn-doc entity)))
+         (~(entity-p-fn-sym entity) [~entity#] ~(entity-p-fn-doc entity))
+         (~(key-name-fn-sym entity) [~entity#] ~(key-name-fn-doc entity)))
 
        (extend-type clojure.lang.IPersistentMap
          ~(symbol (entity-protocol-name entity))
-         (~(entity-p-fn-sym entity) [~'entity]
-          (= (:kind ~'entity) ~kind#))
-         (~(key-name-fn-sym entity) [~'entity]          
-          (extract-key ~'entity ~key-fns#)))
+         (~(entity-p-fn-sym entity) [~entity#]
+          (= (:kind ~entity#) ~kind#))
+         (~(key-name-fn-sym entity) [~entity#]          
+          (extract-key ~entity# ~key-fns#)))
 
        (extend-type Entity
          ~(symbol (entity-protocol-name entity))
-         (~(entity-p-fn-sym entity) [~'entity]
-          (= (.getKind ~'entity) ~kind#)))
+         (~(entity-p-fn-sym entity) [~entity#]
+          (= (.getKind ~entity#) ~kind#)))
 
        (extend-type Object
          ~(symbol (entity-protocol-name entity))
-         (~(entity-p-fn-sym entity) [~'entity]
+         (~(entity-p-fn-sym entity) [~entity#]
           false))
 
        (extend-type nil
          ~(symbol (entity-protocol-name entity))
-         (~(entity-p-fn-sym entity) [~'entity]
+         (~(entity-p-fn-sym entity) [~entity#]
           false))
        
 
