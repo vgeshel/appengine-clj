@@ -249,7 +249,18 @@ Examples:
 
        (defprotocol ~(symbol (entity-protocol-name entity))
          (~(entity-p-fn-sym entity) [~entity#] ~(entity-p-fn-doc entity))
-         (~(key-name-fn-sym entity) [~entity#] ~(key-name-fn-doc entity)))
+         (~(key-name-fn-sym entity) [~entity#] ~(key-name-fn-doc entity))
+         ~@(if parent
+             `(
+               (~(key-fn-sym entity) [~parent# ~entity#] ~(key-fn-doc entity))
+               )
+             )
+         ~@(if-not parent
+             `(
+               (~(key-fn-sym entity) [~entity#] ~(key-fn-doc entity))
+               )
+             )
+         )
 
        (extend-type clojure.lang.IPersistentMap
          ~(symbol (entity-protocol-name entity))
