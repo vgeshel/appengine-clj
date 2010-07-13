@@ -272,22 +272,6 @@ Examples:
           false))
        
 
-       ;; (defn ~(entity-p-fn-sym entity) ~(entity-p-fn-doc entity) [~'arg]
-       ;;   (cond (isa? (class ~'arg) ~entity) true
-       ;;         (entity? ~'arg) (= (.getKind ~'arg) ~kind#)
-       ;;         (map? ~'arg) (= (:kind ~'arg) ~kind#)))
-
-       ;; (defprotocol ~(entity-protocol-name entity))
-
-       ;; (defn ~(key-name-fn-sym entity) ~(key-name-fn-doc entity) [& ~'properties]
-       ;;   ~(if-not (empty? key-fns#)
-       ;;      `(cond
-       ;;        (keyword? (first ~'properties))
-       ;;        (~(key-name-fn-sym entity) (apply hash-map ~'properties))
-       ;;        (map? (first ~'properties))
-       ;;        (let [~'properties (first ~'properties)]
-       ;;          (extract-key ~'properties ~key-fns#)))))
-
        (defn ~(key-fn-sym entity) ~(key-fn-doc entity) [~@(if parent '(parent & properties) '(& properties))]
          ~(if-not (empty? key-fns#)
             `(if (map? (first ~'properties))
