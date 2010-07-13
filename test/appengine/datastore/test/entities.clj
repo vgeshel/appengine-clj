@@ -354,12 +354,10 @@
   (are [entity expected]
     (is (= (entity-protocol-name entity) expected))
     nil nil
-    "" ""
+    "" nil
     Continent "ContinentProtocol"
     'Continent "ContinentProtocol"
     "Continent" "ContinentProtocol"))
-
-(entity-protocol-name "")
 
 (datastore-test test-person-key
   (is (nil? (person-key :name "Roman"))))
