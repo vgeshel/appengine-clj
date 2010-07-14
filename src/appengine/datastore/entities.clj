@@ -213,6 +213,17 @@ Examples:
         (class? serializer) (types/serialize serializer value)
         :else value))
 
+(defmacro define-protocol [entity parent]
+  (let [entity# (symbol (entity-kind-name entity))
+        parent# (if parent (symbol (entity-kind-name parent)))
+        arglist# (if parent `(~parent# ~entity#) `(~entity#))]
+    `(defprotocol ~(symbol (entity-protocol-name entity))
+       (~(entity-p-fn-sym entity) [~entity#] ~(entity-p-fn-doc entity))
+       (~(key-name-fn-sym entity) [~entity#] ~(key-name-fn-doc entity))
+       (~(key-fn-sym entity)      [~@arglist#] ~(key-fn-doc entity))
+       (~(entity-fn-sym entity)   [~@arglist#] ~(entity-fn-doc entity))
+       )))
+
 (defmacro defentity
   "A macro to define entitiy records.
 
@@ -249,15 +260,10 @@ Examples:
         separator# "-"
         serializers# (extract-serializer property-specs)]
     `(do
-       
-       (defrecord ~entity [~'key ~'kind ~@(map first property-specs)])
 
-       (defprotocol ~(symbol (entity-protocol-name entity))
-         (~(entity-p-fn-sym entity) [~entity#] ~(entity-p-fn-doc entity))
-         (~(key-name-fn-sym entity) [~entity#] ~(key-name-fn-doc entity))
-         (~(key-fn-sym entity)      [~@arglist#] ~(key-fn-doc entity))
-         (~(entity-fn-sym entity)   [~@arglist#] ~(entity-fn-doc entity))
-         )
+       (define-protocol ~entity ~parent)
+
+       (defrecord ~entity [~'key ~'kind ~@(map first property-specs)])
 
        ~(if parent
           `(extend-type ~parent
