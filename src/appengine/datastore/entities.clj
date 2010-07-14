@@ -224,6 +224,20 @@ Examples:
        (~(entity-fn-sym entity)   [~@arglist#] ~(entity-fn-doc entity))
        )))
 
+(defmacro extend-parent [entity parent properties]
+  (let [kind# (entity-kind-name entity)
+        entity# (symbol kind#)
+        parent# (if parent (symbol (entity-kind-name parent)))]
+    (if parent
+      `(extend-type ~parent
+         ~(symbol (entity-protocol-name entity))
+         (~(key-fn-sym entity) [~parent# ~entity#]          
+          (if-let [~'key (~(key-name-fn-sym entity) ~entity#)]
+            (make-key ~parent# ~kind# ~'key)))
+         (~(entity-fn-sym entity) [~parent# ~entity#]          
+          (new ~entity (~(key-fn-sym entity) ~parent# ~entity#) ~kind#
+               ~@(map (fn [key#] `(~key# ~entity#)) properties)))))))
+
 (defmacro defentity
   "A macro to define entitiy records.
 
@@ -261,19 +275,10 @@ Examples:
         serializers# (extract-serializer property-specs)]
     `(do
 
-       (define-protocol ~entity ~parent)
-
        (defrecord ~entity [~'key ~'kind ~@(map first property-specs)])
 
-       ~(if parent
-          `(extend-type ~parent
-             ~(symbol (entity-protocol-name entity))
-             (~(key-fn-sym entity) [~parent# ~entity#]          
-              (if-let [~'key (~(key-name-fn-sym entity) ~entity#)]
-                (make-key ~parent# ~kind# ~'key)))
-             (~(entity-fn-sym entity) [~parent# ~entity#]          
-              (new ~entity (~(key-fn-sym entity) ~parent# ~entity#) ~kind#
-                   ~@(map (fn [key#] `(~key# ~entity#)) properties#)))))       
+       (define-protocol ~entity ~parent)
+       (extend-parent ~entity ~parent ~properties#)
 
        (extend-type Entity
          ~(symbol (entity-protocol-name entity))
