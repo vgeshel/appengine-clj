@@ -270,7 +270,7 @@ Examples:
          (~(entity-p-fn-sym entity) [~entity#]
           (= (:kind ~entity#) ~kind#))
          (~(key-name-fn-sym entity) [~entity#]          
-          ~(if-not (empty? keys#) `(extract-key ~entity# ~key-fns#)))
+          (extract-key ~entity# ~key-fns#))
          )
 
        (extend-type Entity
