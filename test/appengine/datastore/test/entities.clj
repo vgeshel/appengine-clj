@@ -271,13 +271,31 @@
     Continent 'continent
     'CountryFlag 'country-flag))
 
-(deftest test-extract-deserializer
-  (is (= (extract-deserializer continent-specification)
-         {:location 'GeoPt})))
+(deftest test-entity-protocol-name
+  (are [entity expected]
+    (is (= (entity-protocol-name entity) expected))
+    nil nil
+    "" nil
+    Continent "ContinentProtocol"
+    'Continent "ContinentProtocol"
+    "Continent" "ContinentProtocol"))
+
+(deftest test-extract-values
+  (let [key-fns [[:iso-3166-alpha-2 true] [:name lower-case]]]
+    (is (empty? (extract-values nil nil)))
+    (is (= (extract-values nil key-fns)
+           (extract-values {} key-fns)
+           [nil nil]))
+    (is (= (extract-values {:iso-3166-alpha-2 "de" :name "Berlin"} key-fns)
+           ["de" "berlin"]))))
 
 (deftest test-extract-key
   (let [key-fns [[:iso-3166-alpha-2 true] [:name lower-case]]]
-    (is (= (extract-key nil key-fns)
+    (is (= (extract-key nil nil)
+           (extract-key nil [])
+           (extract-key {} nil)
+           (extract-key {} [])
+           (extract-key nil key-fns)
            (extract-key {} key-fns)
            (extract-key {:iso-3166-alpha-2 "de"} key-fns)
            (extract-key {:name "Berlin"} key-fns)

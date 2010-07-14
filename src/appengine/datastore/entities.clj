@@ -17,7 +17,9 @@ and a set of zero or more typed properties." }
         appengine.utils
         inflections))
 
-(defn- extract-values [record keys & options]
+(defn- extract-values
+  "Extract the key values from the record."
+  [record keys & options]
   (map (fn [[key key-fn]]
          (if-let [value (get record key)]
            (if (fn? key-fn)
@@ -26,9 +28,9 @@ and a set of zero or more typed properties." }
 
 (defn extract-key
   "Extract the key from the record."
-  [record keys & options]
+  [record keys & options]  
   (let [values (extract-values record keys options)]
-    (if (every? (comp not nil?) values)
+    (if (and (not (empty? values)) (every? (comp not nil?) values))
       (join "-" values))))
 
 (defn- extract-properties [property-specs]
