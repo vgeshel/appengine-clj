@@ -213,7 +213,7 @@ Examples:
         (class? serializer) (types/serialize serializer value)
         :else value))
 
-(defmacro define-protocol [entity parent]
+(defn- define-protocol [entity parent]
   (let [entity# (symbol (entity-kind-name entity))
         parent# (if parent (symbol (entity-kind-name parent)))
         arglist# (if parent `(~parent# ~entity#) `(~entity#))]
@@ -223,17 +223,17 @@ Examples:
        (~(key-fn-sym entity)      [~@arglist#] ~(key-fn-doc entity))
        (~(entity-fn-sym entity)   [~@arglist#] ~(entity-fn-doc entity)))))
 
-(defmacro define-record [entity properties]
+(defn- define-record [entity properties]
   `(defrecord ~entity [~'key ~'kind ~@properties]))
 
-(defmacro extend-entity [entity]
+(defn- extend-entity [entity]
   (let [kind# (entity-kind-name entity) entity# (symbol kind#)]    
     `(extend-type Entity
        ~(symbol (entity-protocol-name entity))
        (~(entity-p-fn-sym entity) [~entity#]
         (= (.getKind ~entity#) ~kind#)))))
 
-(defmacro extend-key [entity parent properties]
+(defn- extend-key [entity parent properties]
   (let [kind# (entity-kind-name entity)
         entity# (symbol kind#)
         parent# (if parent (symbol (entity-kind-name parent)))]
@@ -247,21 +247,21 @@ Examples:
               (new ~entity (~(key-fn-sym entity) ~parent# ~entity#) ~kind#
                    ~@(map (fn [key#] `(~key# ~entity#)) properties))))))))
 
-(defmacro extend-nil [entity]
+(defn- extend-nil [entity]
   (let [kind# (entity-kind-name entity) entity# (symbol kind#)]    
     `(extend-type nil
        ~(symbol (entity-protocol-name entity))
        (~(entity-p-fn-sym entity) [~entity#]
         false))))
 
-(defmacro extend-object [entity]
+(defn- extend-object [entity]
   (let [kind# (entity-kind-name entity) entity# (symbol kind#)]    
     `(extend-type Object
        ~(symbol (entity-protocol-name entity))
        (~(entity-p-fn-sym entity) [~entity#]
         false))))
 
-(defmacro extend-parent [entity parent properties]
+(defn- extend-parent [entity parent properties]
   (let [kind# (entity-kind-name entity)
         entity# (symbol kind#)
         parent# (if parent (symbol (entity-kind-name parent)))]
@@ -275,7 +275,7 @@ Examples:
           (new ~entity (~(key-fn-sym entity) ~parent# ~entity#) ~kind#
                ~@(map (fn [key#] `(~key# ~entity#)) properties)))))))
 
-(defmacro extend-persistent-map [entity parent properties key-fns]
+(defn- extend-persistent-map [entity parent properties key-fns]
   (let [kind# (entity-kind-name entity)
         entity# (symbol kind#)
         parent# (if parent (symbol (entity-kind-name parent)))]
@@ -329,14 +329,14 @@ Examples:
         separator# "-"
         serializers# (extract-serializer property-specs)]
     `(do
-       (define-record ~entity ~(map first property-specs))
-       (define-protocol ~entity ~parent)
-       (extend-entity ~entity)
-       (extend-key ~entity ~parent ~properties#)
-       (extend-nil ~entity)
-       (extend-object ~entity)
-       (extend-parent ~entity ~parent ~properties#)
-       (extend-persistent-map ~entity ~parent ~properties# ~key-fns#)
+       ~(define-record entity (map first property-specs))
+       ~(define-protocol entity parent)
+       ~(extend-entity entity)
+       ~(extend-key entity parent properties#)
+       ~(extend-nil entity)
+       ~(extend-object entity)
+       ~(extend-parent entity parent properties#)
+       ~(extend-persistent-map entity parent properties# key-fns#)
 
        (defn ~(find-entities-fn-sym entity) ~(find-entities-fn-doc entity) [& ~'options]
          (select ~kind#))
