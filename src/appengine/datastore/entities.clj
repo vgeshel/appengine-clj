@@ -238,6 +238,24 @@ Examples:
           (new ~entity (~(key-fn-sym entity) ~parent# ~entity#) ~kind#
                ~@(map (fn [key#] `(~key# ~entity#)) properties)))))))
 
+(defmacro extend-persistent-map [entity parent properties key-fns]
+  (let [kind# (entity-kind-name entity)
+        entity# (symbol kind#)
+        parent# (if parent (symbol (entity-kind-name parent)))]
+    `(extend-type IPersistentMap
+       ~(symbol (entity-protocol-name entity))
+       (~(entity-p-fn-sym entity) [~entity#]
+        (= (:kind ~entity#) ~kind#))
+       (~(key-name-fn-sym entity) [~entity#]          
+        (extract-key ~entity# ~key-fns))
+       ~@(if-not parent
+           `((~(key-fn-sym entity) [~entity#]          
+              (if-let [~'key (~(key-name-fn-sym entity) ~entity#)]
+                (make-key nil ~kind# ~'key)))
+             (~(entity-fn-sym entity) [~entity#]          
+              (new ~entity (~(key-fn-sym entity) ~entity#) ~kind#
+                   ~@(map (fn [key#] `(~key# ~entity#)) properties))))))))
+
 (defmacro extend-entity [entity]
   (let [kind# (entity-kind-name entity) entity# (symbol kind#)]    
     `(extend-type Entity
@@ -259,7 +277,19 @@ Examples:
        (~(entity-p-fn-sym entity) [~entity#]
         false))))
 
-
+(defmacro extend-key [entity parent properties]
+  (let [kind# (entity-kind-name entity)
+        entity# (symbol kind#)
+        parent# (if parent (symbol (entity-kind-name parent)))]
+    `(extend-type Key
+       ~(symbol (entity-protocol-name entity))
+       ~@(if parent
+           `((~(key-fn-sym entity) [~parent# ~entity#]          
+              (if-let [~'key (~(key-name-fn-sym entity) ~entity#)]
+                (make-key ~parent# ~kind# ~'key)))
+             (~(entity-fn-sym entity) [~parent# ~entity#]          
+              (new ~entity (~(key-fn-sym entity) ~parent# ~entity#) ~kind#
+                   ~@(map (fn [key#] `(~key# ~entity#)) properties))))))))
 
 (defmacro defentity
   "A macro to define entitiy records.
@@ -301,34 +331,12 @@ Examples:
        (defrecord ~entity [~'key ~'kind ~@(map first property-specs)])
 
        (define-protocol ~entity ~parent)
-       (extend-parent ~entity ~parent ~properties#)
        (extend-entity ~entity)
-       (extend-object ~entity)
+       (extend-key ~entity ~parent ~properties#)
        (extend-nil ~entity)
-
-       (extend-type Key
-         ~(symbol (entity-protocol-name entity))
-         ~@(if parent
-             `((~(key-fn-sym entity) [~parent# ~entity#]          
-                (if-let [~'key (~(key-name-fn-sym entity) ~entity#)]
-                  (make-key ~parent# ~kind# ~'key)))
-               (~(entity-fn-sym entity) [~parent# ~entity#]          
-                (new ~entity (~(key-fn-sym entity) ~parent# ~entity#) ~kind#
-                     ~@(map (fn [key#] `(~key# ~entity#)) properties#))))))
-
-       (extend-type IPersistentMap
-         ~(symbol (entity-protocol-name entity))
-         (~(entity-p-fn-sym entity) [~entity#]
-          (= (:kind ~entity#) ~kind#))
-         (~(key-name-fn-sym entity) [~entity#]          
-          (extract-key ~entity# ~key-fns#))
-         ~@(if-not parent
-             `((~(key-fn-sym entity) [~entity#]          
-                (if-let [~'key (~(key-name-fn-sym entity) ~entity#)]
-                  (make-key nil ~kind# ~'key)))
-               (~(entity-fn-sym entity) [~entity#]          
-                (new ~entity (~(key-fn-sym entity) ~entity#) ~kind#
-                     ~@(map (fn [key#] `(~key# ~entity#)) properties#))))))
+       (extend-object ~entity)
+       (extend-parent ~entity ~parent ~properties#)
+       (extend-persistent-map ~entity ~parent ~properties# ~key-fns#)
 
        (defn ~(find-entities-fn-sym entity) ~(find-entities-fn-doc entity) [& ~'options]
          (select ~kind#))
