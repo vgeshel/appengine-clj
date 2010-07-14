@@ -291,6 +291,9 @@ Examples:
               (new ~entity (~(key-fn-sym entity) ~parent# ~entity#) ~kind#
                    ~@(map (fn [key#] `(~key# ~entity#)) properties))))))))
 
+(defmacro define-record [entity properties]
+  `(defrecord ~entity [~'key ~'kind ~@properties]))
+
 (defmacro defentity
   "A macro to define entitiy records.
 
@@ -327,9 +330,7 @@ Examples:
         separator# "-"
         serializers# (extract-serializer property-specs)]
     `(do
-
-       (defrecord ~entity [~'key ~'kind ~@(map first property-specs)])
-
+       (define-record ~entity ~(map first property-specs))
        (define-protocol ~entity ~parent)
        (extend-entity ~entity)
        (extend-key ~entity ~parent ~properties#)
