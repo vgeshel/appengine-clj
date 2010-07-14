@@ -239,20 +239,27 @@ Examples:
                ~@(map (fn [key#] `(~key# ~entity#)) properties)))))))
 
 (defmacro extend-entity [entity]
-  (let [kind# (entity-kind-name entity)
-        entity# (symbol kind#)]    
+  (let [kind# (entity-kind-name entity) entity# (symbol kind#)]    
     `(extend-type Entity
        ~(symbol (entity-protocol-name entity))
        (~(entity-p-fn-sym entity) [~entity#]
         (= (.getKind ~entity#) ~kind#)))))
 
 (defmacro extend-object [entity]
-  (let [kind# (entity-kind-name entity)
-        entity# (symbol kind#)]    
+  (let [kind# (entity-kind-name entity) entity# (symbol kind#)]    
     `(extend-type Object
        ~(symbol (entity-protocol-name entity))
        (~(entity-p-fn-sym entity) [~entity#]
         false))))
+
+(defmacro extend-nil [entity]
+  (let [kind# (entity-kind-name entity) entity# (symbol kind#)]    
+    `(extend-type nil
+       ~(symbol (entity-protocol-name entity))
+       (~(entity-p-fn-sym entity) [~entity#]
+        false))))
+
+
 
 (defmacro defentity
   "A macro to define entitiy records.
@@ -297,6 +304,7 @@ Examples:
        (extend-parent ~entity ~parent ~properties#)
        (extend-entity ~entity)
        (extend-object ~entity)
+       (extend-nil ~entity)
 
        (extend-type Key
          ~(symbol (entity-protocol-name entity))
@@ -321,11 +329,6 @@ Examples:
                (~(entity-fn-sym entity) [~entity#]          
                 (new ~entity (~(key-fn-sym entity) ~entity#) ~kind#
                      ~@(map (fn [key#] `(~key# ~entity#)) properties#))))))
-
-       (extend-type nil
-         ~(symbol (entity-protocol-name entity))
-         (~(entity-p-fn-sym entity) [~entity#]
-          false))
 
        (defn ~(find-entities-fn-sym entity) ~(find-entities-fn-doc entity) [& ~'options]
          (select ~kind#))
