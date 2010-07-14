@@ -240,6 +240,7 @@ Examples:
         entity# (symbol (entity-kind-name entity))
         parent# (if parent (symbol (entity-kind-name parent)))
         key-fns# (extract-key-fns property-specs)
+        keys# (map first key-fns#)
         properties# (map (comp keyword first) property-specs)
         separator# "-"
         serializers# (extract-serializer property-specs)]
@@ -252,12 +253,12 @@ Examples:
          (~(key-name-fn-sym entity) [~entity#] ~(key-name-fn-doc entity))
          ~@(if parent
              `(
-               (~(key-fn-sym entity) [~parent# ~entity#] ~(key-fn-doc entity))
+               ;; (~(key-fn-sym entity) [~parent# ~entity#] ~(key-fn-doc entity))
                )
              )
          ~@(if-not parent
              `(
-               (~(key-fn-sym entity) [~entity#] ~(key-fn-doc entity))
+               ;; (~(key-fn-sym entity) [~entity#] ~(key-fn-doc entity))
                )
              )
          )
@@ -267,7 +268,8 @@ Examples:
          (~(entity-p-fn-sym entity) [~entity#]
           (= (:kind ~entity#) ~kind#))
          (~(key-name-fn-sym entity) [~entity#]          
-          (extract-key ~entity# ~key-fns#)))
+          ~(if-not (empty? keys#) `(extract-key ~entity# ~key-fns#)))
+         )
 
        (extend-type Entity
          ~(symbol (entity-protocol-name entity))
@@ -283,12 +285,20 @@ Examples:
          ~(symbol (entity-protocol-name entity))
          (~(entity-p-fn-sym entity) [~entity#]
           false))
+
+       ;; ~@(if parent
+       ;;     `(((extend-type Key
+       ;;          ~(symbol (entity-protocol-name entity))
+       ;;          (~(entity-p-fn-sym entity) [~entity#]
+       ;;           (= (.getKind ~entity#) ~kind#)))
+       ;;        )))
        
 
        (defn ~(key-fn-sym entity) ~(key-fn-doc entity) [~@(if parent '(parent & properties) '(& properties))]
          ~(if-not (empty? key-fns#)
             `(if (map? (first ~'properties))
-               (make-key ~(if parent 'parent) ~kind# (~(key-name-fn-sym entity) (first ~'properties)))
+               (if-let [key# (~(key-name-fn-sym entity) (first ~'properties))]
+                 (make-key ~(if parent 'parent) ~kind# key#))
                (~(key-fn-sym entity) ~@(if parent '(parent (apply hash-map properties)) '((apply hash-map properties)))))))
 
        (defn ~(entity-fn-sym entity) ~(entity-fn-doc entity) [~@(if parent '(parent & properties) '(& properties))]

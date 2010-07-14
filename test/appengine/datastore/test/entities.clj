@@ -20,7 +20,9 @@
    (name)))
 
 ;; (with-local-datastore
-;;   (continent-key-name {:iso-3166-alpha-2 "eu"}))
+;;   (country-key
+;;    (continent-key {:iso-3166-alpha-2 "eu"})
+;;    {:iso-3166-alpha-2 "de"}))
 
 (defentity Country (Continent)
   ((iso-3166-alpha-2 :key lower-case)
@@ -333,27 +335,6 @@
     (is (not (empty? continents)))
     (is (includes? continents europe))))
 
-;; (deftest test-generated-entity-key-name
-;;   (is (=
-;;        ;; (continent-key-name)
-;;          (continent-key-name {})
-;;          ;; (country-key-name)
-;;          (country-key-name {})
-;;          (region-key-name)
-;;          (region-key-name {})
-;;          (person-key-name :name "Roman")
-;;          (person-key-name {:name "Roman"})
-;;          nil))
-;;   (is (= (continent-key-name :iso-3166-alpha-2 "eu") 
-;;          (continent-key-name {:iso-3166-alpha-2 "eu"})
-;;          "eu"))
-;;   (is (= (country-key-name :iso-3166-alpha-2 "de")
-;;          (country-key-name {:iso-3166-alpha-2 "de"})
-;;          "de"))
-;;   (is (= (region-key-name :country-id "de" :name "Berlin")
-;;          (region-key-name {:country-id "de" :name "Berlin"})
-;;          "de-berlin")))
-
 (deftest test-entity-protocol-name
   (are [entity expected]
     (is (= (entity-protocol-name entity) expected))
@@ -364,13 +345,20 @@
     "Continent" "ContinentProtocol"))
 
 (datastore-test test-person-key
-  (is (nil? (person-key :name "Roman"))))
+  (is (= (person-key {})
+         (person-key {:name "Bob"})
+         nil)))
+
+(datastore-test test-person-key-name
+  (is (= (person-key-name {})
+         (person-key-name {:name "Bob"})
+         nil)))
 
 (datastore-test test-continent-key
-  ;; (is (= (continent-key)
-  ;;        (continent-key {})
-  ;;        nil))
-  (let [key (continent-key :iso-3166-alpha-2 "eu")]
+  (is (= (continent-key {})
+         (continent-key {:name "Europe"})
+         nil))
+  (let [key (continent-key {:iso-3166-alpha-2 "eu"})]
     (is (key? key))
     (is (.isComplete key))
     (is (nil? (.getParent key)))    
@@ -380,8 +368,17 @@
   (is (= (continent-key :iso-3166-alpha-2 "eu")
          (continent-key {:iso-3166-alpha-2 "eu"}))))
 
+(deftest test-continent-key-name
+  (is (= (continent-key-name {})
+         (continent-key-name {:name "Europe"})
+         nil))
+  (is (= (continent-key-name {:iso-3166-alpha-2 "eu"}) "eu")))
+
 (datastore-test test-country-key
   (let [continent-key (make-key "continent" "eu")]
+    (is (= (country-key continent-key {})
+           (country-key continent-key {:name "Europe"})
+           nil))
     (let [country-key (country-key continent-key :iso-3166-alpha-2 "de")]
       (is (key? country-key))
       (is (.isComplete country-key))    
@@ -392,9 +389,18 @@
     (is (= (country-key continent-key :iso-3166-alpha-2 "de")
            (country-key continent-key {:iso-3166-alpha-2 "de"})))))
 
+(deftest test-country-key-name
+  (is (= (country-key-name {})
+         (country-key-name {:name "Germany"})
+         nil))
+  (is (= (country-key-name {:iso-3166-alpha-2 "de"}) "de")))
+
 (datastore-test test-region-key
   (let [continent-key (make-key "continent" "eu")
         country-key (country-key continent-key :iso-3166-alpha-2 "de")]
+    (is (= (region-key country-key {})
+           (region-key country-key {:name "Europe"})
+           nil))
     (let [region-key (region-key country-key :country-id "de" :name "Berlin")]
       (is (key? region-key))
       (is (.isComplete region-key))    
@@ -405,6 +411,12 @@
       (is (= (.getName region-key) "de-berlin")))
     (is (= (region-key country-key :country-id "de" :name "Berlin")
            (region-key country-key {:country-id "de" :name "Berlin"})))))
+
+(deftest test-region-key-name
+  (is (= (region-key-name {})
+         (region-key-name {:latitude 1 :longitude 2})
+         nil))
+  (is (= (region-key-name {:country-id "de" :name "Berlin"}) "de-berlin")))
 
 (datastore-test test-continent
   (let [location {:latitude 54.52 :longitude 15.25}
@@ -524,18 +536,18 @@
 (datastore-test test-update
   (let [updates {:name "Asia"}]
     (are [object key-vals]
-     (do
-       (is (delete object))
-       (let [entity (update object key-vals)]
-         (doseq [[key value] key-vals]
-           (is (= (key entity) value)))
-         (is (map? entity))        
-         (is (= (select-keys entity (keys key-vals)) key-vals))        
-         (is (= (update object key-vals) entity))))
-     (europe-array-map) updates
-     (europe-entity) updates
-     (europe-hash-map) updates
-     (europe-record) updates)))
+      (do
+        (is (delete object))
+        (let [entity (update object key-vals)]
+          (doseq [[key value] key-vals]
+            (is (= (key entity) value)))
+          (is (map? entity))        
+          (is (= (select-keys entity (keys key-vals)) key-vals))        
+          (is (= (update object key-vals) entity))))
+      (europe-array-map) updates
+      (europe-entity) updates
+      (europe-hash-map) updates
+      (europe-record) updates)))
 
 (datastore-test test-update-with-location
   (let [updates {:name "Asia" :location {:latitude 1 :longitude 2}}]
