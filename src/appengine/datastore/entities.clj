@@ -5,7 +5,8 @@ immutable identifier (contained in the Key) object, a reference to an
 optional parent Entity, a kind (represented as an arbitrary string),
 and a set of zero or more typed properties." }
   appengine.datastore.entities
-  (:import (com.google.appengine.api.datastore Entity EntityNotFoundException Key))
+  (:import (com.google.appengine.api.datastore Entity EntityNotFoundException Key)
+           (clojure.lang IPersistentMap))
   (:require [appengine.datastore.service :as datastore]
             [appengine.datastore.types :as types])
   (:use [clojure.contrib.string :only (blank? join lower-case replace-str)]
@@ -168,9 +169,9 @@ Examples:
   (fn [entity] (.getKind entity)))
 
 (defmethod deserialize-entity :default [entity]
-  (reduce #(assoc %1 (keyword (key %2)) (val %2))
-	  (merge {:kind (.getKind entity) :key (.getKey entity)})
-	  (.entrySet (.getProperties entity))))
+           (reduce #(assoc %1 (keyword (key %2)) (val %2))
+                   (merge {:kind (.getKind entity) :key (.getKey entity)})
+                   (.entrySet (.getProperties entity))))
 
 (defmulti serialize-entity
   "Converts a map into an entity. The kind of the entity is determined
@@ -192,9 +193,9 @@ Examples:
       (:kind map))))
 
 (defmethod serialize-entity :default [map]
-  (reduce #(.setProperty %1 (stringify (first %2)) (deserialize (second %2)))
-          (Entity. (or (:key map) (:kind map)))
-          (dissoc map :key :kind)))
+           (reduce #(.setProperty %1 (stringify (first %2)) (deserialize (second %2)))
+                   (Entity. (or (:key map) (:kind map)))
+                   (dissoc map :key :kind)))
 
 (defn deserialize-property
   "Deserialize the property value with the deserializer."
@@ -256,36 +257,6 @@ Examples:
          (~(key-name-fn-sym entity) [~entity#] ~(key-name-fn-doc entity))
          (~(key-fn-sym entity)      [~@arglist#] ~(key-fn-doc entity))
          (~(entity-fn-sym entity)   [~@arglist#] ~(entity-fn-doc entity))
-         ~@(if-not parent
-             `(
-               ;; (~(key-fn-sym entity) [~parent# ~entity#] ~(key-fn-doc entity))
-               )
-             )
-         ~@(if-not parent
-             `(
-               ;; (~(key-fn-sym entity) [~entity#] ~(key-fn-doc entity))
-               )
-             )
-         )
-
-       (extend-type clojure.lang.IPersistentMap
-         ~(symbol (entity-protocol-name entity))
-         (~(entity-p-fn-sym entity) [~entity#]
-          (= (:kind ~entity#) ~kind#))
-         (~(key-name-fn-sym entity) [~entity#]          
-          (extract-key ~entity# ~key-fns#))
-         ~@(if-not parent
-             `(
-               (~(key-fn-sym entity) [~entity#]          
-                (if-let [~'key (~(key-name-fn-sym entity) ~entity#)]
-                  (make-key nil ~kind# ~'key)))
-               (~(entity-fn-sym entity) [~entity#]          
-                (new ~entity (~(key-fn-sym entity) ~entity#) ~kind#
-                     ~@(map (fn [key#] `(~key# ~entity#)) properties#)))
-               
-               ;; (~(key-fn-sym entity) [~parent# ~entity#] ~(key-fn-doc entity))
-               )
-             )
          )
 
        ~(if parent
@@ -296,12 +267,7 @@ Examples:
                 (make-key ~parent# ~kind# ~'key)))
              (~(entity-fn-sym entity) [~parent# ~entity#]          
               (new ~entity (~(key-fn-sym entity) ~parent# ~entity#) ~kind#
-                   ~@(map (fn [key#] `(~key# ~entity#)) properties#)))
-               
-             ;; (~(key-fn-sym entity) [~parent# ~entity#] ~(key-fn-doc entity))
-               
-                          
-             ))       
+                   ~@(map (fn [key#] `(~key# ~entity#)) properties#)))))       
 
        (extend-type Entity
          ~(symbol (entity-protocol-name entity))
@@ -311,17 +277,26 @@ Examples:
        (extend-type Key
          ~(symbol (entity-protocol-name entity))
          ~@(if parent
-             `(
-               (~(key-fn-sym entity) [~parent# ~entity#]          
+             `((~(key-fn-sym entity) [~parent# ~entity#]          
                 (if-let [~'key (~(key-name-fn-sym entity) ~entity#)]
                   (make-key ~parent# ~kind# ~'key)))
                (~(entity-fn-sym entity) [~parent# ~entity#]          
                 (new ~entity (~(key-fn-sym entity) ~parent# ~entity#) ~kind#
-                     ~@(map (fn [key#] `(~key# ~entity#)) properties#)))
-               ;; (~(key-fn-sym entity) [~parent# ~entity#] ~(key-fn-doc entity))
-               )
-             )
-         )
+                     ~@(map (fn [key#] `(~key# ~entity#)) properties#))))))
+
+       (extend-type IPersistentMap
+         ~(symbol (entity-protocol-name entity))
+         (~(entity-p-fn-sym entity) [~entity#]
+          (= (:kind ~entity#) ~kind#))
+         (~(key-name-fn-sym entity) [~entity#]          
+          (extract-key ~entity# ~key-fns#))
+         ~@(if-not parent
+             `((~(key-fn-sym entity) [~entity#]          
+                (if-let [~'key (~(key-name-fn-sym entity) ~entity#)]
+                  (make-key nil ~kind# ~'key)))
+               (~(entity-fn-sym entity) [~entity#]          
+                (new ~entity (~(key-fn-sym entity) ~entity#) ~kind#
+                     ~@(map (fn [key#] `(~key# ~entity#)) properties#))))))
 
        (extend-type Object
          ~(symbol (entity-protocol-name entity))
@@ -331,37 +306,7 @@ Examples:
        (extend-type nil
          ~(symbol (entity-protocol-name entity))
          (~(entity-p-fn-sym entity) [~entity#]
-          false)
-         ;; ~@(if parent
-         ;;     `(
-         ;;       (~(key-fn-sym entity) [~parent# & ~entity#] nil
-         ;;        )
-         ;;       ;; (~(key-fn-sym entity) [~parent# ~entity#] ~(key-fn-doc entity))
-         ;;       )
-         ;;     )
-         )
-
-       ;; ~@(if parent
-       ;;     `(((extend-type Key
-       ;;          ~(symbol (entity-protocol-name entity))
-       ;;          (~(entity-p-fn-sym entity) [~entity#]
-       ;;           (= (.getKind ~entity#) ~kind#)))
-       ;;        )))
-       
-
-       ;; (defn ~(key-fn-sym entity) ~(key-fn-doc entity) [~@(if parent '(parent & properties) '(& properties))]
-       ;;   ~(if-not (empty? key-fns#)
-       ;;      `(if (map? (first ~'properties))
-       ;;         (if-let [key# (~(key-name-fn-sym entity) (first ~'properties))]
-       ;;           (make-key ~(if parent 'parent) ~kind# key#))
-       ;;         (~(key-fn-sym entity) ~@(if parent '(parent (apply hash-map properties)) '((apply hash-map properties)))))))
-
-       ;; (defn ~(entity-fn-sym entity) ~(entity-fn-doc entity) [~@(if parent '(parent & properties) '(& properties))]
-       ;;   (let [~'properties (apply hash-map ~'properties)]
-       ;;     (new ~entity
-       ;;          (apply ~(key-fn-sym entity) ~@(if parent '(parent (flatten (seq properties))) '((flatten (seq properties)))))
-       ;;          ~kind#
-       ;;          ~@(map (fn [key#] `(~key# ~'properties)) properties#))))
+          false))
 
        (defn ~(find-entities-fn-sym entity) ~(find-entities-fn-doc entity) [& ~'options]
          (select ~kind#))
@@ -373,20 +318,20 @@ Examples:
               (select ~kind# ~'where (= ~property# (types/serialize ~(property# serializers#) ~'value)))))
 
        (defmethod ~'deserialize-entity ~kind# [~'entity]
-         (new ~entity
-              (.getKey ~'entity)
-              (.getKind ~'entity)
-              ~@(for [property# properties#]
-                  `(deserialize-property
-                    (.getProperty ~'entity ~(stringify property#))
-                    ~(property# deserializers#)))))
+                  (new ~entity
+                       (.getKey ~'entity)
+                       (.getKind ~'entity)
+                       ~@(for [property# properties#]
+                           `(deserialize-property
+                             (.getProperty ~'entity ~(stringify property#))
+                             ~(property# deserializers#)))))
 
        (defmethod ~'serialize-entity ~kind# [~'map]
-         (doto (Entity. (or (:key ~'map) (:kind ~'map)))
-           ~@(for [property# properties#]
-               `(.setProperty
-                 ~(stringify property#)
-                 (serialize-property (~property# ~'map) ~(property# deserializers#)))))))))
+                  (doto (Entity. (or (:key ~'map) (:kind ~'map)))
+                    ~@(for [property# properties#]
+                        `(.setProperty
+                          ~(stringify property#)
+                          (serialize-property (~property# ~'map) ~(property# deserializers#)))))))))
 
 (extend-type Entity
   Record
