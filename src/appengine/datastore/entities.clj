@@ -19,13 +19,32 @@ and a set of zero or more typed properties." }
         inflections))
 
 (defn- extract-values
-  "Extract the key values from the record."
-  [record keys & options]
+  "Extract the attributes of the record that are used to build the
+entity key. The key-fns argument must be a sequence of key/fn
+pairs. The key is used to extract the value, and the fn will be
+applied to the value if it is not nil. If fn is true, the value is
+returned without transformation.
+
+Examples:
+
+  (extract-values {} [[:iso-3166-alpha-2 true] [:name lower-case]])
+  ; => (nil nil)
+
+  (extract-values
+    {:iso-3166-alpha-2 \"eu\" :name \"Europe\"}
+   [[:iso-3166-alpha-2 true] [:name lower-case]])
+  ; => (\"eu\" \"europe\")
+"
+  [record key-fns & options]
   (map (fn [[key key-fn]]
          (if-let [value (get record key)]
            (if (fn? key-fn)
              (key-fn value) value)))
-       keys))
+       key-fns))
+
+(extract-values
+ {}
+ [[:iso-3166-alpha-2 true] [:name lower-case]])
 
 (defn extract-key
   "Extract the key from the record."
@@ -214,84 +233,84 @@ Examples:
         :else value))
 
 (defn- define-protocol [entity parent]
-  (let [entity# (symbol (entity-kind-name entity))
-        parent# (if parent (symbol (entity-kind-name parent)))
-        arglist# (if parent `(~parent# ~entity#) `(~entity#))]
+  (let [entity-sym (symbol (entity-kind-name entity))
+        parent-sym (if parent (symbol (entity-kind-name parent)))
+        arglist (if parent `(~parent-sym ~entity-sym) `(~entity-sym))]
     `(defprotocol ~(symbol (entity-protocol-name entity))
-       (~(entity-p-fn-sym entity) [~entity#] ~(entity-p-fn-doc entity))
-       (~(key-name-fn-sym entity) [~entity#] ~(key-name-fn-doc entity))
-       (~(key-fn-sym entity)      [~@arglist#] ~(key-fn-doc entity))
-       (~(entity-fn-sym entity)   [~@arglist#] ~(entity-fn-doc entity)))))
+       (~(entity-p-fn-sym entity) [~entity-sym] ~(entity-p-fn-doc entity))
+       (~(key-name-fn-sym entity) [~entity-sym] ~(key-name-fn-doc entity))
+       (~(key-fn-sym entity)      [~@arglist] ~(key-fn-doc entity))
+       (~(entity-fn-sym entity)   [~@arglist] ~(entity-fn-doc entity)))))
 
 (defn- define-record [entity properties]
   `(defrecord ~entity [~'key ~'kind ~@properties]))
 
 (defn- extend-entity [entity]
-  (let [kind# (entity-kind-name entity) entity# (symbol kind#)]    
+  (let [kind# (entity-kind-name entity) entity-sym (symbol kind#)]    
     `(extend-type Entity
        ~(symbol (entity-protocol-name entity))
-       (~(entity-p-fn-sym entity) [~entity#]
-        (= (.getKind ~entity#) ~kind#)))))
+       (~(entity-p-fn-sym entity) [~entity-sym]
+        (= (.getKind ~entity-sym) ~kind#)))))
 
 (defn- extend-key [entity parent properties]
   (let [kind# (entity-kind-name entity)
-        entity# (symbol kind#)
-        parent# (if parent (symbol (entity-kind-name parent)))]
+        entity-sym (symbol kind#)
+        parent-sym (if parent (symbol (entity-kind-name parent)))]
     `(extend-type Key
        ~(symbol (entity-protocol-name entity))
        ~@(if parent
-           `((~(key-fn-sym entity) [~parent# ~entity#]          
-              (if-let [~'key (~(key-name-fn-sym entity) ~entity#)]
-                (make-key ~parent# ~kind# ~'key)))
-             (~(entity-fn-sym entity) [~parent# ~entity#]          
-              (new ~entity (~(key-fn-sym entity) ~parent# ~entity#) ~kind#
-                   ~@(map (fn [key#] `(~key# ~entity#)) properties))))))))
+           `((~(key-fn-sym entity) [~parent-sym ~entity-sym]          
+              (if-let [~'key (~(key-name-fn-sym entity) ~entity-sym)]
+                (make-key ~parent-sym ~kind# ~'key)))
+             (~(entity-fn-sym entity) [~parent-sym ~entity-sym]          
+              (new ~entity (~(key-fn-sym entity) ~parent-sym ~entity-sym) ~kind#
+                   ~@(map (fn [key#] `(~key# ~entity-sym)) properties))))))))
 
 (defn- extend-nil [entity]
-  (let [kind# (entity-kind-name entity) entity# (symbol kind#)]    
+  (let [kind# (entity-kind-name entity) entity-sym (symbol kind#)]    
     `(extend-type nil
        ~(symbol (entity-protocol-name entity))
-       (~(entity-p-fn-sym entity) [~entity#]
+       (~(entity-p-fn-sym entity) [~entity-sym]
         false))))
 
 (defn- extend-object [entity]
-  (let [kind# (entity-kind-name entity) entity# (symbol kind#)]    
+  (let [kind# (entity-kind-name entity) entity-sym (symbol kind#)]    
     `(extend-type Object
        ~(symbol (entity-protocol-name entity))
-       (~(entity-p-fn-sym entity) [~entity#]
+       (~(entity-p-fn-sym entity) [~entity-sym]
         false))))
 
 (defn- extend-parent [entity parent properties]
   (let [kind# (entity-kind-name entity)
-        entity# (symbol kind#)
-        parent# (if parent (symbol (entity-kind-name parent)))]
+        entity-sym (symbol kind#)
+        parent-sym (if parent (symbol (entity-kind-name parent)))]
     (if parent
       `(extend-type ~parent
          ~(symbol (entity-protocol-name entity))
-         (~(key-fn-sym entity) [~parent# ~entity#]          
-          (if-let [~'key (~(key-name-fn-sym entity) ~entity#)]
-            (make-key ~parent# ~kind# ~'key)))
-         (~(entity-fn-sym entity) [~parent# ~entity#]          
-          (new ~entity (~(key-fn-sym entity) ~parent# ~entity#) ~kind#
-               ~@(map (fn [key#] `(~key# ~entity#)) properties)))))))
+         (~(key-fn-sym entity) [~parent-sym ~entity-sym]          
+          (if-let [~'key (~(key-name-fn-sym entity) ~entity-sym)]
+            (make-key ~parent-sym ~kind# ~'key)))
+         (~(entity-fn-sym entity) [~parent-sym ~entity-sym]          
+          (new ~entity (~(key-fn-sym entity) ~parent-sym ~entity-sym) ~kind#
+               ~@(map (fn [key#] `(~key# ~entity-sym)) properties)))))))
 
 (defn- extend-persistent-map [entity parent properties key-fns]
   (let [kind# (entity-kind-name entity)
-        entity# (symbol kind#)
-        parent# (if parent (symbol (entity-kind-name parent)))]
+        entity-sym (symbol kind#)
+        parent-sym (if parent (symbol (entity-kind-name parent)))]
     `(extend-type IPersistentMap
        ~(symbol (entity-protocol-name entity))
-       (~(entity-p-fn-sym entity) [~entity#]
-        (= (:kind ~entity#) ~kind#))
-       (~(key-name-fn-sym entity) [~entity#]          
-        (extract-key ~entity# ~key-fns))
+       (~(entity-p-fn-sym entity) [~entity-sym]
+        (= (:kind ~entity-sym) ~kind#))
+       (~(key-name-fn-sym entity) [~entity-sym]          
+        (extract-key ~entity-sym ~key-fns))
        ~@(if-not parent
-           `((~(key-fn-sym entity) [~entity#]          
-              (if-let [~'key (~(key-name-fn-sym entity) ~entity#)]
+           `((~(key-fn-sym entity) [~entity-sym]          
+              (if-let [~'key (~(key-name-fn-sym entity) ~entity-sym)]
                 (make-key nil ~kind# ~'key)))
-             (~(entity-fn-sym entity) [~entity#]          
-              (new ~entity (~(key-fn-sym entity) ~entity#) ~kind#
-                   ~@(map (fn [key#] `(~key# ~entity#)) properties))))))))
+             (~(entity-fn-sym entity) [~entity-sym]          
+              (new ~entity (~(key-fn-sym entity) ~entity-sym) ~kind#
+                   ~@(map (fn [key#] `(~key# ~entity-sym)) properties))))))))
 
 (defmacro defentity
   "A macro to define entitiy records.
