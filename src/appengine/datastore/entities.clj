@@ -52,13 +52,12 @@ if all key values are present in the record.
 
 Examples:
 
-  (extract-key
-   {:iso-3166-alpha-2 \"eu\" :name \"Europe\"}
-   [[:iso-3166-alpha-2 true] [:name lower-case]])
+  (extract-key {:iso-3166-alpha-2 \"eu\" :name \"Europe\"}
+               [[:iso-3166-alpha-2 true] [:name lower-case]])
   ; => \"eu-europe\"
 
   (extract-key {:iso-3166-alpha-2 \"eu\"}
-   [[:iso-3166-alpha-2 true] [:name lower-case]])
+               [[:iso-3166-alpha-2 true] [:name lower-case]])
   ; => nil
 "
   [record key-fns & {:keys [separator]}]
@@ -66,24 +65,36 @@ Examples:
     (if (and (not (empty? values)) (every? (comp not nil?) values))
       (join (or separator "-") values))))
 
-(defn- extract-properties [property-specs]
+(defn- extract-properties
+  "Extract the properties from the property specification."
+  [property-specs]
   (reduce
    #(assoc %1 (keyword (first %2)) (apply hash-map (rest %2)))
    (array-map) (reverse property-specs)))
 
-(defn- extract-option [property-specs option]
+(defn- extract-option
+  "Extract the option from the property specification."
+  [property-specs option]
   (let [properties (extract-properties property-specs)]
     (reduce
      #(if-let [value (option (%2 properties))] (assoc %1 %2 value) %1)
      (array-map) (reverse (keys properties)))))
 
-(defn- extract-key-fns [property-specs]
+(defn- extract-key-fns
+  "Extract the key fns from the property specification."
+  [property-specs]
   (apply vector (seq (extract-option property-specs :key))))
 
-(defn- extract-serializer [property-specs]
+(defn- extract-serializer
+  "Extract the property serialization fns from the property
+  specification."
+  [property-specs]
   (apply hash-map (flat-seq (extract-option property-specs :serialize))))
 
-(defn- extract-deserializer [property-specs]
+(defn- extract-deserializer
+  "Extract the property deserialization fns from the property
+  specification."
+  [property-specs]
   (apply hash-map (flat-seq (merge (extract-option property-specs :serialize)
                                    (extract-option property-specs :deserialize)))))
 
@@ -131,11 +142,16 @@ Examples:
   [arg] (isa? (class arg) Entity))
 
 (defn entity-kind-name
-  "Returns the kind of the entity as a string."
-  [record] (if record (pr-str record)))
+  "Returns the kind of the entity as a string.
 
-(defn entity-kind-name
-  "Returns the kind of the entity as a string."
+Examples:
+
+  (entity-kind-name 'Continent)
+  ; => \"continent\"
+
+  (entity-kind-name 'CountryFlag)
+  ; => \"country-flag\"
+"
   [record] (if record (hyphenize (demodulize record))))
 
 (defn entity-protocol-name
