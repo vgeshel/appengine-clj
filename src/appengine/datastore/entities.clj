@@ -21,21 +21,21 @@ and a set of zero or more typed properties." }
 (defn- extract-values
   "Extract the attributes of the record that are used to build the
 entity key. The key-fns argument must be a sequence of key/fn
-pairs. The key is used to extract the value, and the fn will be
-applied to the value if it is not nil. If fn is true, the value is
-returned without transformation.
+pairs. The key is used to extract the value, and fn will be applied to
+the value if it is not nil. If fn is true, the value is returned
+without transformation.
 
 Examples:
-
-  (extract-values {} [[:iso-3166-alpha-2 true] [:name lower-case]])
-  ; => (nil nil)
 
   (extract-values
     {:iso-3166-alpha-2 \"eu\" :name \"Europe\"}
    [[:iso-3166-alpha-2 true] [:name lower-case]])
   ; => (\"eu\" \"europe\")
+
+  (extract-values {} [[:iso-3166-alpha-2 true] [:name lower-case]])
+  ; => (nil nil)
 "
-  [record key-fns & options]
+  [record key-fns]
   (map (fn [[key key-fn]]
          (if-let [value (get record key)]
            (if (fn? key-fn)
@@ -43,11 +43,28 @@ Examples:
        key-fns))
 
 (defn extract-key
-  "Extract the key from the record."
-  [record keys & options]  
-  (let [values (extract-values record keys options)]
+  "Extract the entity key from record. The key-fns argument must be a
+sequence of key/fn pairs. The key is used to extract the value, and fn
+will be applied to the value if it is not nil. If fn is true, the
+value is returned without transformation. The values will be joined by
+\"-\" or the separator specified. The fn returns the entity key only
+if all key values are present in the record.
+
+Examples:
+
+  (extract-key
+   {:iso-3166-alpha-2 \"eu\" :name \"Europe\"}
+   [[:iso-3166-alpha-2 true] [:name lower-case]])
+  ; => \"eu-europe\"
+
+  (extract-key {:iso-3166-alpha-2 \"eu\"}
+   [[:iso-3166-alpha-2 true] [:name lower-case]])
+  ; => nil
+"
+  [record key-fns & {:keys [separator]}]
+  (let [values (extract-values record key-fns)]
     (if (and (not (empty? values)) (every? (comp not nil?) values))
-      (join "-" values))))
+      (join (or separator "-") values))))
 
 (defn- extract-properties [property-specs]
   (reduce
