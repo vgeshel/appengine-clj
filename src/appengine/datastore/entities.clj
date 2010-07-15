@@ -42,10 +42,6 @@ Examples:
              (key-fn value) value)))
        key-fns))
 
-(extract-values
- {}
- [[:iso-3166-alpha-2 true] [:name lower-case]])
-
 (defn extract-key
   "Extract the key from the record."
   [record keys & options]  
