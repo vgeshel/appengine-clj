@@ -86,7 +86,7 @@ by <span id="author">John D. Hume</span><br />
 </pre>
   <pre id="var-docstr">If the user is logged in, this method will return a User that
 contains information about them.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/4f9a6f284739bf327eef39a91f24f36447779ed5/src/appengine/users.clj#L20" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -95,7 +95,7 @@ contains information about them.</pre>
   <pre id="var-usage">Usage: (login-url destination-url &amp; [auth-domain federated-identity attributes-request])
 </pre>
   <pre id="var-docstr">Returns an URL that can be used to display a login page to the user.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/4f9a6f284739bf327eef39a91f24f36447779ed5/src/appengine/users.clj#L25" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -104,7 +104,7 @@ contains information about them.</pre>
   <pre id="var-usage">Usage: (logout-url destination-url &amp; [auth-domain])
 </pre>
   <pre id="var-docstr"> Returns an URL that can be used to log the current user out.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/4f9a6f284739bf327eef39a91f24f36447779ed5/src/appengine/users.clj#L31" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -113,7 +113,7 @@ contains information about them.</pre>
   <pre id="var-usage">Usage: (user-&gt;map user)
 </pre>
   <pre id="var-docstr">Converts a user object into a map.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/4f9a6f284739bf327eef39a91f24f36447779ed5/src/appengine/users.clj#L10" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -125,7 +125,7 @@ contains information about them.</pre>
   <pre id="var-docstr">With no arguments, returns a UserService and User for the current request in a map keyed by :user-service and :user respectively.
 If the user is not logged in, :user will be nil.
 With a single map argument, a Ring request, returns the user-info map associated with the request by wrap-with-user-info.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/4f9a6f284739bf327eef39a91f24f36447779ed5/src/appengine/users.clj#L36" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -134,7 +134,7 @@ With a single map argument, a Ring request, returns the user-info map associated
   <pre id="var-usage">Usage: (user-service)
 </pre>
   <pre id="var-docstr">Returns the user service.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/4f9a6f284739bf327eef39a91f24f36447779ed5/src/appengine/users.clj#L6" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -144,7 +144,7 @@ With a single map argument, a Ring request, returns the user-info map associated
 </pre>
   <pre id="var-docstr">Ring middleware method that wraps an application so that every request will have
 a user-info map assoc'd to the request under the key :appengine/user-info.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/4f9a6f284739bf327eef39a91f24f36447779ed5/src/appengine/users.clj#L44" id="var-source">Source</a>
 </div>
 
 

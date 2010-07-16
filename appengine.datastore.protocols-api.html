@@ -1,0 +1,251 @@
+<html>
+  <head>
+    <title>appengine.datastore.protocols API reference (Clojure for Google App Engine)</title>
+    <link href="static/favicon.png" rel="icon" />
+    <link href="static/favicon.png" rel="shortcut icon" />
+    <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
+    <link media="all" type="text/css" href="static/wiki.css" rel="stylesheet" />
+    <link media="all" type="text/css" href="static/internal.css" rel="stylesheet" />
+    <!-- TODO: are we using these (from clojure.org)? If so, add the files -->
+    <script src="file/view/code_highlighter.js" type="text/javascript"></script>
+    <script src="file/view/clojure.js" type="text/javascript"></script>
+    <style>.menuWrapper{height: 36px;}</style>
+    <!--[if lte IE 6]>
+    <link rel="stylesheet" href="http://www.wikispaces.com/_/2009051601/s/internal_ie.css" type="text/css" />
+    <![endif]-->
+  </head>
+<!--
+This document was auto-generated from the source by the clojure autodoc system.
+To report errors or ask questions about the overall documentation structure, formatting,
+etc., contact Tom Faulhaber (google mail name: tomfaulhaber).
+For errors in the documentation of a particular namespace, contact the author of that
+namespace.
+-->
+  <body>
+    <div id="AllContentContainer">
+      <div id="Header">
+	<a id="Logo" href="index.html"><img alt="Clojure" height="100" width="100" src="static/appengine-100x100.png" /></a>
+	<h1><a title="page header title" id="page-header" href="index.html">Clojure for Google App Engine</a></h1>
+      </div>
+      <div id="leftcolumn"><div style="text-align: center;"></div>
+<div class="menu">
+  <div class="WikiCustomNav WikiElement wiki">
+    <a class="wiki_link" href="index.html">Overview</a><br />
+    <a class="wiki_link" href="api-index.html">API Index</a><br />
+    <a class="wiki_link" href="#">Namespaces:</a>
+    <ul id="left-sidebar-list">
+      <li><a href="appengine.datastore.entities-api.html" class="wiki_link">appengine.datastore.entities</a></li><li><a href="appengine.datastore.keys-api.html" class="wiki_link">appengine.datastore.keys</a></li><li><a href="appengine.datastore.protocols-api.html" class="wiki_link">appengine.datastore.protocols</a></li><li><a href="appengine.datastore.query-api.html" class="wiki_link">appengine.datastore.query</a></li><li><a href="appengine.datastore.service-api.html" class="wiki_link">appengine.datastore.service</a></li><li><a href="appengine.datastore.transactions-api.html" class="wiki_link">appengine.datastore.transactions</a></li><li><a href="appengine.datastore.types-api.html" class="wiki_link">appengine.datastore.types</a></li><li><a href="appengine.datastore.utils-api.html" class="wiki_link">appengine.datastore.utils</a></li><li><a href="appengine.environment-api.html" class="wiki_link">appengine.environment</a></li><li><a href="appengine.memcache-api.html" class="wiki_link">appengine.memcache</a></li><li><a href="appengine.server-api.html" class="wiki_link">appengine.server</a></li><li><a href="appengine.taskqueue-api.html" class="wiki_link">appengine.taskqueue</a></li><li><a href="appengine.test-api.html" class="wiki_link">appengine.test</a></li><li><a href="appengine.urlfetch-api.html" class="wiki_link">appengine.urlfetch</a></li><li><a href="appengine.users-api.html" class="wiki_link">appengine.users</a></li><li><a href="appengine.utils-api.html" class="wiki_link">appengine.utils</a></li>
+    </ul>
+  </div>
+</div>
+</div>
+      <div id="rightcolumn">
+	<div id="Content">
+	  <div class="contentBox"><div class="innerContentBox">
+              <div id="content_view" class="wiki wikiPage">
+                <div id="right-sidebar"><div id="toc">
+  <h1 class="nopad">Table of Contents</h1>
+  <div style="margin-left: 1em;" class="toc-section">
+    <a href="#toc0">Overview</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/after-create">after-create</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/after-save">after-save</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/after-validation">after-validation</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/after-validation-on-create">after-validation-on-create</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/before-create">before-create</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/before-save">before-save</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/before-validation">before-validation</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/before-validation-on-create">before-validation-on-create</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/create-entity">create-entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/delete-entity">delete-entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/deserialize">deserialize</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/find-entity">find-entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/save-entity">save-entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/serialize">serialize</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.protocols/update-entity">update-entity</a>
+    </div>
+    <br />
+  </div>
+</div>
+</div>
+                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">appengine.datastore.protocols</span></h1>
+by <span id="author">Roman Scherer</span><br />
+<br />Usage:
+<pre>
+(ns your-namespace
+  (:require <span id="long-name">appengine.datastore.protocols</span>))
+</pre><pre>
+</pre><h2>Overview</h2>
+<pre id="namespace-docstr">The datastore protocols.</pre>
+<br />
+<h2>Public Variables and Functions</h2>
+<div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/after-create">after-create</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (after-create record)
+</pre>
+  <pre id="var-docstr">Callback fns to evaluate after creating the record.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/after-save">after-save</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (after-save record)
+</pre>
+  <pre id="var-docstr">Callback fns to evaluate after saving the record.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/after-validation">after-validation</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (after-validation record)
+</pre>
+  <pre id="var-docstr">Callback fns to evaluate after validation.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/after-validation-on-create">after-validation-on-create</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (after-validation-on-create record)
+</pre>
+  <pre id="var-docstr">Callback fns to evaluate after validating a new record.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/before-create">before-create</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (before-create record)
+</pre>
+  <pre id="var-docstr">Callback fns to evaluate before creating the record.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/before-save">before-save</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (before-save record)
+</pre>
+  <pre id="var-docstr">Callback fns to evaluate before saving the record.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/before-validation">before-validation</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (before-validation record)
+</pre>
+  <pre id="var-docstr">Callback fns to evaluate before validating the record.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/before-validation-on-create">before-validation-on-create</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (before-validation-on-create record)
+</pre>
+  <pre id="var-docstr">Callback fns to evaluate before validating a new record.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/create-entity">create-entity</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (create-entity entity)
+</pre>
+  <pre id="var-docstr">Create new entity in the datastore. If the entity already exists,
+the functions throws an exception.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/delete-entity">delete-entity</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (delete-entity entity)
+</pre>
+  <pre id="var-docstr">Delete the entity from the datastore.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/deserialize">deserialize</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (deserialize object)
+</pre>
+  <pre id="var-docstr">Deserialize an object into a clojure data structure.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/find-entity">find-entity</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (find-entity entity)
+</pre>
+  <pre id="var-docstr">Find the entity from the datastore.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/save-entity">save-entity</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (save-entity entity)
+</pre>
+  <pre id="var-docstr">Save the entity in the datastore.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/serialize">serialize</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (serialize entity)
+</pre>
+  <pre id="var-docstr">Serialize the entity into an entity.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.protocols/update-entity">update-entity</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (update-entity entity key-vals)
+</pre>
+  <pre id="var-docstr">Update the entity with the key-vals and save it in the
+datastore.</pre>
+  
+</div>
+
+
+</div>
+              </div>
+            </div>
+          </div>
+	</div>
+	<div id="foot">
+	  <div style="text-align: center;" id="copyright">Copyright (c) 2009, 2010 John D. Hume, Roman Scherer, Jean-Denis Greze, E.Fukamachi</div>
+	</div>
+      </div>
+      <div id="DesignedBy">Logo &amp; site design by <a title="Visit Tom Hickey's website." href="http://www.tomhickey.com">Tom Hickey</a>.<br />
+      Clojure auto-documentation system by Tom Faulhaber.</div>
+    </div>
+    <!-- /AllContentContainer -->
+  </body>
+
+</html>

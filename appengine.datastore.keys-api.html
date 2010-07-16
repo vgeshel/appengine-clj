@@ -1,0 +1,160 @@
+<html>
+  <head>
+    <title>appengine.datastore.keys API reference (Clojure for Google App Engine)</title>
+    <link href="static/favicon.png" rel="icon" />
+    <link href="static/favicon.png" rel="shortcut icon" />
+    <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
+    <link media="all" type="text/css" href="static/wiki.css" rel="stylesheet" />
+    <link media="all" type="text/css" href="static/internal.css" rel="stylesheet" />
+    <!-- TODO: are we using these (from clojure.org)? If so, add the files -->
+    <script src="file/view/code_highlighter.js" type="text/javascript"></script>
+    <script src="file/view/clojure.js" type="text/javascript"></script>
+    <style>.menuWrapper{height: 36px;}</style>
+    <!--[if lte IE 6]>
+    <link rel="stylesheet" href="http://www.wikispaces.com/_/2009051601/s/internal_ie.css" type="text/css" />
+    <![endif]-->
+  </head>
+<!--
+This document was auto-generated from the source by the clojure autodoc system.
+To report errors or ask questions about the overall documentation structure, formatting,
+etc., contact Tom Faulhaber (google mail name: tomfaulhaber).
+For errors in the documentation of a particular namespace, contact the author of that
+namespace.
+-->
+  <body>
+    <div id="AllContentContainer">
+      <div id="Header">
+	<a id="Logo" href="index.html"><img alt="Clojure" height="100" width="100" src="static/appengine-100x100.png" /></a>
+	<h1><a title="page header title" id="page-header" href="index.html">Clojure for Google App Engine</a></h1>
+      </div>
+      <div id="leftcolumn"><div style="text-align: center;"></div>
+<div class="menu">
+  <div class="WikiCustomNav WikiElement wiki">
+    <a class="wiki_link" href="index.html">Overview</a><br />
+    <a class="wiki_link" href="api-index.html">API Index</a><br />
+    <a class="wiki_link" href="#">Namespaces:</a>
+    <ul id="left-sidebar-list">
+      <li><a href="appengine.datastore.entities-api.html" class="wiki_link">appengine.datastore.entities</a></li><li><a href="appengine.datastore.keys-api.html" class="wiki_link">appengine.datastore.keys</a></li><li><a href="appengine.datastore.protocols-api.html" class="wiki_link">appengine.datastore.protocols</a></li><li><a href="appengine.datastore.query-api.html" class="wiki_link">appengine.datastore.query</a></li><li><a href="appengine.datastore.service-api.html" class="wiki_link">appengine.datastore.service</a></li><li><a href="appengine.datastore.transactions-api.html" class="wiki_link">appengine.datastore.transactions</a></li><li><a href="appengine.datastore.types-api.html" class="wiki_link">appengine.datastore.types</a></li><li><a href="appengine.datastore.utils-api.html" class="wiki_link">appengine.datastore.utils</a></li><li><a href="appengine.environment-api.html" class="wiki_link">appengine.environment</a></li><li><a href="appengine.memcache-api.html" class="wiki_link">appengine.memcache</a></li><li><a href="appengine.server-api.html" class="wiki_link">appengine.server</a></li><li><a href="appengine.taskqueue-api.html" class="wiki_link">appengine.taskqueue</a></li><li><a href="appengine.test-api.html" class="wiki_link">appengine.test</a></li><li><a href="appengine.urlfetch-api.html" class="wiki_link">appengine.urlfetch</a></li><li><a href="appengine.users-api.html" class="wiki_link">appengine.users</a></li><li><a href="appengine.utils-api.html" class="wiki_link">appengine.utils</a></li>
+    </ul>
+  </div>
+</div>
+</div>
+      <div id="rightcolumn">
+	<div id="Content">
+	  <div class="contentBox"><div class="innerContentBox">
+              <div id="content_view" class="wiki wikiPage">
+                <div id="right-sidebar"><div id="toc">
+  <h1 class="nopad">Table of Contents</h1>
+  <div style="margin-left: 1em;" class="toc-section">
+    <a href="#toc0">Overview</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.keys/key-&gt;string">key-&gt;string</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.keys/key?">key?</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.keys/make-key">make-key</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.keys/string-&gt;key">string-&gt;key</a>
+    </div>
+    <br />
+  </div>
+</div>
+</div>
+                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">appengine.datastore.keys</span></h1>
+by <span id="author">Roman Scherer</span><br />
+<br />Usage:
+<pre>
+(ns your-namespace
+  (:require <span id="long-name">appengine.datastore.keys</span>))
+</pre><pre>
+</pre><h2>Overview</h2>
+<pre id="namespace-docstr">Allows you to create arbitrary Key objects in the root
+     group (no parent).
+
+     Also allows you to encode Key objects to and decode them from
+strings. Clients should not make any assumptions about this return
+value, except that it is a websafe string that does not need to be
+quoted when used in HTML or in URLs.</pre>
+<br />
+<h2>Public Variables and Functions</h2>
+<div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.keys/key-&gt;string">key-&gt;string</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (key-&gt;string key)
+</pre>
+  <pre id="var-docstr">Returns a "websafe" string from the given Key.
+
+Examples:
+
+  (key-&gt;string (make-key "continent" "eu"))
+  ; =&gt; "agR0ZXN0chELEgljb250aW5lbnQiAmV1DA"
+
+  (key-&gt;string (make-key (make-key "continent" "eu") "country" "de")
+  ; =&gt; "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA"</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.keys/key?">key?</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (key? arg)
+</pre>
+  <pre id="var-docstr">Returns true if arg is a Key, else false.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.keys/make-key">make-key</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (make-key kind identifier)
+       (make-key parent-key kind identifier)
+</pre>
+  <pre id="var-docstr">Creates a new Key using the given kind and identifier. If parent-key is
+given, the new key will be a child of the parent-key.
+  
+Examples:
+
+  (make-key "country" "de")
+  ; =&gt; #&lt;Key country("de")&gt;
+ 	
+  (make-key (make-key "continent" "eu") "country" "de")
+  ; =&gt; #&lt;Key continent("eu")/country("de")&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.keys/string-&gt;key">string-&gt;key</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (string-&gt;key string)
+</pre>
+  <pre id="var-docstr">Returns a Key from the given "websafe" string.
+
+Examples:
+
+  (string-&gt;key "agR0ZXN0chELEgljb250aW5lbnQiAmV1DA")
+  ; =&gt; #&lt;Key country("de")&gt;
+
+  (string-&gt;key "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA")
+  ; =&gt; #&lt;Key continent("eu")/country("de")&gt;</pre>
+  
+</div>
+
+
+</div>
+              </div>
+            </div>
+          </div>
+	</div>
+	<div id="foot">
+	  <div style="text-align: center;" id="copyright">Copyright (c) 2009, 2010 John D. Hume, Roman Scherer, Jean-Denis Greze, E.Fukamachi</div>
+	</div>
+      </div>
+      <div id="DesignedBy">Logo &amp; site design by <a title="Visit Tom Hickey's website." href="http://www.tomhickey.com">Tom Hickey</a>.<br />
+      Clojure auto-documentation system by Tom Faulhaber.</div>
+    </div>
+    <!-- /AllContentContainer -->
+  </body>
+
+</html>

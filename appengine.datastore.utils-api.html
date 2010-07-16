@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>appengine.server API reference (Clojure for Google App Engine)</title>
+    <title>appengine.datastore.utils API reference (Clojure for Google App Engine)</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -34,7 +34,7 @@ namespace.
     <a class="wiki_link" href="api-index.html">API Index</a><br />
     <a class="wiki_link" href="#">Namespaces:</a>
     <ul id="left-sidebar-list">
-      <li><a href="appengine.datastore-api.html" class="wiki_link">appengine.datastore</a></li><li><a href="appengine.environment-api.html" class="wiki_link">appengine.environment</a></li><li><a href="appengine.memcache-api.html" class="wiki_link">appengine.memcache</a></li><li><a href="appengine.server-api.html" class="wiki_link">appengine.server</a></li><li><a href="appengine.taskqueue-api.html" class="wiki_link">appengine.taskqueue</a></li><li><a href="appengine.test-api.html" class="wiki_link">appengine.test</a></li><li><a href="appengine.urlfetch-api.html" class="wiki_link">appengine.urlfetch</a></li><li><a href="appengine.users-api.html" class="wiki_link">appengine.users</a></li><li><a href="appengine.utils-api.html" class="wiki_link">appengine.utils</a></li>
+      <li><a href="appengine.datastore.entities-api.html" class="wiki_link">appengine.datastore.entities</a></li><li><a href="appengine.datastore.keys-api.html" class="wiki_link">appengine.datastore.keys</a></li><li><a href="appengine.datastore.protocols-api.html" class="wiki_link">appengine.datastore.protocols</a></li><li><a href="appengine.datastore.query-api.html" class="wiki_link">appengine.datastore.query</a></li><li><a href="appengine.datastore.service-api.html" class="wiki_link">appengine.datastore.service</a></li><li><a href="appengine.datastore.transactions-api.html" class="wiki_link">appengine.datastore.transactions</a></li><li><a href="appengine.datastore.types-api.html" class="wiki_link">appengine.datastore.types</a></li><li><a href="appengine.datastore.utils-api.html" class="wiki_link">appengine.datastore.utils</a></li><li><a href="appengine.environment-api.html" class="wiki_link">appengine.environment</a></li><li><a href="appengine.memcache-api.html" class="wiki_link">appengine.memcache</a></li><li><a href="appengine.server-api.html" class="wiki_link">appengine.server</a></li><li><a href="appengine.taskqueue-api.html" class="wiki_link">appengine.taskqueue</a></li><li><a href="appengine.test-api.html" class="wiki_link">appengine.test</a></li><li><a href="appengine.urlfetch-api.html" class="wiki_link">appengine.urlfetch</a></li><li><a href="appengine.users-api.html" class="wiki_link">appengine.users</a></li><li><a href="appengine.utils-api.html" class="wiki_link">appengine.utils</a></li>
     </ul>
   </div>
 </div>
@@ -47,58 +47,23 @@ namespace.
   <h1 class="nopad">Table of Contents</h1>
   <div style="margin-left: 1em;" class="toc-section">
     <a href="#toc0">Overview</a>
-    <div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.server/start-server">start-server</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.server/stop-server">stop-server</a>
-    </div>
+    
     <br />
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">appengine.server</span></h1>
-by <span id="author">Roman Scherer</span><br />
+                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">appengine.datastore.utils</span></h1>
+by <span id="author">Unknown</span><br />
 <br />Usage:
 <pre>
 (ns your-namespace
-  (:require <span id="long-name">appengine.server</span>))
+  (:require <span id="long-name">appengine.datastore.utils</span>))
 </pre><pre>
 </pre><h2>Overview</h2>
 <pre id="namespace-docstr"></pre>
 <br />
 <h2>Public Variables and Functions</h2>
-<div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="appengine.server/start-server">start-server</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (start-server application &amp; options)
-</pre>
-  <pre id="var-docstr">Start the server.
 
-Example:
-
-  (start-server "Hello World" :directory "/tmp" :join? false :port 8080)
-  ; =&gt; #&lt;Server Server@1a2cc7&gt;</pre>
-  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/server.clj#L17" id="var-source">Source</a>
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="appengine.server/stop-server">stop-server</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (stop-server server)
-</pre>
-  <pre id="var-docstr">Stop the server.
-
-Example:
-
-  (def *server* (start-server "Hello World" :directory "/tmp" :join? false :port 8080))
-  ; =&gt; #&lt;Server Server@1a2cc7&gt;
-
-  (stop-server *server*)
-  ; =&gt; #&lt;Server Server@1a2cc7&gt;</pre>
-  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/server.clj#L34" id="var-source">Source</a>
-</div>
 
 
 </div>

@@ -1,0 +1,292 @@
+<html>
+  <head>
+    <title>appengine.datastore.query API reference (Clojure for Google App Engine)</title>
+    <link href="static/favicon.png" rel="icon" />
+    <link href="static/favicon.png" rel="shortcut icon" />
+    <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
+    <link media="all" type="text/css" href="static/wiki.css" rel="stylesheet" />
+    <link media="all" type="text/css" href="static/internal.css" rel="stylesheet" />
+    <!-- TODO: are we using these (from clojure.org)? If so, add the files -->
+    <script src="file/view/code_highlighter.js" type="text/javascript"></script>
+    <script src="file/view/clojure.js" type="text/javascript"></script>
+    <style>.menuWrapper{height: 36px;}</style>
+    <!--[if lte IE 6]>
+    <link rel="stylesheet" href="http://www.wikispaces.com/_/2009051601/s/internal_ie.css" type="text/css" />
+    <![endif]-->
+  </head>
+<!--
+This document was auto-generated from the source by the clojure autodoc system.
+To report errors or ask questions about the overall documentation structure, formatting,
+etc., contact Tom Faulhaber (google mail name: tomfaulhaber).
+For errors in the documentation of a particular namespace, contact the author of that
+namespace.
+-->
+  <body>
+    <div id="AllContentContainer">
+      <div id="Header">
+	<a id="Logo" href="index.html"><img alt="Clojure" height="100" width="100" src="static/appengine-100x100.png" /></a>
+	<h1><a title="page header title" id="page-header" href="index.html">Clojure for Google App Engine</a></h1>
+      </div>
+      <div id="leftcolumn"><div style="text-align: center;"></div>
+<div class="menu">
+  <div class="WikiCustomNav WikiElement wiki">
+    <a class="wiki_link" href="index.html">Overview</a><br />
+    <a class="wiki_link" href="api-index.html">API Index</a><br />
+    <a class="wiki_link" href="#">Namespaces:</a>
+    <ul id="left-sidebar-list">
+      <li><a href="appengine.datastore.entities-api.html" class="wiki_link">appengine.datastore.entities</a></li><li><a href="appengine.datastore.keys-api.html" class="wiki_link">appengine.datastore.keys</a></li><li><a href="appengine.datastore.protocols-api.html" class="wiki_link">appengine.datastore.protocols</a></li><li><a href="appengine.datastore.query-api.html" class="wiki_link">appengine.datastore.query</a></li><li><a href="appengine.datastore.service-api.html" class="wiki_link">appengine.datastore.service</a></li><li><a href="appengine.datastore.transactions-api.html" class="wiki_link">appengine.datastore.transactions</a></li><li><a href="appengine.datastore.types-api.html" class="wiki_link">appengine.datastore.types</a></li><li><a href="appengine.datastore.utils-api.html" class="wiki_link">appengine.datastore.utils</a></li><li><a href="appengine.environment-api.html" class="wiki_link">appengine.environment</a></li><li><a href="appengine.memcache-api.html" class="wiki_link">appengine.memcache</a></li><li><a href="appengine.server-api.html" class="wiki_link">appengine.server</a></li><li><a href="appengine.taskqueue-api.html" class="wiki_link">appengine.taskqueue</a></li><li><a href="appengine.test-api.html" class="wiki_link">appengine.test</a></li><li><a href="appengine.urlfetch-api.html" class="wiki_link">appengine.urlfetch</a></li><li><a href="appengine.users-api.html" class="wiki_link">appengine.users</a></li><li><a href="appengine.utils-api.html" class="wiki_link">appengine.utils</a></li>
+    </ul>
+  </div>
+</div>
+</div>
+      <div id="rightcolumn">
+	<div id="Content">
+	  <div class="contentBox"><div class="innerContentBox">
+              <div id="content_view" class="wiki wikiPage">
+                <div id="right-sidebar"><div id="toc">
+  <h1 class="nopad">Table of Contents</h1>
+  <div style="margin-left: 1em;" class="toc-section">
+    <a href="#toc0">Overview</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/compile-select">compile-select</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/execute">execute</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/filter-by">filter-by</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/filter-operator">filter-operator</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/order-by">order-by</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/prepare">prepare</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/query">query</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/query?">query?</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/select">select</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.query/sort-direction">sort-direction</a>
+    </div>
+    <br />
+  </div>
+</div>
+</div>
+                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">appengine.datastore.query</span></h1>
+by <span id="author">Roman Scherer</span><br />
+<br />Usage:
+<pre>
+(ns your-namespace
+  (:require <span id="long-name">appengine.datastore.query</span>))
+</pre><pre>
+</pre><h2>Overview</h2>
+<pre id="namespace-docstr">The query namespace provides functions and macros to
+select entities from the App Engine datastore.
+
+A Query encapsulates a request for zero or more Entity objects out of
+the datastore. It supports querying on zero or more properties,
+querying by ancestor, and sorting. Entity objects which match the
+query can be retrieved in a single list, or with an unbounded
+iterator.</pre>
+<br />
+<h2>Public Variables and Functions</h2>
+<div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.query/compile-select">compile-select</h2>
+  <span id="var-type">macro</span><br />
+  <pre id="var-usage">Usage: (compile-select &amp; args)
+</pre>
+  <pre id="var-docstr">A macro that transforms the select clause, and any number of where
+and order-by clauses into a -&gt; form to produce a query.
+
+Examples:
+
+  (compile-select "continent")
+  ; =&gt; #&lt;Query SELECT * FROM continent&gt;
+
+  (compile-select "country" (make-key "continent" "eu") where (= :name "Germany"))
+  ; =&gt; #&lt;Query SELECT * FROM country WHERE name = Germany AND __ancestor__ is continent("eu")&gt;
+
+  (compile-select "continent"
+    where (= :name "Europe") (&gt; :updated-at "2010-01-01")
+    order-by (:name) (:updated-at :desc)))
+  ; =&gt; #&lt;Query SELECT * FROM continent WHERE name = Europe AND updated-at &gt; 2010-01-01 ORDER BY name, updated-at DESC&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.query/execute">execute</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (execute query)
+</pre>
+  <pre id="var-docstr">Execute the query against the datastore.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.query/filter-by">filter-by</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (filter-by query operator property-name value)
+</pre>
+  <pre id="var-docstr">Add a filter on the specified property to the query.
+
+Examples:
+
+  (filter-by (query "continent") = :iso-3166-alpha-2 "eu")
+  ; =&gt; #&lt;Query SELECT * FROM continent WHERE iso-3166-alpha-2 = eu&gt;
+
+  (-&gt; (query "continent")
+      (filter-by = :iso-3166-alpha-2 "eu")
+      (filter-by = :name "Europe"))
+  ; =&gt; #&lt;Query SELECT * FROM continent WHERE iso-3166-alpha-2 = eu AND name = Europe&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.query/filter-operator">filter-operator</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (filter-operator operator)
+</pre>
+  <pre id="var-docstr">Returns the FilterOperator enum for the given operator. The
+operator argument is a clojure function, such as =, &gt;, &gt;=, &lt;, &lt;= or
+not. These functions are not called at all, they just act as shortcut
+to map to the FilterOperator enums.
+
+Examples:
+
+  (filter-operator =)
+  ; =&gt; #&lt;FilterOperator =&gt;
+
+  (filter-operator &gt;)
+  ; =&gt; #&lt;FilterOperator &gt;&gt;
+
+  (filter-operator not)
+  ; =&gt; #&lt;FilterOperator !=&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.query/order-by">order-by</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (order-by query property-name &amp; [direction])
+</pre>
+  <pre id="var-docstr">Specify how the query results should be sorted. The first call to
+order-by will register the property that will serve as the primary
+sort key. A second call to order-by will set a secondary sort key,
+etc. If no direction is given, the query results will be sorted in
+ascending order of the given property.
+
+Examples:
+
+  (order-by (query "continent") :iso-3166-alpha-2)
+  ; =&gt; #&lt;Query SELECT * FROM continent ORDER BY iso-3166-alpha-2&gt;
+
+  (-&gt; (query "continent")
+      (order-by :iso-3166-alpha-2)
+      (order-by :name :desc))
+  ; =&gt; #&lt;Query SELECT * FROM continent ORDER BY iso-3166-alpha-2, name DESC&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.query/prepare">prepare</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (prepare query)
+</pre>
+  <pre id="var-docstr">Prepare a query for execution.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.query/query">query</h2>
+  <span id="var-type">multimethod</span><br />
+  <pre id="var-usage">No usage documentation available</pre>
+  <pre id="var-docstr">Create a new Query that finds Entity objects.
+
+Examples:
+
+  (query)
+  ; =&gt; #&lt;Query SELECT *&gt;
+
+  (query "continent")
+  ; =&gt; #&lt;Query SELECT * FROM continent&gt;
+
+  (query (make-key "continent" "eu"))
+  ; =&gt; #&lt;Query SELECT * WHERE __ancestor__ is continent("eu")&gt;
+
+  (query "countries" (make-key "continent" "eu"))
+  ; =&gt; #&lt;Query SELECT * FROM countries WHERE __ancestor__ is continent("eu")&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.query/query?">query?</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (query? arg)
+</pre>
+  <pre id="var-docstr">Returns true, if the arg is an instance of Query.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.query/select">select</h2>
+  <span id="var-type">macro</span><br />
+  <pre id="var-usage">Usage: (select &amp; args)
+</pre>
+  <pre id="var-docstr">A macro that compiles the select clause, and any number of where
+and order-by clauses into query which will be prepared and executed
+against the datastore. The function returns a sequence of entities or
+an empty sequence if no entities were found.
+
+Examples:
+
+  (select "continent")
+  ; =&gt; ()
+
+  (select "country" (make-key "continent" "eu") where (= :name "Germany"))
+  ; =&gt; ()
+
+  (select "continent"
+    where (= :name "Europe") (&gt; :updated-at "2010-01-01")
+    order-by (:name) (:updated-at :desc)))
+  ; =&gt; ()</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.query/sort-direction">sort-direction</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (sort-direction direction)
+</pre>
+  <pre id="var-docstr">Returns the SortDirection enum for the given sort direction. The
+direction argument must be :asc for an ascending, or :desc for a
+descending a sort order.
+
+Examples:
+
+  (sort-direction :asc)
+  ; =&gt; #&lt;SortDirection ASCENDING&gt;
+
+  (sort-direction :desc)
+  ; =&gt; #&lt;SortDirection DESCENDING&gt;</pre>
+  
+</div>
+
+
+</div>
+              </div>
+            </div>
+          </div>
+	</div>
+	<div id="foot">
+	  <div style="text-align: center;" id="copyright">Copyright (c) 2009, 2010 John D. Hume, Roman Scherer, Jean-Denis Greze, E.Fukamachi</div>
+	</div>
+      </div>
+      <div id="DesignedBy">Logo &amp; site design by <a title="Visit Tom Hickey's website." href="http://www.tomhickey.com">Tom Hickey</a>.<br />
+      Clojure auto-documentation system by Tom Faulhaber.</div>
+    </div>
+    <!-- /AllContentContainer -->
+  </body>
+
+</html>

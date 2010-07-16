@@ -1,0 +1,301 @@
+<html>
+  <head>
+    <title>appengine.datastore.service API reference (Clojure for Google App Engine)</title>
+    <link href="static/favicon.png" rel="icon" />
+    <link href="static/favicon.png" rel="shortcut icon" />
+    <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
+    <link media="all" type="text/css" href="static/wiki.css" rel="stylesheet" />
+    <link media="all" type="text/css" href="static/internal.css" rel="stylesheet" />
+    <!-- TODO: are we using these (from clojure.org)? If so, add the files -->
+    <script src="file/view/code_highlighter.js" type="text/javascript"></script>
+    <script src="file/view/clojure.js" type="text/javascript"></script>
+    <style>.menuWrapper{height: 36px;}</style>
+    <!--[if lte IE 6]>
+    <link rel="stylesheet" href="http://www.wikispaces.com/_/2009051601/s/internal_ie.css" type="text/css" />
+    <![endif]-->
+  </head>
+<!--
+This document was auto-generated from the source by the clojure autodoc system.
+To report errors or ask questions about the overall documentation structure, formatting,
+etc., contact Tom Faulhaber (google mail name: tomfaulhaber).
+For errors in the documentation of a particular namespace, contact the author of that
+namespace.
+-->
+  <body>
+    <div id="AllContentContainer">
+      <div id="Header">
+	<a id="Logo" href="index.html"><img alt="Clojure" height="100" width="100" src="static/appengine-100x100.png" /></a>
+	<h1><a title="page header title" id="page-header" href="index.html">Clojure for Google App Engine</a></h1>
+      </div>
+      <div id="leftcolumn"><div style="text-align: center;"></div>
+<div class="menu">
+  <div class="WikiCustomNav WikiElement wiki">
+    <a class="wiki_link" href="index.html">Overview</a><br />
+    <a class="wiki_link" href="api-index.html">API Index</a><br />
+    <a class="wiki_link" href="#">Namespaces:</a>
+    <ul id="left-sidebar-list">
+      <li><a href="appengine.datastore.entities-api.html" class="wiki_link">appengine.datastore.entities</a></li><li><a href="appengine.datastore.keys-api.html" class="wiki_link">appengine.datastore.keys</a></li><li><a href="appengine.datastore.protocols-api.html" class="wiki_link">appengine.datastore.protocols</a></li><li><a href="appengine.datastore.query-api.html" class="wiki_link">appengine.datastore.query</a></li><li><a href="appengine.datastore.service-api.html" class="wiki_link">appengine.datastore.service</a></li><li><a href="appengine.datastore.transactions-api.html" class="wiki_link">appengine.datastore.transactions</a></li><li><a href="appengine.datastore.types-api.html" class="wiki_link">appengine.datastore.types</a></li><li><a href="appengine.datastore.utils-api.html" class="wiki_link">appengine.datastore.utils</a></li><li><a href="appengine.environment-api.html" class="wiki_link">appengine.environment</a></li><li><a href="appengine.memcache-api.html" class="wiki_link">appengine.memcache</a></li><li><a href="appengine.server-api.html" class="wiki_link">appengine.server</a></li><li><a href="appengine.taskqueue-api.html" class="wiki_link">appengine.taskqueue</a></li><li><a href="appengine.test-api.html" class="wiki_link">appengine.test</a></li><li><a href="appengine.urlfetch-api.html" class="wiki_link">appengine.urlfetch</a></li><li><a href="appengine.users-api.html" class="wiki_link">appengine.users</a></li><li><a href="appengine.utils-api.html" class="wiki_link">appengine.utils</a></li>
+    </ul>
+  </div>
+</div>
+</div>
+      <div id="rightcolumn">
+	<div id="Content">
+	  <div class="contentBox"><div class="innerContentBox">
+              <div id="content_view" class="wiki wikiPage">
+                <div id="right-sidebar"><div id="toc">
+  <h1 class="nopad">Table of Contents</h1>
+  <div style="margin-left: 1em;" class="toc-section">
+    <a href="#toc0">Overview</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.service/active-transactions">active-transactions</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.service/begin-transaction">begin-transaction</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.service/commit-transaction">commit-transaction</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.service/current-transaction">current-transaction</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.service/datastore">datastore</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.service/datastore?">datastore?</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.service/delete">delete</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.service/delete-entity">delete-entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.service/get">get</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.service/get-entity">get-entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.service/prepare-query">prepare-query</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.service/put">put</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore.service/put-entity">put-entity</a>
+    </div>
+    <br />
+  </div>
+</div>
+</div>
+                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">appengine.datastore.service</span></h1>
+by <span id="author">Roman Scherer</span><br />
+<br />Usage:
+<pre>
+(ns your-namespace
+  (:require <span id="long-name">appengine.datastore.service</span>))
+</pre><pre>
+</pre><h2>Overview</h2>
+<pre id="namespace-docstr">Low-level API for the Google App Engine datastore service.</pre>
+<br />
+<h2>Public Variables and Functions</h2>
+<div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.service/active-transactions">active-transactions</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (active-transactions)
+</pre>
+  <pre id="var-docstr">Returns all transactions started by this thread upon which no
+attempt to commit or rollback has been made.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.service/begin-transaction">begin-transaction</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (begin-transaction)
+</pre>
+  <pre id="var-docstr">Begin a datastore transaction.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.service/commit-transaction">commit-transaction</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (commit-transaction &amp; [transaction])
+</pre>
+  <pre id="var-docstr">Commits the transaction. If no transaction is given</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.service/current-transaction">current-transaction</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (current-transaction)
+</pre>
+  <pre id="var-docstr">Returns the current datastore transaction, or nil if not within a
+transaction.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.service/datastore">datastore</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (datastore &amp; [configuration])
+</pre>
+  <pre id="var-docstr">Returns a DatastoreService with the default or the provided
+  configuration.
+
+Examples:
+
+  (datastore)
+  ; =&gt; #&lt;DatastoreServiceImpl DatastoreServiceImpl@a7b68a&gt;
+
+  (datastore DatastoreServiceConfig$Builder/withDefaults)
+  ; =&gt; #&lt;DatastoreServiceImpl DatastoreServiceImpl@a7b68a&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.service/datastore?">datastore?</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (datastore? arg)
+</pre>
+  <pre id="var-docstr">Returns true if arg is a datastore, else false.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.service/delete">delete</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (delete entity)
+</pre>
+  <pre id="var-docstr">Delete the entity, key or sequence of entities and
+keys from the datastore.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.service/delete-entity">delete-entity</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (delete-entity key)
+</pre>
+  <pre id="var-docstr">Delete the entity identified by key from the datastore. The
+function always returns the given key, even if the entity identified
+by the key was not found in the datastore.
+
+Examples:
+
+  (delete-entity (make-key "continent" "eu"))
+  ; =&gt; #&lt;Key continent("eu")&gt;
+
+  (def *europe* (put-entity (Entity. (make-key "continent" "eu"))))
+  ; =&gt; #&lt;Entity &lt;Entity [continent("eu")]:&gt;&gt;
+
+  (delete-entity (.getKey *europe*))
+  ; =&gt; #&lt;Key continent("eu")&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.service/get">get</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (get entity)
+</pre>
+  <pre id="var-docstr">Get the entity, key or sequence of entities and keys from the
+  datastore.
+
+Examples:
+
+  (get (make-key "continent" "eu"))
+  ; =&gt; nil
+
+  (put (make-key "continent" "eu"))
+  ; =&gt; #&lt;Entity &lt;Entity [continent("eu")]:&gt;&gt;
+
+  (get (make-key "continent" "eu"))
+  ; =&gt; #&lt;Entity &lt;Entity [continent("eu")]:&gt;&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.service/get-entity">get-entity</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (get-entity key)
+</pre>
+  <pre id="var-docstr">Get the entity identified by key from the datastore. If an entity
+with the given key was found in the datastore the function returns an
+Entity instance, otherwise nil.
+
+Examples:
+
+  (get-entity (make-key "continent" "eu"))
+  ; =&gt; nil
+
+  (def *europe* (put-entity (Entity. (make-key "continent" "eu"))))
+  ; =&gt; #&lt;Entity &lt;Entity [continent("eu")]:&gt;&gt;
+
+  (get-entity (.getKey *europe*))
+  ; =&gt; #&lt;Entity &lt;Entity [continent("eu")]:&gt;&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.service/prepare-query">prepare-query</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (prepare-query query)
+</pre>
+  <pre id="var-docstr">Prepares a query for execution. This function returns a PreparedQuery
+which can be used to execute and retrieve results from the datastore
+for query.
+
+Example:
+
+  (prepare-query (Query. "continent"))
+  ; =&gt; #&lt;PreparedQueryImpl SELECT * FROM continent&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.service/put">put</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (put entity)
+</pre>
+  <pre id="var-docstr">Put the entity, key or sequence of entities and keys to the
+datastore.
+
+Examples:
+
+  (put (Entity. "person"))
+  ; =&gt; #&lt;Entity &lt;Entity [person(1)]:&gt;&gt;
+
+  (put (Entity. (make-key "continent" "eu")))
+  ; =&gt; #&lt;Entity &lt;Entity [continent("eu")]:&gt;&gt;</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore.service/put-entity">put-entity</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (put-entity entity)
+</pre>
+  <pre id="var-docstr">Put the entity into the datastore and return the updated entity.
+
+Examples:
+
+  (put-entity (Entity. "person"))
+  ; =&gt; #&lt;Entity &lt;Entity [person(1)]:&gt;&gt;
+
+  (put-entity (Entity. (make-key "continent" "eu")))
+  ; =&gt; #&lt;Entity &lt;Entity [continent("eu")]:&gt;&gt;</pre>
+  
+</div>
+
+
+</div>
+              </div>
+            </div>
+          </div>
+	</div>
+	<div id="foot">
+	  <div style="text-align: center;" id="copyright">Copyright (c) 2009, 2010 John D. Hume, Roman Scherer, Jean-Denis Greze, E.Fukamachi</div>
+	</div>
+      </div>
+      <div id="DesignedBy">Logo &amp; site design by <a title="Visit Tom Hickey's website." href="http://www.tomhickey.com">Tom Hickey</a>.<br />
+      Clojure auto-documentation system by Tom Faulhaber.</div>
+    </div>
+    <!-- /AllContentContainer -->
+  </body>
+
+</html>

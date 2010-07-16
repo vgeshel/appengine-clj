@@ -326,7 +326,7 @@ Examples:
            {:iso-3166-alpha-2 "de" :name "Germany"})
   ; =&gt; #:user.Country{:key #&lt;Key continent("eu")/country("de")&gt;, :kind country,
                       :iso-3166-alpha-2 de, :location nil, :name Germany}</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/entities.clj#L385" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -354,7 +354,7 @@ Examples:
   (deserialize-entity (doto (Entity. "continent")
                      (.setProperty "name" "Europe")))
   ; =&gt; {:name "Europe", :kind "continent", :key #&lt;Key continent(no-id-yet)&gt;}</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/entities.clj#L203" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -380,7 +380,7 @@ Examples:
 
   (key-&gt;string (make-key (make-key "continent" "eu") "country" "de")
   ; =&gt; "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA"</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L38" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -389,7 +389,7 @@ Examples:
   <pre id="var-usage">Usage: (key? arg)
 </pre>
   <pre id="var-docstr">Returns true if arg is a Key, else false.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L14" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -408,7 +408,7 @@ Examples:
  	
   (make-key (make-key "continent" "eu") "country" "de")
   ; =&gt; #&lt;Key continent("eu")/country("de")&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L18" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -417,7 +417,7 @@ Examples:
   <pre id="var-usage">Usage: (query? arg)
 </pre>
   <pre id="var-docstr">Returns true, if the arg is an instance of Query.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/fc162eb7cdc60170af5aef94c583cf3ea700c9d4/src/appengine/datastore/query.clj#L149" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -460,7 +460,7 @@ Examples:
     where (= :name "Europe") (&gt; :updated-at "2010-01-01")
     order-by (:name) (:updated-at :desc)))
   ; =&gt; ()</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/fc162eb7cdc60170af5aef94c583cf3ea700c9d4/src/appengine/datastore/query.clj#L176" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -479,7 +479,7 @@ Examples:
   (serialize-entity {:key (make-key "continent" "eu") :name "Europe"})
   ; =&gt; #&lt;Entity &lt;Entity [continent("eu")]:
   ;        name = Europe</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/entities.clj#L224" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -496,7 +496,7 @@ Examples:
 
   (string-&gt;key "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA")
   ; =&gt; #&lt;Key continent("eu")/country("de")&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L50" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -517,7 +517,7 @@ datastore.</pre>
   <pre id="var-docstr">Evaluate the forms within a datastore transaction. After the forms
 have been evaluated the transaction will be committed and the result
 of the last form is returned.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/d08df729e7bc538213cc3b238e9d46d69b27f60e/src/appengine/datastore/transactions.clj#L16" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -528,7 +528,7 @@ of the last form is returned.</pre>
   <pre id="var-docstr">Evaluate the forms within a datastore transaction. After the forms
 have been evaluated the transaction will be committed and the result
 of the last form is returned.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/d08df729e7bc538213cc3b238e9d46d69b27f60e/src/appengine/datastore/transactions.clj#L26" id="var-source">Source</a>
 </div>
 <h2 id="namespace-name">appengine.datastore.entities</h2>
 <pre id="namespace-docstr">Entity is the fundamental unit of data storage. It has an
@@ -565,7 +565,7 @@ Examples:
            {:iso-3166-alpha-2 "de" :name "Germany"})
   ; =&gt; #:user.Country{:key #&lt;Key continent("eu")/country("de")&gt;, :kind country,
                       :iso-3166-alpha-2 de, :location nil, :name Germany}</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/entities.clj#L385" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.entities/deserialize-entity">deserialize-entity</h2>
@@ -583,7 +583,7 @@ Examples:
   (deserialize-entity (doto (Entity. "continent")
                      (.setProperty "name" "Europe")))
   ; =&gt; {:name "Europe", :kind "continent", :key #&lt;Key continent(no-id-yet)&gt;}</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/entities.clj#L203" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.entities/deserialize-property">deserialize-property</h2>
@@ -591,7 +591,7 @@ Examples:
   <pre id="var-usage">Usage: (deserialize-property value deserializer)
 </pre>
   <pre id="var-docstr">Deserialize the property value with the deserializer.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/entities.clj#L248" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.entities/entity-kind-name">entity-kind-name</h2>
@@ -607,7 +607,7 @@ Examples:
 
   (entity-kind-name 'CountryFlag)
   ; =&gt; "country-flag"</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/entities.clj#L144" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.entities/entity-protocol-name">entity-protocol-name</h2>
@@ -633,7 +633,7 @@ Examples:
 
   (entity-protocol-name "Continent")
   ; =&gt; "ContinentProtocol"</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/entities.clj#L157" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.entities/entity?">entity?</h2>
@@ -641,7 +641,7 @@ Examples:
   <pre id="var-usage">Usage: (entity? arg)
 </pre>
   <pre id="var-docstr">Returns true if arg is an Entity, false otherwise.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/entities.clj#L140" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.entities/extract-key">extract-key</h2>
@@ -664,7 +664,7 @@ Examples:
   (extract-key {:iso-3166-alpha-2 "eu"}
                [[:iso-3166-alpha-2 true] [:name lower-case]])
   ; =&gt; nil</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/entities.clj#L45" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.entities/make-blank-entity">make-blank-entity</h2>
@@ -685,7 +685,7 @@ Examples:
 
   (make-blank-entity (make-key "continent" "eu"))
   ; =&gt; #&lt;Entity [continent("eu")]&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/entities.clj#L183" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.entities/serialize-entity">serialize-entity</h2>
@@ -703,7 +703,7 @@ Examples:
   (serialize-entity {:key (make-key "continent" "eu") :name "Europe"})
   ; =&gt; #&lt;Entity &lt;Entity [continent("eu")]:
   ;        name = Europe</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/entities.clj#L224" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.entities/serialize-property">serialize-property</h2>
@@ -711,16 +711,14 @@ Examples:
   <pre id="var-usage">Usage: (serialize-property value serializer)
 </pre>
   <pre id="var-docstr">Serialize the property value with the serializer.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/entities.clj#L256" id="var-source">Source</a>
 </div>
 <h2 id="namespace-name">appengine.datastore.keys</h2>
 <pre id="namespace-docstr">Allows you to create arbitrary Key objects in the root
-     group (no parent).
-
-     Also allows you to encode Key objects to and decode them from
-strings. Clients should not make any assumptions about this return
-value, except that it is a websafe string that does not need to be
-quoted when used in HTML or in URLs.</pre>
+group (no parent). Also allows you to encode Key objects to and decode
+them from strings. Clients should not make any assumptions about this
+return value, except that it is a websafe string that does not need to
+be quoted when used in HTML or in URLs.</pre>
 <br />
 <div id="var-entry">
   <hr />
@@ -737,7 +735,7 @@ Examples:
 
   (key-&gt;string (make-key (make-key "continent" "eu") "country" "de")
   ; =&gt; "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA"</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L38" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.keys/key?">key?</h2>
@@ -745,7 +743,7 @@ Examples:
   <pre id="var-usage">Usage: (key? arg)
 </pre>
   <pre id="var-docstr">Returns true if arg is a Key, else false.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L14" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.keys/make-key">make-key</h2>
@@ -763,7 +761,7 @@ Examples:
  	
   (make-key (make-key "continent" "eu") "country" "de")
   ; =&gt; #&lt;Key continent("eu")/country("de")&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L18" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.keys/string-&gt;key">string-&gt;key</h2>
@@ -779,7 +777,7 @@ Examples:
 
   (string-&gt;key "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA")
   ; =&gt; #&lt;Key continent("eu")/country("de")&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L50" id="var-source">Source</a>
 </div>
 <h2 id="namespace-name">appengine.datastore.protocols</h2>
 <pre id="namespace-docstr">The datastore protocols.</pre>
@@ -938,7 +936,7 @@ Examples:
     where (= :name "Europe") (&gt; :updated-at "2010-01-01")
     order-by (:name) (:updated-at :desc)))
   ; =&gt; #&lt;Query SELECT * FROM continent WHERE name = Europe AND updated-at &gt; 2010-01-01 ORDER BY name, updated-at DESC&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/fc162eb7cdc60170af5aef94c583cf3ea700c9d4/src/appengine/datastore/query.clj#L153" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.query/execute">execute</h2>
@@ -964,7 +962,7 @@ Examples:
       (filter-by = :iso-3166-alpha-2 "eu")
       (filter-by = :name "Europe"))
   ; =&gt; #&lt;Query SELECT * FROM continent WHERE iso-3166-alpha-2 = eu AND name = Europe&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/fc162eb7cdc60170af5aef94c583cf3ea700c9d4/src/appengine/datastore/query.clj#L112" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.query/filter-operator">filter-operator</h2>
@@ -986,7 +984,7 @@ Examples:
 
   (filter-operator not)
   ; =&gt; #&lt;FilterOperator !=&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/fc162eb7cdc60170af5aef94c583cf3ea700c9d4/src/appengine/datastore/query.clj#L32" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.query/order-by">order-by</h2>
@@ -1008,7 +1006,7 @@ Examples:
       (order-by :iso-3166-alpha-2)
       (order-by :name :desc))
   ; =&gt; #&lt;Query SELECT * FROM continent ORDER BY iso-3166-alpha-2, name DESC&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/fc162eb7cdc60170af5aef94c583cf3ea700c9d4/src/appengine/datastore/query.clj#L128" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.query/prepare">prepare</h2>
@@ -1037,7 +1035,7 @@ Examples:
 
   (query "countries" (make-key "continent" "eu"))
   ; =&gt; #&lt;Query SELECT * FROM countries WHERE __ancestor__ is continent("eu")&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/fc162eb7cdc60170af5aef94c583cf3ea700c9d4/src/appengine/datastore/query.clj#L78" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.query/query?">query?</h2>
@@ -1045,7 +1043,7 @@ Examples:
   <pre id="var-usage">Usage: (query? arg)
 </pre>
   <pre id="var-docstr">Returns true, if the arg is an instance of Query.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/fc162eb7cdc60170af5aef94c583cf3ea700c9d4/src/appengine/datastore/query.clj#L149" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.query/select">select</h2>
@@ -1069,7 +1067,7 @@ Examples:
     where (= :name "Europe") (&gt; :updated-at "2010-01-01")
     order-by (:name) (:updated-at :desc)))
   ; =&gt; ()</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/fc162eb7cdc60170af5aef94c583cf3ea700c9d4/src/appengine/datastore/query.clj#L176" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.query/sort-direction">sort-direction</h2>
@@ -1087,7 +1085,7 @@ Examples:
 
   (sort-direction :desc)
   ; =&gt; #&lt;SortDirection DESCENDING&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/fc162eb7cdc60170af5aef94c583cf3ea700c9d4/src/appengine/datastore/query.clj#L59" id="var-source">Source</a>
 </div>
 <h2 id="namespace-name">appengine.datastore.service</h2>
 <pre id="namespace-docstr">Low-level API for the Google App Engine datastore service.</pre>
@@ -1100,7 +1098,7 @@ Examples:
 </pre>
   <pre id="var-docstr">Returns all transactions started by this thread upon which no
 attempt to commit or rollback has been made.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/service.clj#L61" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.service/begin-transaction">begin-transaction</h2>
@@ -1108,7 +1106,7 @@ attempt to commit or rollback has been made.</pre>
   <pre id="var-usage">Usage: (begin-transaction)
 </pre>
   <pre id="var-docstr">Begin a datastore transaction.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/service.clj#L66" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.service/commit-transaction">commit-transaction</h2>
@@ -1116,7 +1114,7 @@ attempt to commit or rollback has been made.</pre>
   <pre id="var-usage">Usage: (commit-transaction &amp; [transaction])
 </pre>
   <pre id="var-docstr">Commits the transaction. If no transaction is given</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/service.clj#L74" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.service/current-transaction">current-transaction</h2>
@@ -1125,7 +1123,7 @@ attempt to commit or rollback has been made.</pre>
 </pre>
   <pre id="var-docstr">Returns the current datastore transaction, or nil if not within a
 transaction.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/service.clj#L70" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.service/datastore">datastore</h2>
@@ -1142,7 +1140,7 @@ Examples:
 
   (datastore DatastoreServiceConfig$Builder/withDefaults)
   ; =&gt; #&lt;DatastoreServiceImpl DatastoreServiceImpl@a7b68a&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/service.clj#L42" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.service/datastore?">datastore?</h2>
@@ -1150,7 +1148,7 @@ Examples:
   <pre id="var-usage">Usage: (datastore? arg)
 </pre>
   <pre id="var-docstr">Returns true if arg is a datastore, else false.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/service.clj#L57" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.service/delete">delete</h2>
@@ -1180,7 +1178,7 @@ Examples:
 
   (delete-entity (.getKey *europe*))
   ; =&gt; #&lt;Key continent("eu")&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/service.clj#L102" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.service/get">get</h2>
@@ -1221,7 +1219,7 @@ Examples:
 
   (get-entity (.getKey *europe*))
   ; =&gt; #&lt;Entity &lt;Entity [continent("eu")]:&gt;&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/service.clj#L80" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.service/prepare-query">prepare-query</h2>
@@ -1236,7 +1234,7 @@ Example:
 
   (prepare-query (Query. "continent"))
   ; =&gt; #&lt;PreparedQueryImpl SELECT * FROM continent&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/service.clj#L133" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.service/put">put</h2>
@@ -1269,7 +1267,7 @@ Examples:
 
   (put-entity (Entity. (make-key "continent" "eu")))
   ; =&gt; #&lt;Entity &lt;Entity [continent("eu")]:&gt;&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/service.clj#L120" id="var-source">Source</a>
 </div>
 <h2 id="namespace-name">appengine.datastore.transactions</h2>
 <pre id="namespace-docstr">The transaction API for Google App Engine's datastore service.</pre>
@@ -1305,7 +1303,7 @@ Examples:
   <pre id="var-usage">Usage: (transaction? arg)
 </pre>
   <pre id="var-docstr">Returns true id arg is a transaction, false otherwise.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/d08df729e7bc538213cc3b238e9d46d69b27f60e/src/appengine/datastore/transactions.clj#L12" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.transactions/with-commit-transaction">with-commit-transaction</h2>
@@ -1315,7 +1313,7 @@ Examples:
   <pre id="var-docstr">Evaluate the forms within a datastore transaction. After the forms
 have been evaluated the transaction will be committed and the result
 of the last form is returned.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/d08df729e7bc538213cc3b238e9d46d69b27f60e/src/appengine/datastore/transactions.clj#L16" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.transactions/with-rollback-transaction">with-rollback-transaction</h2>
@@ -1325,7 +1323,7 @@ of the last form is returned.</pre>
   <pre id="var-docstr">Evaluate the forms within a datastore transaction. After the forms
 have been evaluated the transaction will be committed and the result
 of the last form is returned.</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/d08df729e7bc538213cc3b238e9d46d69b27f60e/src/appengine/datastore/transactions.clj#L26" id="var-source">Source</a>
 </div>
 <h2 id="namespace-name">appengine.datastore.types</h2>
 <pre id="namespace-docstr"></pre>
@@ -1344,7 +1342,7 @@ Examples:
 
   (serialize GeoPt {:latitude 1 :longitude 2})
   ; =&gt; #&lt;GeoPt 1.000000,2.000000&gt;</pre>
-  
+  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/types.clj#L59" id="var-source">Source</a>
 </div>
 
 
