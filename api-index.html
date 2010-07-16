@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>App Engine - Index</title>
+    <title>Clojure for Google App Engine - Index</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -24,8 +24,8 @@ namespace.
   <body>
     <div id="AllContentContainer">
       <div id="Header">
-	<a id="Logo" href="index.html"><img alt="Clojure" height="100" width="100" src="static/clojure-icon.gif" /></a>
-	<h1><a title="page header title" id="page-header" href="index.html">App Engine</a></h1>
+	<a id="Logo" href="index.html"><img alt="Clojure" height="100" width="100" src="static/appengine-100x100.png" /></a>
+	<h1><a title="page header title" id="page-header" href="index.html">Clojure for Google App Engine</a></h1>
       </div>
       <div id="leftcolumn"><div style="text-align: center;"></div>
 <div class="menu">
@@ -34,7 +34,7 @@ namespace.
     <a class="wiki_link" href="api-index.html">API Index</a><br />
     <a class="wiki_link" href="#">Namespaces:</a>
     <ul id="left-sidebar-list">
-      <li><a href="appengine.datastore-api.html" class="wiki_link">appengine.datastore</a></li><li><a href="appengine.memcache-api.html" class="wiki_link">appengine.memcache</a></li><li><a href="appengine.taskqueue-api.html" class="wiki_link">appengine.taskqueue</a></li><li><a href="appengine.test-api.html" class="wiki_link">appengine.test</a></li><li><a href="appengine.urlfetch-api.html" class="wiki_link">appengine.urlfetch</a></li><li><a href="appengine.users-api.html" class="wiki_link">appengine.users</a></li><li><a href="appengine.utils-api.html" class="wiki_link">appengine.utils</a></li>
+      <li><a href="appengine.datastore-api.html" class="wiki_link">appengine.datastore</a></li><li><a href="appengine.environment-api.html" class="wiki_link">appengine.environment</a></li><li><a href="appengine.memcache-api.html" class="wiki_link">appengine.memcache</a></li><li><a href="appengine.server-api.html" class="wiki_link">appengine.server</a></li><li><a href="appengine.taskqueue-api.html" class="wiki_link">appengine.taskqueue</a></li><li><a href="appengine.test-api.html" class="wiki_link">appengine.test</a></li><li><a href="appengine.urlfetch-api.html" class="wiki_link">appengine.urlfetch</a></li><li><a href="appengine.users-api.html" class="wiki_link">appengine.users</a></li><li><a href="appengine.utils-api.html" class="wiki_link">appengine.utils</a></li>
     </ul>
   </div>
 </div>
@@ -44,9 +44,9 @@ namespace.
 	  <div class="contentBox"><div class="innerContentBox">
               <div id="content_view" class="wiki wikiPage">
                 <div id="right-sidebar"></div>
-                <div id="content-tag"><h1 id="overview">Index of Public Functions and Variables in <span class="project-name-span">App Engine</span></h1>
+                <div id="content-tag"><h1 id="overview">Index of Public Functions and Variables in <span class="project-name-span">Clojure for Google App Engine</span></h1>
 This page has an alphabetical index of all the documented functions and variables
-in <span class="project-name-span">App Engine</span>. 
+in <span class="project-name-span">Clojure for Google App Engine</span>. 
 
 <!-- TODO: enable this functionality on github?
 
@@ -73,7 +73,8 @@ Shortcuts:<br />
 <div id="index-body">
   <h2 id="A"><span id="section-head">A</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.taskqueue-api.html#appengine.taskqueue/add">add</a><span id="line-content">                          function      appengine.taskqueue Adds the given task path to the queue..
+<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/active?">active?</a><span id="line-content">                      function      appengine.datastore Returns true if the transaction is active, false ...
+</span></span><span id="section-content"> <a href="appengine.taskqueue-api.html#appengine.taskqueue/add">add</a><span id="line-content">                          function      appengine.taskqueue Adds the given task path to the queue..
 </span></span><span id="section-content"> <a href="appengine.memcache-api.html#appengine.memcache/add-value">add-value</a><span id="line-content">                    function      appengine.memcache Saves value only if not present.
 </span></span></pre>
 </div><div id="index-body">
@@ -83,30 +84,32 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="C"><span id="section-head">C</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/create-entity">create-entity</a><span id="line-content">                function      appengine.datastore Takes a map of keyword-value pairs or struct and ...
-</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/create-key">create-key</a><span id="line-content">                   function      appengine.datastore Creates a new Key using the given kind and identi...
+<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/commit">commit</a><span id="line-content">                       function      appengine.datastore Commits the transaction..
+</span></span><span id="section-content"> <a href="appengine.utils-api.html#appengine.utils/constructor-types">constructor-types</a><span id="line-content">            function      appengine.utils    Returns the parameter types of all constuctors..
+</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/create">create</a><span id="line-content">                       function      appengine.datastore Create new record in the datastore. If the record...
+</span></span><span id="section-content"> <a href="appengine.users-api.html#appengine.users/current-user">current-user</a><span id="line-content">                 function      appengine.users    If the user is logged in, this method will return ...
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="D"><span id="section-head">D</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/datastore">datastore</a><span id="line-content">                    function      appengine.datastore Creates a DatastoreService using the default or t...
-</span></span><span id="section-content"> <a href="appengine.taskqueue-api.html#appengine.taskqueue/default-queue">default-queue</a><span id="line-content">                function      appengine.taskqueue Returns the default task queue..
+<span id="section-content"> <a href="appengine.taskqueue-api.html#appengine.taskqueue/default-queue">default-queue</a><span id="line-content">                function      appengine.taskqueue Returns the default task queue..
+</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/defentity">defentity</a><span id="line-content">                    macro         appengine.datastore A macro to define entitiy records.  Examples:  ...
+</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/delete">delete</a><span id="line-content">                       function      appengine.datastore Delete the record from the datastore..
+</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/deserialize-entity">deserialize-entity</a><span id="line-content">           multimethod   appengine.datastore Convert a Entity into a persistent map. The prope...
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="E"><span id="section-head">E</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/entity-&gt;map">entity-&gt;map</a><span id="line-content">                  function      appengine.datastore Converts a com.google.appengine.api.datastore.Ent...
+<span id="section-content"> <a href="appengine.environment-api.html#appengine.environment/environment-decorator">environment-decorator</a><span id="line-content">        function      appengine.environment Decorates the given application with local api ...
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="F"><span id="section-head">F</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/find-all">find-all</a><span id="line-content">                     function      appengine.datastore Executes the given com.google.appengine.api.datas...
-</span></span></pre>
+</pre>
 </div><div id="index-body">
   <h2 id="G"><span id="section-head">G</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/get-entity">get-entity</a><span id="line-content">                   multimethod   appengine.datastore Retrieves a PersistentHashMap of an Entity in the...
-</span></span></pre>
+</pre>
 </div><div id="index-body">
   <h2 id="H"><span id="section-head">H</span></h2>
   <pre>
@@ -114,7 +117,9 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="I"><span id="section-head">I</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/is-transaction-active?">is-transaction-active?</a><span id="line-content">       function      appengine.datastore Returns whether the current transaction is active...
+<span id="section-content"> <a href="appengine.utils-api.html#appengine.utils/immigrate-symbols">immigrate-symbols</a><span id="line-content">            function      appengine.utils    Create a public var in this namespace for each pub...
+</span></span><span id="section-content"> <a href="appengine.environment-api.html#appengine.environment/init-appengine">init-appengine</a><span id="line-content">               function      appengine.environment Initialize the App Engine services..
+</span></span><span id="section-content"> <a href="appengine.environment-api.html#appengine.environment/init-repl">init-repl</a><span id="line-content">                    function      appengine.environment Initialize the App Engine services..
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="J"><span id="section-head">J</span></h2>
@@ -124,23 +129,30 @@ Shortcuts:<br />
   <h2 id="K"><span id="section-head">K</span></h2>
   <pre>
 <span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/key-&gt;string">key-&gt;string</a><span id="line-content">                  function      appengine.datastore Returns a "websafe" string from the given Key.  E...
+</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/key?">key?</a><span id="line-content">                         function      appengine.datastore Returns true if arg is a Key, else false..
 </span></span><span id="section-content"> <a href="appengine.utils-api.html#appengine.utils/keyword-&gt;string">keyword-&gt;string</a><span id="line-content">              function      appengine.utils    Returns a string by calling str on the keyword and...
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="L"><span id="section-head">L</span></h2>
   <pre>
-</pre>
+<span id="section-content"> <a href="appengine.environment-api.html#appengine.environment/local-proxy">local-proxy</a><span id="line-content">                  function      appengine.environment Returns a local api proxy environment..
+</span></span><span id="section-content"> <a href="appengine.environment-api.html#appengine.environment/local-server-environment">local-server-environment</a><span id="line-content">     function      appengine.environment Returns a local server environment..
+</span></span><span id="section-content"> <a href="appengine.environment-api.html#appengine.environment/login-aware-proxy">login-aware-proxy</a><span id="line-content">            function      appengine.environment Returns a local api proxy environment..
+</span></span><span id="section-content"> <a href="appengine.users-api.html#appengine.users/login-url">login-url</a><span id="line-content">                    function      appengine.users    Returns an URL that can be used to display a login...
+</span></span><span id="section-content"> <a href="appengine.users-api.html#appengine.users/logout-url">logout-url</a><span id="line-content">                   function      appengine.users    Returns an URL that can be used to log the curren...
+</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/lookup">lookup</a><span id="line-content">                       function      appengine.datastore Lookup the record from the datastore..
+</span></span></pre>
 </div><div id="index-body">
   <h2 id="M"><span id="section-head">M</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/map-&gt;entity">map-&gt;entity</a><span id="line-content">                  function      appengine.datastore Converts a map or struct to an Entity. The map mu...
+<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/make-key">make-key</a><span id="line-content">                     function      appengine.datastore Creates a new Key using the given kind and identi...
 </span></span><span id="section-content"> <a href="appengine.utils-api.html#appengine.utils/map-keys">map-keys</a><span id="line-content">                     function      appengine.utils    Returns a lazy sequence consisting of the result o...
+</span></span><span id="section-content"> <a href="appengine.utils-api.html#appengine.utils/min-constructor-args">min-constructor-args</a><span id="line-content">         function      appengine.utils    Returns the minimum number of constuctor arguments...
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="N"><span id="section-head">N</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/new-transaction">new-transaction</a><span id="line-content">              function      appengine.datastore Returns a new GAE transaction object.
-</span></span></pre>
+</pre>
 </div><div id="index-body">
   <h2 id="O"><span id="section-head">O</span></h2>
   <pre>
@@ -148,39 +160,45 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="P"><span id="section-head">P</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/properties">properties</a><span id="line-content">                   multimethod   appengine.datastore Returns the properties of the given record as a m...
-</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/put-entity">put-entity</a><span id="line-content">                   multimethod   appengine.datastore Puts the given record into the datastore and retu...
+<span id="section-content"> <a href="appengine.environment-api.html#appengine.environment/parse-configuration">parse-configuration</a><span id="line-content">          function      appengine.environment Read the appengine-web.xml file, extract and sa...
 </span></span><span id="section-content"> <a href="appengine.memcache-api.html#appengine.memcache/put-value">put-value</a><span id="line-content">                    function      appengine.memcache Save function for general purpose. set always when...
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="Q"><span id="section-head">Q</span></h2>
   <pre>
 <span id="section-content"> <a href="appengine.taskqueue-api.html#appengine.taskqueue/*queue*">*queue*</a><span id="line-content">                      var           appengine.taskqueue The task queue binding..
+</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/query?">query?</a><span id="line-content">                       function      appengine.datastore Returns true, if the arg is an instance of Query..
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="R"><span id="section-head">R</span></h2>
   <pre>
 <span id="section-content"> <a href="appengine.memcache-api.html#appengine.memcache/replace-value">replace-value</a><span id="line-content">                function      appengine.memcache Replace value only if present.
-</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/rollback-transaction">rollback-transaction</a><span id="line-content">         function      appengine.datastore Can be used optionally to rollback a transaction....
+</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/rollback">rollback</a><span id="line-content">                     function      appengine.datastore Rolls back the transaction..
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="S"><span id="section-head">S</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.memcache-api.html#appengine.memcache/set-value">set-value</a><span id="line-content">                    function      appengine.memcache Same as put-value.
+<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/save">save</a><span id="line-content">                         function      appengine.datastore Save the record in the datastore..
+</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/select">select</a><span id="line-content">                       macro         appengine.datastore A macro that compiles the select clause, and any ...
+</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/serialize-entity">serialize-entity</a><span id="line-content">             multimethod   appengine.datastore Converts a map into an entity. The kind of the en...
+</span></span><span id="section-content"> <a href="appengine.environment-api.html#appengine.environment/set-system-properties">set-system-properties</a><span id="line-content">        function      appengine.environment Set the system properties..
+</span></span><span id="section-content"> <a href="appengine.memcache-api.html#appengine.memcache/set-value">set-value</a><span id="line-content">                    function      appengine.memcache Same as put-value.
+</span></span><span id="section-content"> <a href="appengine.server-api.html#appengine.server/start-server">start-server</a><span id="line-content">                 function      appengine.server   Start the server.  Example:  (start-server "Hell...
+</span></span><span id="section-content"> <a href="appengine.server-api.html#appengine.server/stop-server">stop-server</a><span id="line-content">                  function      appengine.server   Stop the server.  Example:  (def *server* (start...
 </span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/string-&gt;key">string-&gt;key</a><span id="line-content">                  function      appengine.datastore Returns a Key from the given "websafe" string.  E...
 </span></span><span id="section-content"> <a href="appengine.utils-api.html#appengine.utils/stringify">stringify</a><span id="line-content">                    function      appengine.utils    Returns a stringified version of the given argumen...
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="T"><span id="section-head">T</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/*transaction*">*transaction*</a><span id="line-content">                var           appengine.datastore The current datastore transaction. If set to nil,...
-</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/*transaction-retries*">*transaction-retries*</a><span id="line-content">        var           appengine.datastore Total number of of times to retry a transaction b...
-</span></span></pre>
+</pre>
 </div><div id="index-body">
   <h2 id="U"><span id="section-head">U</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/update-entity">update-entity</a><span id="line-content">                multimethod   appengine.datastore Updates the record with the given properites. The...
+<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/update">update</a><span id="line-content">                       function      appengine.datastore Update the record with the key-vals and save it i...
+</span></span><span id="section-content"> <a href="appengine.users-api.html#appengine.users/user-&gt;map">user-&gt;map</a><span id="line-content">                    function      appengine.users    Converts a user object into a map..
 </span></span><span id="section-content"> <a href="appengine.users-api.html#appengine.users/user-info">user-info</a><span id="line-content">                    function      appengine.users    With no arguments, returns a UserService and User ...
+</span></span><span id="section-content"> <a href="appengine.users-api.html#appengine.users/user-service">user-service</a><span id="line-content">                 function      appengine.users    Returns the user service..
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="V"><span id="section-head">V</span></h2>
@@ -189,9 +207,9 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="W"><span id="section-head">W</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/with-retries">with-retries</a><span id="line-content">                 macro         appengine.datastore Set the number of retries for any transactions wi...
-</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/with-transaction">with-transaction</a><span id="line-content">             macro         appengine.datastore Takes a body of forms (do is implied) and at runt...
-</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/without-transaction">without-transaction</a><span id="line-content">          macro         appengine.datastore Used to do no-transaction operations from within ...
+<span id="section-content"> <a href="appengine.environment-api.html#appengine.environment/with-appengine">with-appengine</a><span id="line-content">               macro         appengine.environment Macro to set the environment for the current th...
+</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/with-commit-transaction">with-commit-transaction</a><span id="line-content">      macro         appengine.datastore Evaluate the forms within a datastore transaction...
+</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/with-rollback-transaction">with-rollback-transaction</a><span id="line-content">    macro         appengine.datastore Evaluate the forms within a datastore transaction...
 </span></span><span id="section-content"> <a href="appengine.users-api.html#appengine.users/wrap-with-user-info">wrap-with-user-info</a><span id="line-content">          function      appengine.users    Ring middleware method that wraps an application s...
 </span></span></pre>
 </div><div id="index-body">

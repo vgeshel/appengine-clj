@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>appengine.users API reference (Clojure for Google App Engine)</title>
+    <title>appengine.server API reference (Clojure for Google App Engine)</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -48,102 +48,55 @@ namespace.
   <div style="margin-left: 1em;" class="toc-section">
     <a href="#toc0">Overview</a>
     <div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.users/current-user">current-user</a>
+      <a href="#appengine.server/start-server">start-server</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.users/login-url">login-url</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.users/logout-url">logout-url</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.users/user-&gt;map">user-&gt;map</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.users/user-info">user-info</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.users/user-service">user-service</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.users/wrap-with-user-info">wrap-with-user-info</a>
+      <a href="#appengine.server/stop-server">stop-server</a>
     </div>
     <br />
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">appengine.users</span></h1>
-by <span id="author">John D. Hume</span><br />
+                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">appengine.server</span></h1>
+by <span id="author">Roman Scherer</span><br />
 <br />Usage:
 <pre>
 (ns your-namespace
-  (:require <span id="long-name">appengine.users</span>))
+  (:require <span id="long-name">appengine.server</span>))
 </pre><pre>
 </pre><h2>Overview</h2>
-<pre id="namespace-docstr">The Clojure API for the Google App Engine user service.</pre>
+<pre id="namespace-docstr"></pre>
 <br />
 <h2>Public Variables and Functions</h2>
 <div id="var-entry">
   <br />
   <hr />
-  <h2 id="appengine.users/current-user">current-user</h2>
+  <h2 id="appengine.server/start-server">start-server</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (current-user)
+  <pre id="var-usage">Usage: (start-server application &amp; options)
 </pre>
-  <pre id="var-docstr">If the user is logged in, this method will return a User that
-contains information about them.</pre>
+  <pre id="var-docstr">Start the server.
+
+Example:
+
+  (start-server "Hello World" :directory "/tmp" :join? false :port 8080)
+  ; =&gt; #&lt;Server Server@1a2cc7&gt;</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="appengine.users/login-url">login-url</h2>
+  <h2 id="appengine.server/stop-server">stop-server</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (login-url destination-url &amp; [auth-domain federated-identity attributes-request])
+  <pre id="var-usage">Usage: (stop-server server)
 </pre>
-  <pre id="var-docstr">Returns an URL that can be used to display a login page to the user.</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="appengine.users/logout-url">logout-url</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (logout-url destination-url &amp; [auth-domain])
-</pre>
-  <pre id="var-docstr"> Returns an URL that can be used to log the current user out.</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="appengine.users/user-&gt;map">user-&gt;map</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (user-&gt;map user)
-</pre>
-  <pre id="var-docstr">Converts a user object into a map.</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="appengine.users/user-info">user-info</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (user-info)
-       (user-info request)
-</pre>
-  <pre id="var-docstr">With no arguments, returns a UserService and User for the current request in a map keyed by :user-service and :user respectively.
-If the user is not logged in, :user will be nil.
-With a single map argument, a Ring request, returns the user-info map associated with the request by wrap-with-user-info.</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="appengine.users/user-service">user-service</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (user-service)
-</pre>
-  <pre id="var-docstr">Returns the user service.</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="appengine.users/wrap-with-user-info">wrap-with-user-info</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (wrap-with-user-info application)
-</pre>
-  <pre id="var-docstr">Ring middleware method that wraps an application so that every request will have
-a user-info map assoc'd to the request under the key :appengine/user-info.</pre>
+  <pre id="var-docstr">Stop the server.
+
+Example:
+
+  (def *server* (start-server "Hello World" :directory "/tmp" :join? false :port 8080))
+  ; =&gt; #&lt;Server Server@1a2cc7&gt;
+
+  (stop-server *server*)
+  ; =&gt; #&lt;Server Server@1a2cc7&gt;</pre>
   
 </div>
 
