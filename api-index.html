@@ -86,7 +86,7 @@ Shortcuts:<br />
   <pre>
 <span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/commit">commit</a><span id="line-content">                       function      appengine.datastore Commits the transaction..
 </span></span><span id="section-content"> <a href="appengine.utils-api.html#appengine.utils/constructor-types">constructor-types</a><span id="line-content">            function      appengine.utils    Returns the parameter types of all constuctors..
-</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/create">create</a><span id="line-content">                       function      appengine.datastore Create new record in the datastore. If the record...
+</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/create-entity">create-entity</a><span id="line-content">                function      appengine.datastore Create new entity in the datastore. If the entity...
 </span></span><span id="section-content"> <a href="appengine.users-api.html#appengine.users/current-user">current-user</a><span id="line-content">                 function      appengine.users    If the user is logged in, this method will return ...
 </span></span></pre>
 </div><div id="index-body">
@@ -94,7 +94,7 @@ Shortcuts:<br />
   <pre>
 <span id="section-content"> <a href="appengine.taskqueue-api.html#appengine.taskqueue/default-queue">default-queue</a><span id="line-content">                function      appengine.taskqueue Returns the default task queue..
 </span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/defentity">defentity</a><span id="line-content">                    macro         appengine.datastore A macro to define entitiy records.  Examples:  ...
-</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/delete">delete</a><span id="line-content">                       function      appengine.datastore Delete the record from the datastore..
+</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/delete-entity">delete-entity</a><span id="line-content">                function      appengine.datastore Delete the entity from the datastore..
 </span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/deserialize-entity">deserialize-entity</a><span id="line-content">           multimethod   appengine.datastore Convert a Entity into a persistent map. The prope...
 </span></span></pre>
 </div><div id="index-body">
@@ -105,7 +105,8 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="F"><span id="section-head">F</span></h2>
   <pre>
-</pre>
+<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/find-entity">find-entity</a><span id="line-content">                  function      appengine.datastore Find the entity from the datastore..
+</span></span></pre>
 </div><div id="index-body">
   <h2 id="G"><span id="section-head">G</span></h2>
   <pre>
@@ -140,7 +141,6 @@ Shortcuts:<br />
 </span></span><span id="section-content"> <a href="appengine.environment-api.html#appengine.environment/login-aware-proxy">login-aware-proxy</a><span id="line-content">            function      appengine.environment Returns a local api proxy environment..
 </span></span><span id="section-content"> <a href="appengine.users-api.html#appengine.users/login-url">login-url</a><span id="line-content">                    function      appengine.users    Returns an URL that can be used to display a login...
 </span></span><span id="section-content"> <a href="appengine.users-api.html#appengine.users/logout-url">logout-url</a><span id="line-content">                   function      appengine.users    Returns an URL that can be used to log the curren...
-</span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/lookup">lookup</a><span id="line-content">                       function      appengine.datastore Lookup the record from the datastore..
 </span></span></pre>
 </div><div id="index-body">
   <h2 id="M"><span id="section-head">M</span></h2>
@@ -178,7 +178,7 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="S"><span id="section-head">S</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/save">save</a><span id="line-content">                         function      appengine.datastore Save the record in the datastore..
+<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/save-entity">save-entity</a><span id="line-content">                  function      appengine.datastore Save the entity in the datastore..
 </span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/select">select</a><span id="line-content">                       macro         appengine.datastore A macro that compiles the select clause, and any ...
 </span></span><span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/serialize-entity">serialize-entity</a><span id="line-content">             multimethod   appengine.datastore Converts a map into an entity. The kind of the en...
 </span></span><span id="section-content"> <a href="appengine.environment-api.html#appengine.environment/set-system-properties">set-system-properties</a><span id="line-content">        function      appengine.environment Set the system properties..
@@ -195,7 +195,7 @@ Shortcuts:<br />
 </div><div id="index-body">
   <h2 id="U"><span id="section-head">U</span></h2>
   <pre>
-<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/update">update</a><span id="line-content">                       function      appengine.datastore Update the record with the key-vals and save it i...
+<span id="section-content"> <a href="appengine.datastore-api.html#appengine.datastore/update-entity">update-entity</a><span id="line-content">                function      appengine.datastore Update the entity with the key-vals and save it i...
 </span></span><span id="section-content"> <a href="appengine.users-api.html#appengine.users/user-&gt;map">user-&gt;map</a><span id="line-content">                    function      appengine.users    Converts a user object into a map..
 </span></span><span id="section-content"> <a href="appengine.users-api.html#appengine.users/user-info">user-info</a><span id="line-content">                    function      appengine.users    With no arguments, returns a UserService and User ...
 </span></span><span id="section-content"> <a href="appengine.users-api.html#appengine.users/user-service">user-service</a><span id="line-content">                 function      appengine.users    Returns the user service..

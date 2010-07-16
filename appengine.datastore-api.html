@@ -52,19 +52,19 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore/commit">commit</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.datastore/create">create</a>
+      <a href="#appengine.datastore/create-entity">create-entity</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore/defentity">defentity</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.datastore/delete">delete</a>
+      <a href="#appengine.datastore/delete-entity">delete-entity</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore/deserialize-entity">deserialize-entity</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.datastore/find-entity">find-entity</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore/key-&gt;string">key-&gt;string</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore/key?">key?</a>
-    </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.datastore/lookup">lookup</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore/make-key">make-key</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -72,7 +72,7 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore/rollback">rollback</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.datastore/save">save</a>
+      <a href="#appengine.datastore/save-entity">save-entity</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore/select">select</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -80,7 +80,7 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore/string-&gt;key">string-&gt;key</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.datastore/update">update</a>
+      <a href="#appengine.datastore/update-entity">update-entity</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore/with-commit-transaction">with-commit-transaction</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
@@ -142,19 +142,19 @@ namespace.
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore.protocols/before-validation-on-create">before-validation-on-create</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.datastore.protocols/create">create</a>
+      <a href="#appengine.datastore.protocols/create-entity">create-entity</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.datastore.protocols/delete">delete</a>
+      <a href="#appengine.datastore.protocols/delete-entity">delete-entity</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore.protocols/deserialize">deserialize</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.datastore.protocols/lookup">lookup</a>
+      <a href="#appengine.datastore.protocols/find-entity">find-entity</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.datastore.protocols/save">save</a>
+      <a href="#appengine.datastore.protocols/save-entity">save-entity</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
       <a href="#appengine.datastore.protocols/serialize">serialize</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.datastore.protocols/update">update</a>
+      <a href="#appengine.datastore.protocols/update-entity">update-entity</a>
     </div>
     <br />
   </div><div style="margin-left: 1em;" class="toc-section">
@@ -258,7 +258,7 @@ Examples:
   (def *europe* (continent {:name "Europe" :iso-3166-alpha-2 "eu"}))
   ; =&gt; #'user/*europe*
 
-  (create *europe*)
+  (create-entity *europe*)
   ; =&gt; #:user.Continent{:key #&lt;Key user.Continent("eu")&gt;, :kind "user.Continent",
                         :iso-3166-alpha-2 "eu", :location nil, :name "Europe"}
 
@@ -289,11 +289,11 @@ Examples:
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="appengine.datastore/create">create</h2>
+  <h2 id="appengine.datastore/create-entity">create-entity</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (create record)
+  <pre id="var-usage">Usage: (create-entity entity)
 </pre>
-  <pre id="var-docstr">Create new record in the datastore. If the record already exists,
+  <pre id="var-docstr">Create new entity in the datastore. If the entity already exists,
 the functions throws an exception.</pre>
   
 </div><div id="var-entry">
@@ -330,11 +330,11 @@ Examples:
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="appengine.datastore/delete">delete</h2>
+  <h2 id="appengine.datastore/delete-entity">delete-entity</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (delete record)
+  <pre id="var-usage">Usage: (delete-entity entity)
 </pre>
-  <pre id="var-docstr">Delete the record from the datastore.</pre>
+  <pre id="var-docstr">Delete the entity from the datastore.</pre>
   
 </div><div id="var-entry">
   <br />
@@ -354,6 +354,15 @@ Examples:
   (deserialize-entity (doto (Entity. "continent")
                      (.setProperty "name" "Europe")))
   ; =&gt; {:name "Europe", :kind "continent", :key #&lt;Key continent(no-id-yet)&gt;}</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.datastore/find-entity">find-entity</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (find-entity entity)
+</pre>
+  <pre id="var-docstr">Find the entity from the datastore.</pre>
   
 </div><div id="var-entry">
   <br />
@@ -380,15 +389,6 @@ Examples:
   <pre id="var-usage">Usage: (key? arg)
 </pre>
   <pre id="var-docstr">Returns true if arg is a Key, else false.</pre>
-  
-</div><div id="var-entry">
-  <br />
-  <hr />
-  <h2 id="appengine.datastore/lookup">lookup</h2>
-  <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (lookup record)
-</pre>
-  <pre id="var-docstr">Lookup the record from the datastore.</pre>
   
 </div><div id="var-entry">
   <br />
@@ -430,11 +430,11 @@ Examples:
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="appengine.datastore/save">save</h2>
+  <h2 id="appengine.datastore/save-entity">save-entity</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (save record)
+  <pre id="var-usage">Usage: (save-entity entity)
 </pre>
-  <pre id="var-docstr">Save the record in the datastore.</pre>
+  <pre id="var-docstr">Save the entity in the datastore.</pre>
   
 </div><div id="var-entry">
   <br />
@@ -500,11 +500,11 @@ Examples:
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="appengine.datastore/update">update</h2>
+  <h2 id="appengine.datastore/update-entity">update-entity</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (update record key-vals)
+  <pre id="var-usage">Usage: (update-entity entity key-vals)
 </pre>
-  <pre id="var-docstr">Update the record with the key-vals and save it in the
+  <pre id="var-docstr">Update the entity with the key-vals and save it in the
 datastore.</pre>
   
 </div><div id="var-entry">
@@ -850,20 +850,20 @@ Examples:
   
 </div><div id="var-entry">
   <hr />
-  <h2 id="appengine.datastore.protocols/create">create</h2>
+  <h2 id="appengine.datastore.protocols/create-entity">create-entity</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (create record)
+  <pre id="var-usage">Usage: (create-entity entity)
 </pre>
-  <pre id="var-docstr">Create new record in the datastore. If the record already exists,
+  <pre id="var-docstr">Create new entity in the datastore. If the entity already exists,
 the functions throws an exception.</pre>
   
 </div><div id="var-entry">
   <hr />
-  <h2 id="appengine.datastore.protocols/delete">delete</h2>
+  <h2 id="appengine.datastore.protocols/delete-entity">delete-entity</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (delete record)
+  <pre id="var-usage">Usage: (delete-entity entity)
 </pre>
-  <pre id="var-docstr">Delete the record from the datastore.</pre>
+  <pre id="var-docstr">Delete the entity from the datastore.</pre>
   
 </div><div id="var-entry">
   <hr />
@@ -875,35 +875,35 @@ the functions throws an exception.</pre>
   
 </div><div id="var-entry">
   <hr />
-  <h2 id="appengine.datastore.protocols/lookup">lookup</h2>
+  <h2 id="appengine.datastore.protocols/find-entity">find-entity</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (lookup record)
+  <pre id="var-usage">Usage: (find-entity entity)
 </pre>
-  <pre id="var-docstr">Lookup the record from the datastore.</pre>
+  <pre id="var-docstr">Find the entity from the datastore.</pre>
   
 </div><div id="var-entry">
   <hr />
-  <h2 id="appengine.datastore.protocols/save">save</h2>
+  <h2 id="appengine.datastore.protocols/save-entity">save-entity</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (save record)
+  <pre id="var-usage">Usage: (save-entity entity)
 </pre>
-  <pre id="var-docstr">Save the record in the datastore.</pre>
+  <pre id="var-docstr">Save the entity in the datastore.</pre>
   
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.protocols/serialize">serialize</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (serialize record)
+  <pre id="var-usage">Usage: (serialize entity)
 </pre>
-  <pre id="var-docstr">Serialize the record into an entity.</pre>
+  <pre id="var-docstr">Serialize the entity into an entity.</pre>
   
 </div><div id="var-entry">
   <hr />
-  <h2 id="appengine.datastore.protocols/update">update</h2>
+  <h2 id="appengine.datastore.protocols/update-entity">update-entity</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (update record key-vals)
+  <pre id="var-usage">Usage: (update-entity entity key-vals)
 </pre>
-  <pre id="var-docstr">Update the record with the key-vals and save it in the
+  <pre id="var-docstr">Update the entity with the key-vals and save it in the
 datastore.</pre>
   
 </div>
