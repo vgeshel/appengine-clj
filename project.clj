@@ -3,6 +3,8 @@
   :description "A Clojure library for Google App Engine."
   :url "http://github.com/r0man/appengine-clj"
   :autodoc {:name "Clojure for Google App Engine"
+            :web-src-dir "http://github.com/r0man/appengine-clj/blob/"
+            :web-home "http://r0man.github.com/appengine-clj/"
             :copyright "Copyright (c) 2009, 2010 John D. Hume, Roman Scherer, Jean-Denis Greze, E.Fukamachi"}
   :dependencies [[com.google.appengine/appengine-api-1.0-sdk "1.3.5"]
                  [inflections "0.4-SNAPSHOT"]
