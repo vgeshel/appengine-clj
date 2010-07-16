@@ -47,6 +47,7 @@
   (is (datastore? (datastore))))
 
 (datastore-test test-delete-entity
+  (is (nil? (delete-entity nil)))
   (let [entity (put-entity (make-example-entity)) key (.getKey entity)]
     (is (= (get-entity key) entity))
     (is (delete-entity key))
@@ -54,12 +55,14 @@
     (is (delete-entity key))))
 
 (datastore-test test-get-entity
+  (is (nil? (get-entity nil)))
   (let [entity (make-example-entity) key (.getKey entity)]
     (is (nil? (get-entity key)))
     (let [entity (put-entity entity)]
       (is (= (get-entity key) entity)))))
 
 (datastore-test test-put-entity
+  (is (nil? (put-entity nil)))
   (let [entity (put-entity (make-example-entity)) key (.getKey entity)]
     (is (entity? entity))
     (is (= key (.getKey (make-example-entity))))

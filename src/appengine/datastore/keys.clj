@@ -8,7 +8,7 @@
   value, except that it is a websafe string that does not need to be
   quoted when used in HTML or in URLs."}
   appengine.datastore.keys
-  (:import (com.google.appengine.api.datastore Entity EntityNotFoundException Key KeyFactory))
+  (:import (com.google.appengine.api.datastore EntityNotFoundException Key KeyFactory))
   (:use [appengine.datastore.utils :only (assert-new)]
         appengine.datastore.protocols)
   (:require [appengine.datastore.service :as datastore]))
@@ -62,18 +62,18 @@ Examples:
   [string] (KeyFactory/stringToKey string))
 
 (extend-type Key
-  Record
-  (create [key]
+  EntityProtocol
+  (create-entity [key]
     (assert-new key)
-    (save key))
-  (delete [key]
+    (save-entity key))
+  (delete-entity [key]
     (datastore/delete-entity key))
-  (save [key]
-    (deserialize (datastore/put-entity (Entity. key) )))
-  (lookup [key]          
+  (save-entity [key]
+    (deserialize (datastore/put-entity (com.google.appengine.api.datastore.Entity. key) )))
+  (find-entity [key]          
           (try (if-let [entity (datastore/get-entity key)]
                  (deserialize entity))
          (catch EntityNotFoundException _ nil)))
-  (update [key key-vals]
-    (if-let [entity (datastore/get-entity key)]
-      (update entity key-vals))))
+  (update-entity [key key-vals]
+    (if-let [entity (datastore/get-entity key)] ; TODO: Don't call get-entity
+      (update-entity entity key-vals)))) 

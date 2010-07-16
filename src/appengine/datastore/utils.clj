@@ -1,7 +1,7 @@
 (ns appengine.datastore.utils
-  (:use [appengine.datastore.protocols :only (lookup)]))
+  (:use [appengine.datastore.protocols :only (find-entity)]))
 
-(defn assert-new [entity-or-key]
-  (if-let [found (lookup entity-or-key)]
-    (throw (Exception. (str "Can't create entity." " Already existing: " entity-or-key)))
-    entity-or-key))
+(defn assert-new [entity]
+  (if-let [found (first (find-entity entity))]
+    (throw (Exception. (str "Can't create entity." " Already existing: " entity)))
+    entity))

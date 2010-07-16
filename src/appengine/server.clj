@@ -46,5 +46,5 @@ Example:
   (do (.stop server)
       server))
 
-;; (def *server* (start-server "Hello World" :port 8080 :join? false :filename "test/fixures/appengine-web.xml"))
+;; (def *server* (start-server "Hello World" :port 8080 :join? false :filename "test/fixtures/appengine-web.xml"))
 ;; (stop-server *server*)

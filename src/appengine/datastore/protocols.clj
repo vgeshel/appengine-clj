@@ -3,7 +3,7 @@
   appengine.datastore.protocols
   (:use appengine.utils))
 
-(defprotocol Lifecycle
+(defprotocol LifecycleProtocol
   (before-validation [record]
     "Callback fns to evaluate before validating the record.")
   (before-validation-on-create [record]
@@ -21,31 +21,31 @@
   (after-save [record]
     "Callback fns to evaluate after saving the record."))
 
-(defprotocol Record
-  (create [record]
-    "Create new record in the datastore. If the record already exists,
+(defprotocol EntityProtocol
+  (create-entity [entity]
+    "Create new entity in the datastore. If the entity already exists,
     the functions throws an exception.")
-  (delete [record]
-    "Delete the record from the datastore.")
-  (lookup [record]
-    "Lookup the record from the datastore.")
-  (save [record]
-    "Save the record in the datastore.")
-  (update [record key-vals]
-    "Update the record with the key-vals and save it in the
+  (delete-entity [entity]
+    "Delete the entity from the datastore.")
+  (find-entity [entity]
+    "Find the entity from the datastore.")
+  (save-entity [entity]
+    "Save the entity in the datastore.")
+  (update-entity [entity key-vals]
+    "Update the entity with the key-vals and save it in the
     datastore."))
 
-(defprotocol Serialization
+(defprotocol SerializationProtocol
   (deserialize [object]
     "Deserialize an object into a clojure data structure.")
-  (serialize [record]
-    "Serialize the record into an entity."))
+  (serialize [entity]
+    "Serialize the entity into an entity."))
 
 (extend-type clojure.lang.Seqable
-  Record
-  (create [records] (map create records))
-  (delete [records] (map delete records))
-  (lookup [records] (map lookup records))
-  (save   [records] (map save records))
-  (update [records key-vals] (map #(update % key-vals) records)))
+  EntityProtocol
+  (create-entity [entities] (map create-entity entities))
+  (delete-entity [entities] (map delete-entity entities))
+  (find-entity [entities] (map find-entity entities))
+  (save-entity   [entities] (map save-entity entities))
+  (update-entity [entities key-vals] (map #(update-entity % key-vals) entities)))
 

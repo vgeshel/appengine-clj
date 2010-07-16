@@ -139,7 +139,7 @@ Examples:
 
 (defn entity?
   "Returns true if arg is an Entity, false otherwise."
-  [arg] (isa? (class arg) Entity))
+  [arg] (isa? (class arg) com.google.appengine.api.datastore.Entity))
 
 (defn entity-kind-name
   "Returns the kind of the entity as a string.
@@ -196,9 +196,9 @@ Examples:
   ; => #<Entity [continent(\"eu\")]>
 "
   ([key-or-kind]
-     (Entity. key-or-kind))
+     (com.google.appengine.api.datastore.Entity. key-or-kind))
   ([#^Key parent #^String kind key-or-id]
-     (Entity. (make-key parent kind key-or-id))))
+     (com.google.appengine.api.datastore.Entity. (make-key parent kind key-or-id))))
 
 (defmulti deserialize-entity
   "Convert a Entity into a persistent map. The property values are
@@ -242,7 +242,7 @@ Examples:
 
 (defmethod serialize-entity :default [map]
            (reduce #(.setProperty %1 (stringify (first %2)) (deserialize (second %2)))
-                   (Entity. (or (:key map) (:kind map)))
+                   (com.google.appengine.api.datastore.Entity. (or (:key map) (:kind map)))
                    (dissoc map :key :kind)))
 
 (defn deserialize-property
@@ -277,7 +277,7 @@ Examples:
 
 (defn- extend-entity [entity]
   (let [kind# (entity-kind-name entity) entity-sym (symbol kind#)]    
-    `(extend-type Entity
+    `(extend-type com.google.appengine.api.datastore.Entity
        ~(symbol (entity-protocol-name entity))
        (~(entity-p-fn-sym entity) [~entity-sym]
         (= (.getKind ~entity-sym) ~kind#)))))
@@ -376,7 +376,7 @@ Examples:
         properties# (map (comp keyword first) property-specs)
         serializers# (extract-serializer property-specs)]
     `(defmethod ~'serialize-entity ~kind# [~'map]
-       (doto (Entity. (or (:key ~'map) (:kind ~'map)))
+       (doto (com.google.appengine.api.datastore.Entity. (or (:key ~'map) (:kind ~'map)))
          ~@(for [property# properties#]
              `(.setProperty
                ~(stringify property#)
@@ -423,24 +423,24 @@ Examples:
        ~(extend-parent entity parent properties#)
        ~(extend-persistent-map entity parent properties# key-fns#))))
 
-(extend-type Entity
-  Record
-  (create [entity] (save (assert-new entity)))
-  (delete [entity] (delete (.getKey entity)))
-  (lookup [entity] (lookup (.getKey entity)))
-  (save   [entity] (deserialize-entity (datastore/put entity)))
-  (update [entity key-vals] (update (deserialize-entity entity) key-vals))
-  Serialization
+(extend-type com.google.appengine.api.datastore.Entity
+  EntityProtocol
+  (create-entity [entity] (save-entity (assert-new entity)))
+  (delete-entity [entity] (delete-entity (.getKey entity)))
+  (find-entity [entity] (find-entity (.getKey entity)))
+  (save-entity   [entity] (deserialize-entity (datastore/put entity)))
+  (update-entity [entity key-vals] (update-entity (deserialize-entity entity) key-vals))
+  SerializationProtocol
   (deserialize [entity] (deserialize-entity entity))
   (serialize   [entity] entity))
 
 (extend-type IPersistentMap
-  Record
-  (create [map] (create (serialize map)))
-  (delete [map] (delete (serialize map)))
-  (save   [map] (save (serialize-entity map)))
-  (lookup [map] (lookup (serialize-entity map)))
-  (update [map key-vals] (save (merge map key-vals)))
-  Serialization
+  EntityProtocol
+  (create-entity [map] (create-entity (serialize map)))
+  (delete-entity [map] (delete-entity (serialize map)))
+  (save-entity   [map] (save-entity (serialize-entity map)))
+  (find-entity   [map] (find-entity (serialize-entity map)))
+  (update-entity [map key-vals] (save-entity (merge map key-vals)))
+  SerializationProtocol
   (deserialize [map] map)
   (serialize   [map] (serialize-entity map)))

@@ -95,7 +95,8 @@ Examples:
   [#^Key key]
   (if key
     (try
-      (.get (datastore) (current-transaction) key)
+      (if (and key (.isComplete key))
+        (.get (datastore) (current-transaction) key))
       (catch EntityNotFoundException _ nil))))
 
 (defn delete-entity

@@ -58,7 +58,7 @@ Datastore Examples
     (lookup *europe*)
 
     ; Save the continent to the datastore.
-    (save *europe*)
+    (save-entity *europe*)
 
     ; Find all continents.
     (find-continents "Europe")
@@ -67,7 +67,7 @@ Datastore Examples
     (find-continents-by-name "Europe")
 
     ; Delete the entity from the datastore.
-    (delete *europe*)
+    (delete-entity *europe*)
 
 Take a look at the
 [documentation](http://r0man.github.com/appengine-clj) or browse the

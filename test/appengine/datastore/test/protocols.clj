@@ -10,22 +10,22 @@
   [(make-key "continent" "eu")
    (Entity. (make-key "continent" "af"))])
 
-(datastore-test test-create
-  (let [entities (create (make-sequence))]
+(datastore-test test-create-entity
+  (let [entities (create-entity (make-sequence))]
     (is (seq? entities))))
 
-(datastore-test test-delete
-  (let [entities (create (make-sequence))]
-    (is (delete entities))))
+(datastore-test test-delete-entity
+  (let [entities (create-entity (make-sequence))]
+    (is (delete-entity entities))))
 
-(datastore-test test-lookup
-  (let [entities (create (make-sequence))]
-    (is (lookup entities))))
+(datastore-test test-find-entity
+  (let [entities (create-entity (make-sequence))]
+    (is (find-entity entities))))
 
-(datastore-test test-save
-  (let [entities (create (make-sequence))]
-    (is (save entities))))
+(datastore-test test-save-entity
+  (let [entities (create-entity (make-sequence))]
+    (is (save-entity entities))))
 
-(datastore-test test-update
-  (let [entities (create (make-sequence))]
-    (is (update entities {:updated-at "TIMESTAMP"}))))
+(datastore-test test-update-entity
+  (let [entities (create-entity (make-sequence))]
+    (is (update-entity entities {:updated-at "TIMESTAMP"}))))

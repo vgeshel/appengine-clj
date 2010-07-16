@@ -1,5 +1,5 @@
 (ns appengine.datastore.test.keys
-  (:import (com.google.appengine.api.datastore Entity Key KeyFactory))
+  (:import (com.google.appengine.api.datastore Key KeyFactory))
   (:use appengine.datastore.entities
         appengine.datastore.keys
         appengine.datastore.protocols
@@ -11,45 +11,46 @@
   (make-key "continent" "eu"))
 
 (defn create-europe []
-  (save (make-europe)))
+  (save-entity (make-europe)))
 
-(datastore-test test-create
-  (let [entity (create (make-europe))]
+(datastore-test test-create-entity
+  (let [entity (create-entity (make-europe))]
     (is (map? entity))
-    (is (= (lookup entity) entity))
-    (is (thrown? Exception (create (.getKey entity))))))
+    (is (= (find-entity entity) entity))
+    (is (thrown? Exception (create-entity (.getKey entity))))))
 
-(datastore-test test-delete
+(datastore-test test-delete-entity
   (let [entity (create-europe)]
     (is (map? entity))
-    (is (= (lookup entity) entity))
-    (delete (:key entity))
-    (is (nil? (lookup entity)))))
+    (is (= (find-entity entity) entity))
+    (delete-entity (:key entity))
+    (is (nil? (find-entity entity)))))
 
-(datastore-test test-save
+(datastore-test test-save-entity
   (testing "with complete key"
-    (let [entity (save (make-europe))]
+    (let [entity (save-entity (make-europe))]
       (is (map? entity))
-      (is (= entity (lookup entity)))))
+      (is (= entity (find-entity entity)))))
   (testing "with incomplete key"
-    (let [entity (save (doto (Entity. "person") (.setProperty "name" "Bob")))]
+    (let [entity (save-entity (doto (com.google.appengine.api.datastore.Entity. "person")
+                                (.setProperty "name" "Bob")))]
       (is (map? entity))
-      (is (= entity (lookup entity))))))
+      (is (= entity (find-entity entity))))))
 
-(datastore-test test-lookup
-  (is (nil? (lookup (make-europe))))
-  (is (not (nil? (lookup (:key (create-europe))))))
+(datastore-test test-find-entity
+  (is (nil? (find-entity (make-europe))))
+  (is (not (nil? (find-entity (:key (create-europe))))))
   (let [entity (create-europe)]
     (is (map? entity))
-    (is (= (lookup (:key entity)) entity))))
+    (is (= (find-entity (:key entity)) entity))))
 
-(datastore-test test-update
+(datastore-test test-update-entity-entity
   (testing "with saved key"    
-    (let [entity (update (:key (create-europe)) {:name "Asia"})]
+    (let [entity (update-entity (:key (create-europe)) {:name "Asia"})]
       (is (map? entity))
       (is (= (:name entity) "Asia"))))
   (testing "with unsaved key"    
-    (let [entity (update (make-europe) {:name "Asia"})]
+    (let [entity (update-entity (make-europe) {:name "Asia"})]
       (is (map? entity))
       (is (= (:name entity) "Asia")))))
 

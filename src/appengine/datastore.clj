@@ -13,7 +13,7 @@ Examples:
   (def *europe* (continent {:name \"Europe\" :iso-3166-alpha-2 \"eu\"}))
   ; => #'user/*europe*
 
-  (create *europe*)
+  (create-entity *europe*)
   ; => #:user.Continent{:key #<Key user.Continent(\"eu\")>, :kind \"user.Continent\",
                         :iso-3166-alpha-2 \"eu\", :location nil, :name \"Europe\"}
 
@@ -34,7 +34,7 @@ Examples:
 
 (immigrate-symbols
  'appengine.datastore.protocols
- 'create 'delete 'lookup 'save 'update)
+ 'create-entity 'delete-entity 'find-entity 'save-entity 'update-entity)
 
 (immigrate-symbols
  'appengine.datastore.query 'select 'query?)

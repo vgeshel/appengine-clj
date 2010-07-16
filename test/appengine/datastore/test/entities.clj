@@ -486,28 +486,28 @@
 ;; FIND ENTITIES
 
 (datastore-test test-find-continents
-  (let [europe (save (europe-record))
+  (let [europe (save-entity (europe-record))
         continents (find-continents)]
     (is (seq? continents))
     (is (not (empty? continents)))
     (is (= (first continents) europe))))
 
 (datastore-test test-find-continents-by-iso-3166-alpha-2
-  (let [europe (save (europe-record))
+  (let [europe (save-entity (europe-record))
         continents (find-continents-by-iso-3166-alpha-2 (:iso-3166-alpha-2 europe))]
     (is (seq? continents))
     (is (not (empty? continents)))
     (is (includes? continents europe))))
 
 (datastore-test test-find-continents-by-name
-  (let [europe (save (europe-record))
+  (let [europe (save-entity (europe-record))
         continents (find-continents-by-name (:name europe))]
     (is (seq? continents))
     (is (not (empty? continents)))
     (is (includes? continents europe))))
 
 (datastore-test test-find-continents-by-location
-  (let [europe (save (europe-record))
+  (let [europe (save-entity (europe-record))
         continents (find-continents-by-location (:location europe))]
     (is (seq? continents))
     (is (not (empty? continents)))
@@ -515,84 +515,84 @@
 
 ;; CRUD
 
-(datastore-test test-create  
+(datastore-test test-create-entity  
   (are [object]
     (do
-      (is (nil? (lookup object)))
-      (let [record (create object)]
+      (is (nil? (find-entity object)))
+      (let [record (create-entity object)]
         (is (continent? record))        
-        (is (= (lookup record) record))
-        (is (thrown? Exception (create object)))
-        (is (delete record))))
+        (is (= (find-entity record) record))
+        (is (thrown? Exception (create-entity object)))
+        (is (delete-entity record))))
     (europe-array-map)
     (europe-entity)
     (europe-hash-map)
     (europe-record)))
 
-(datastore-test test-delete  
+(datastore-test test-delete-entity  
   (are [record]
     (do
-      (create record)
-      (is (not (nil? (lookup record))))
-      (is (delete record))
-      (is (nil? (lookup record)))
-      (is (delete record)))
+      (create-entity record)
+      (is (not (nil? (find-entity record))))
+      (is (delete-entity record))
+      (is (nil? (find-entity record)))
+      (is (delete-entity record)))
     (europe-array-map)
     (europe-entity)
     (europe-hash-map)
     (europe-record)))
 
-(datastore-test test-save
+(datastore-test test-save-entity
   (are [object]        
-    (let [entity (save object)]
+    (let [entity (save-entity object)]
       (is (continent? entity))        
-      (is (= (lookup entity) entity))
-      (is (map? (save object)))
-      (is (delete entity)))
+      (is (= (find-entity entity) entity))
+      (is (map? (save-entity object)))
+      (is (delete-entity entity)))
     (europe-array-map)
     (europe-entity)
     (europe-hash-map)
     (europe-record)))
 
-(datastore-test test-lookup
+(datastore-test test-find-entity
   (are [object]        
-    (let [entity (save object)]
-      (is (continent? (lookup entity)))
-      (is (= (lookup entity) entity))
-      (is (delete entity))
-      (is (nil? (lookup entity))))
+    (let [entity (save-entity object)]
+      (is (continent? (find-entity entity)))
+      (is (= (find-entity entity) entity))
+      (is (delete-entity entity))
+      (is (nil? (find-entity entity))))
     (europe-array-map)
     (europe-entity)
     (europe-hash-map)
     (europe-record)))
 
-(datastore-test test-update
+(datastore-test test-update-entity
   (let [updates {:name "Asia"}]
     (are [object key-vals]
       (do
-        (is (delete object))
-        (let [entity (update object key-vals)]
+        (is (delete-entity object))
+        (let [entity (update-entity object key-vals)]
           (doseq [[key value] key-vals]
             (is (= (key entity) value)))
           (is (map? entity))        
           (is (= (select-keys entity (keys key-vals)) key-vals))        
-          (is (= (update object key-vals) entity))))
+          (is (= (update-entity object key-vals) entity))))
       (europe-array-map) updates
       (europe-entity) updates
       (europe-hash-map) updates
       (europe-record) updates)))
 
-(datastore-test test-update-with-location
+(datastore-test test-update-entity-with-location
   (let [updates {:name "Asia" :location {:latitude 1 :longitude 2}}]
     (are [object key-vals]
       (do
-        (is (delete object))
-        (let [entity (update object key-vals)]
+        (is (delete-entity object))
+        (let [entity (update-entity object key-vals)]
           (doseq [[key value] key-vals]
             (is (= (key entity) value)))
           (is (map? entity))        
           (is (= (select-keys entity (keys key-vals)) key-vals))        
-          (is (= (update object key-vals) entity))))
+          (is (= (update-entity object key-vals) entity))))
       (europe-array-map) updates
       (europe-entity) updates
       (europe-hash-map) updates
