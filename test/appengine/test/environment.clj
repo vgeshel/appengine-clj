@@ -3,6 +3,8 @@
            (com.google.appengine.tools.development ApiProxyLocalFactory LocalServerEnvironment))
   (:use clojure.test appengine.environment))
 
+(def *appengine-web-xml-path* "test/fixtures/appengine-web.xml")
+
 (deftest test-login-aware-proxy
   (let [proxy (login-aware-proxy {})]
     (is (isa? (class proxy) ApiProxy$Environment))
@@ -20,7 +22,7 @@
   (let [proxy (init-appengine)]))
 
 (deftest test-parse-configuration
-  (let [configuration (parse-configuration "test/fixures/appengine-web.xml")]
+  (let [configuration (parse-configuration *appengine-web-xml-path*)]
     (is (= (:application configuration) "appengine"))
     (is (= (:version configuration) "1"))
     (is (= (:properties configuration)
@@ -33,7 +35,7 @@
   (is (= (System/getProperty "property-name") "property-value")))
 
 (deftest test-with-configuration
-  (with-configuration "test/fixures/appengine-web.xml"
+  (with-configuration *appengine-web-xml-path*
     (is (= *application* "appengine"))
     (is (= *version* "1"))
     (is (= (System/getProperty "myapp.notify-url") "http://www.example.com/signupnotify"))
