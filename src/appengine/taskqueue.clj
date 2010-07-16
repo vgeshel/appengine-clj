@@ -1,5 +1,5 @@
 (ns #^{:author "Roman Scherer"
-       :doc "The Clojure API for the Google App Engine task queue service." }
+       :doc "API for the Google App Engine task queue service." }
   appengine.taskqueue
   (:import (com.google.appengine.api.labs.taskqueue TaskOptions$Builder Queue QueueFactory))
   (:use [clojure.contrib.def :only (defvar)]))

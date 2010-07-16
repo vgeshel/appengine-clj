@@ -1,28 +1,6 @@
 (ns #^{:author "Roman Scherer with contributions by John D. Hume and
 Jean-Denis Greze."
-       :doc "Clojure API for the Google App Engine datastore service.
-
-Examples:
-
-  (defentity Continent ()
-    ((iso-3166-alpha-2 :key lower-case :serialize lower-case)
-     (location :serialize GeoPt)
-     (name)))
-  ; => (user.Continent)
-
-  (def *europe* (continent {:name \"Europe\" :iso-3166-alpha-2 \"eu\"}))
-  ; => #'user/*europe*
-
-  (create-entity *europe*)
-  ; => #:user.Continent{:key #<Key user.Continent(\"eu\")>, :kind \"user.Continent\",
-                        :iso-3166-alpha-2 \"eu\", :location nil, :name \"Europe\"}
-
-  (defentity Country (Continent)
-    ((iso-3166-alpha-2 :key lower-case :serialize lower-case)
-     (location :serialize GeoPt)
-     (name)))
-
-"
+       :doc "API for the Google App Engine datastore service."
   } appengine.datastore
   (:use [appengine.utils :only (immigrate-symbols)]))
 
