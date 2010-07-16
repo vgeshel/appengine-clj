@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>App Engine - Overview</title>
+    <title>Clojure for Google App Engine - Overview</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -24,8 +24,8 @@ namespace.
   <body>
     <div id="AllContentContainer">
       <div id="Header">
-	<a id="Logo" href="index.html"><img alt="Clojure" height="100" width="100" src="static/clojure-icon.gif" /></a>
-	<h1><a title="page header title" id="page-header" href="index.html">App Engine</a></h1>
+	<a id="Logo" href="index.html"><img alt="Clojure" height="100" width="100" src="static/appengine-100x100.png" /></a>
+	<h1><a title="page header title" id="page-header" href="index.html">Clojure for Google App Engine</a></h1>
       </div>
       <div id="leftcolumn"><div style="text-align: center;"></div>
 <div class="menu">
@@ -34,7 +34,7 @@ namespace.
     <a class="wiki_link" href="api-index.html">API Index</a><br />
     <a class="wiki_link" href="#">Namespaces:</a>
     <ul id="left-sidebar-list">
-      <li><a href="appengine.datastore-api.html" class="wiki_link">appengine.datastore</a></li><li><a href="appengine.memcache-api.html" class="wiki_link">appengine.memcache</a></li><li><a href="appengine.taskqueue-api.html" class="wiki_link">appengine.taskqueue</a></li><li><a href="appengine.test-api.html" class="wiki_link">appengine.test</a></li><li><a href="appengine.urlfetch-api.html" class="wiki_link">appengine.urlfetch</a></li><li><a href="appengine.users-api.html" class="wiki_link">appengine.users</a></li><li><a href="appengine.utils-api.html" class="wiki_link">appengine.utils</a></li>
+      <li><a href="appengine.datastore-api.html" class="wiki_link">appengine.datastore</a></li><li><a href="appengine.environment-api.html" class="wiki_link">appengine.environment</a></li><li><a href="appengine.memcache-api.html" class="wiki_link">appengine.memcache</a></li><li><a href="appengine.server-api.html" class="wiki_link">appengine.server</a></li><li><a href="appengine.taskqueue-api.html" class="wiki_link">appengine.taskqueue</a></li><li><a href="appengine.test-api.html" class="wiki_link">appengine.test</a></li><li><a href="appengine.urlfetch-api.html" class="wiki_link">appengine.urlfetch</a></li><li><a href="appengine.users-api.html" class="wiki_link">appengine.users</a></li><li><a href="appengine.utils-api.html" class="wiki_link">appengine.utils</a></li>
     </ul>
   </div>
 </div>
@@ -50,7 +50,15 @@ namespace.
     
     <br />
   </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#appengine.environment">appengine.environment</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
     <a href="#appengine.memcache">appengine.memcache</a>
+    
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#appengine.server">appengine.server</a>
     
     <br />
   </div><div style="margin-left: 1em;" class="toc-section">
@@ -76,63 +84,125 @@ namespace.
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="toc0">An Overview of the <span id="header-project">App Engine</span> API</h1>
+                <div id="content-tag"><h1 id="toc0">An Overview of the <span id="header-project">Clojure for Google App Engine</span> API</h1>
 <br />
-<div id="project-description">Clojure library for Google App Engine.</div>
+<div id="project-description">A Clojure library for Google App Engine.</div>
 <br />
 <div id="namespace-entry">
   <br />
   <hr />
   <h2 id="appengine.datastore">appengine.datastore</h2>
-  by <span id="author">Roman Scherer with contributions by John D. Hume,
+  by <span id="author">Roman Scherer with contributions by John D. Hume and
 Jean-Denis Greze.</span><br />
   <a href="appengine.datastore-api.html" id="api-link">Detailed API documentation</a><br />
-  <pre id="namespace-docstr">Clojure API for the Google App Engine datastore service.</pre>
+  <pre id="namespace-docstr">Clojure API for the Google App Engine datastore service.
+
+Examples:
+
+  (defentity Continent ()
+    ((iso-3166-alpha-2 :key lower-case :serialize lower-case)
+     (location :serialize GeoPt)
+     (name)))
+  ; =&gt; (user.Continent)
+
+  (def *europe* (continent {:name "Europe" :iso-3166-alpha-2 "eu"}))
+  ; =&gt; #'user/*europe*
+
+  (create *europe*)
+  ; =&gt; #:user.Continent{:key #&lt;Key user.Continent("eu")&gt;, :kind "user.Continent",
+                        :iso-3166-alpha-2 "eu", :location nil, :name "Europe"}
+
+  (defentity Country (Continent)
+    ((iso-3166-alpha-2 :key lower-case :serialize lower-case)
+     (location :serialize GeoPt)
+     (name)))</pre>
   
   Public variables and functions:
-  <span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/*transaction*" id="var-tag">*transaction*</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/*transaction-retries*" id="var-tag">*transaction-retries*</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/create-entity" id="var-tag">create-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/create-key" id="var-tag">create-key</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/datastore" id="var-tag">datastore</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/entity-&gt;map" id="var-tag">entity-&gt;map</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/find-all" id="var-tag">find-all</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/get-entity" id="var-tag">get-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/is-transaction-active?" id="var-tag">is-transaction-active?</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/key-&gt;string" id="var-tag">key-&gt;string</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/map-&gt;entity" id="var-tag">map-&gt;entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/new-transaction" id="var-tag">new-transaction</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/properties" id="var-tag">properties</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/put-entity" id="var-tag">put-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/rollback-transaction" id="var-tag">rollback-transaction</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/string-&gt;key" id="var-tag">string-&gt;key</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/update-entity" id="var-tag">update-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/with-retries" id="var-tag">with-retries</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/with-transaction" id="var-tag">with-transaction</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/without-transaction" id="var-tag">without-transaction</a> </span><br />
+  <span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/active?" id="var-tag">active?</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/commit" id="var-tag">commit</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/create" id="var-tag">create</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/defentity" id="var-tag">defentity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/delete" id="var-tag">delete</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/deserialize-entity" id="var-tag">deserialize-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/key-&gt;string" id="var-tag">key-&gt;string</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/key?" id="var-tag">key?</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/lookup" id="var-tag">lookup</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/make-key" id="var-tag">make-key</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/query?" id="var-tag">query?</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/rollback" id="var-tag">rollback</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/save" id="var-tag">save</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/select" id="var-tag">select</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/serialize-entity" id="var-tag">serialize-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/string-&gt;key" id="var-tag">string-&gt;key</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/update" id="var-tag">update</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/with-commit-transaction" id="var-tag">with-commit-transaction</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/with-rollback-transaction" id="var-tag">with-rollback-transaction</a> </span><br />
   <span id="subspace"><br />Variables and functions in
-    <span id="name">appengine.datastore.core</span>:
+    <span id="name">appengine.datastore.entities</span>:
     <span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.core/*transaction*">*transaction*</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.entities/defentity">defentity</a>
     </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.core/create-entity">create-entity</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.entities/deserialize-entity">deserialize-entity</a>
     </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.core/create-key">create-key</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.entities/deserialize-property">deserialize-property</a>
     </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.core/datastore">datastore</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.entities/entity-kind-name">entity-kind-name</a>
     </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.core/entity-&gt;map">entity-&gt;map</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.entities/entity-protocol-name">entity-protocol-name</a>
     </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.core/find-all">find-all</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.entities/entity?">entity?</a>
     </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.core/get-entity">get-entity</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.entities/extract-key">extract-key</a>
     </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.core/key-&gt;string">key-&gt;string</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.entities/make-blank-entity">make-blank-entity</a>
     </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.core/map-&gt;entity">map-&gt;entity</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.entities/serialize-entity">serialize-entity</a>
     </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.core/properties">properties</a>
-    </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.core/put-entity">put-entity</a>
-    </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.core/string-&gt;key">string-&gt;key</a>
-    </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.core/update-entity">update-entity</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.entities/serialize-property">serialize-property</a>
     </span>
     <br />
   </span><span id="subspace"><br />Variables and functions in
-    <span id="name">appengine.datastore.entities</span>:
-    
+    <span id="name">appengine.datastore.keys</span>:
+    <span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.keys/key-&gt;string">key-&gt;string</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.keys/key?">key?</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.keys/make-key">make-key</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.keys/string-&gt;key">string-&gt;key</a>
+    </span>
+    <br />
+  </span><span id="subspace"><br />Variables and functions in
+    <span id="name">appengine.datastore.protocols</span>:
+    <span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/after-create">after-create</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/after-save">after-save</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/after-validation">after-validation</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/after-validation-on-create">after-validation-on-create</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/before-create">before-create</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/before-save">before-save</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/before-validation">before-validation</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/before-validation-on-create">before-validation-on-create</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/create">create</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/delete">delete</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/deserialize">deserialize</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/lookup">lookup</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/save">save</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/serialize">serialize</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.protocols/update">update</a>
+    </span>
     <br />
   </span><span id="subspace"><br />Variables and functions in
     <span id="name">appengine.datastore.query</span>:
     <span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.query/compile-select">compile-select</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.query/execute">execute</a>
+    </span><span id="sub-var-link">
       <a href="appengine.datastore-api.html#appengine.datastore.query/filter-by">filter-by</a>
     </span><span id="sub-var-link">
       <a href="appengine.datastore-api.html#appengine.datastore.query/filter-operator">filter-operator</a>
     </span><span id="sub-var-link">
       <a href="appengine.datastore-api.html#appengine.datastore.query/order-by">order-by</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.query/prepare">prepare</a>
     </span><span id="sub-var-link">
       <a href="appengine.datastore-api.html#appengine.datastore.query/query">query</a>
     </span><span id="sub-var-link">
@@ -144,24 +214,69 @@ Jean-Denis Greze.</span><br />
     </span>
     <br />
   </span><span id="subspace"><br />Variables and functions in
+    <span id="name">appengine.datastore.service</span>:
+    <span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.service/active-transactions">active-transactions</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.service/begin-transaction">begin-transaction</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.service/commit-transaction">commit-transaction</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.service/current-transaction">current-transaction</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.service/datastore">datastore</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.service/datastore?">datastore?</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.service/delete">delete</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.service/delete-entity">delete-entity</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.service/get">get</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.service/get-entity">get-entity</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.service/prepare-query">prepare-query</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.service/put">put</a>
+    </span><span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.service/put-entity">put-entity</a>
+    </span>
+    <br />
+  </span><span id="subspace"><br />Variables and functions in
     <span id="name">appengine.datastore.transactions</span>:
     <span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.transactions/*transaction-retries*">*transaction-retries*</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.transactions/active?">active?</a>
     </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.transactions/is-transaction-active?">is-transaction-active?</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.transactions/commit">commit</a>
     </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.transactions/new-transaction">new-transaction</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.transactions/rollback">rollback</a>
     </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.transactions/rollback-transaction">rollback-transaction</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.transactions/transaction?">transaction?</a>
     </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.transactions/with-retries">with-retries</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.transactions/with-commit-transaction">with-commit-transaction</a>
     </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.transactions/with-transaction">with-transaction</a>
-    </span><span id="sub-var-link">
-      <a href="appengine.datastore-api.html#appengine.datastore.transactions/without-transaction">without-transaction</a>
+      <a href="appengine.datastore-api.html#appengine.datastore.transactions/with-rollback-transaction">with-rollback-transaction</a>
+    </span>
+    <br />
+  </span><span id="subspace"><br />Variables and functions in
+    <span id="name">appengine.datastore.types</span>:
+    <span id="sub-var-link">
+      <a href="appengine.datastore-api.html#appengine.datastore.types/serialize">serialize</a>
     </span>
     <br />
   </span>
+</div><div id="namespace-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.environment">appengine.environment</h2>
+  by <span id="author">Roman Scherer</span><br />
+  <a href="appengine.environment-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  Public variables and functions:
+  <span id="var-link"><a href="appengine.environment-api.html#appengine.environment/environment-decorator" id="var-tag">environment-decorator</a> </span><span id="var-link"><a href="appengine.environment-api.html#appengine.environment/init-appengine" id="var-tag">init-appengine</a> </span><span id="var-link"><a href="appengine.environment-api.html#appengine.environment/init-repl" id="var-tag">init-repl</a> </span><span id="var-link"><a href="appengine.environment-api.html#appengine.environment/local-proxy" id="var-tag">local-proxy</a> </span><span id="var-link"><a href="appengine.environment-api.html#appengine.environment/local-server-environment" id="var-tag">local-server-environment</a> </span><span id="var-link"><a href="appengine.environment-api.html#appengine.environment/login-aware-proxy" id="var-tag">login-aware-proxy</a> </span><span id="var-link"><a href="appengine.environment-api.html#appengine.environment/parse-configuration" id="var-tag">parse-configuration</a> </span><span id="var-link"><a href="appengine.environment-api.html#appengine.environment/set-system-properties" id="var-tag">set-system-properties</a> </span><span id="var-link"><a href="appengine.environment-api.html#appengine.environment/with-appengine" id="var-tag">with-appengine</a> </span><br />
+  
 </div><div id="namespace-entry">
   <br />
   <hr />
@@ -176,10 +291,21 @@ Jean-Denis Greze.</span><br />
 </div><div id="namespace-entry">
   <br />
   <hr />
+  <h2 id="appengine.server">appengine.server</h2>
+  by <span id="author">Roman Scherer</span><br />
+  <a href="appengine.server-api.html" id="api-link">Detailed API documentation</a><br />
+  <pre id="namespace-docstr"></pre>
+  
+  Public variables and functions:
+  <span id="var-link"><a href="appengine.server-api.html#appengine.server/start-server" id="var-tag">start-server</a> </span><span id="var-link"><a href="appengine.server-api.html#appengine.server/stop-server" id="var-tag">stop-server</a> </span><br />
+  
+</div><div id="namespace-entry">
+  <br />
+  <hr />
   <h2 id="appengine.taskqueue">appengine.taskqueue</h2>
   by <span id="author">Roman Scherer</span><br />
   <a href="appengine.taskqueue-api.html" id="api-link">Detailed API documentation</a><br />
-  <pre id="namespace-docstr">Clojure API for the Google App Engine task queue.</pre>
+  <pre id="namespace-docstr">The Clojure API for the Google App Engine task queue service.</pre>
   
   Public variables and functions:
   <span id="var-link"><a href="appengine.taskqueue-api.html#appengine.taskqueue/*queue*" id="var-tag">*queue*</a> </span><span id="var-link"><a href="appengine.taskqueue-api.html#appengine.taskqueue/add" id="var-tag">add</a> </span><span id="var-link"><a href="appengine.taskqueue-api.html#appengine.taskqueue/default-queue" id="var-tag">default-queue</a> </span><br />
@@ -201,7 +327,7 @@ Jean-Denis Greze.</span><br />
   <h2 id="appengine.urlfetch">appengine.urlfetch</h2>
   by <span id="author">E. Fukamachi</span><br />
   <a href="appengine.urlfetch-api.html" id="api-link">Detailed API documentation</a><br />
-  <pre id="namespace-docstr">Clojure API for the Google App Engine URL Fetch service.</pre>
+  <pre id="namespace-docstr">API for the Google App Engine URL Fetch service.</pre>
   
   Public variables and functions:
   <br />
@@ -212,10 +338,10 @@ Jean-Denis Greze.</span><br />
   <h2 id="appengine.users">appengine.users</h2>
   by <span id="author">John D. Hume</span><br />
   <a href="appengine.users-api.html" id="api-link">Detailed API documentation</a><br />
-  <pre id="namespace-docstr">Clojure API for the Google App Engine user service.</pre>
+  <pre id="namespace-docstr">The Clojure API for the Google App Engine user service.</pre>
   
   Public variables and functions:
-  <span id="var-link"><a href="appengine.users-api.html#appengine.users/user-info" id="var-tag">user-info</a> </span><span id="var-link"><a href="appengine.users-api.html#appengine.users/wrap-with-user-info" id="var-tag">wrap-with-user-info</a> </span><br />
+  <span id="var-link"><a href="appengine.users-api.html#appengine.users/current-user" id="var-tag">current-user</a> </span><span id="var-link"><a href="appengine.users-api.html#appengine.users/login-url" id="var-tag">login-url</a> </span><span id="var-link"><a href="appengine.users-api.html#appengine.users/logout-url" id="var-tag">logout-url</a> </span><span id="var-link"><a href="appengine.users-api.html#appengine.users/user-&gt;map" id="var-tag">user-&gt;map</a> </span><span id="var-link"><a href="appengine.users-api.html#appengine.users/user-info" id="var-tag">user-info</a> </span><span id="var-link"><a href="appengine.users-api.html#appengine.users/user-service" id="var-tag">user-service</a> </span><span id="var-link"><a href="appengine.users-api.html#appengine.users/wrap-with-user-info" id="var-tag">wrap-with-user-info</a> </span><br />
   
 </div><div id="namespace-entry">
   <br />
@@ -223,10 +349,10 @@ Jean-Denis Greze.</span><br />
   <h2 id="appengine.utils">appengine.utils</h2>
   by <span id="author">Roman Scherer</span><br />
   <a href="appengine.utils-api.html" id="api-link">Detailed API documentation</a><br />
-  <pre id="namespace-docstr">Utility functions for Google App Engine.</pre>
+  <pre id="namespace-docstr">Utility functions used by other namespaces.</pre>
   
   Public variables and functions:
-  <span id="var-link"><a href="appengine.utils-api.html#appengine.utils/keyword-&gt;string" id="var-tag">keyword-&gt;string</a> </span><span id="var-link"><a href="appengine.utils-api.html#appengine.utils/map-keys" id="var-tag">map-keys</a> </span><span id="var-link"><a href="appengine.utils-api.html#appengine.utils/stringify" id="var-tag">stringify</a> </span><br />
+  <span id="var-link"><a href="appengine.utils-api.html#appengine.utils/constructor-types" id="var-tag">constructor-types</a> </span><span id="var-link"><a href="appengine.utils-api.html#appengine.utils/immigrate-symbols" id="var-tag">immigrate-symbols</a> </span><span id="var-link"><a href="appengine.utils-api.html#appengine.utils/keyword-&gt;string" id="var-tag">keyword-&gt;string</a> </span><span id="var-link"><a href="appengine.utils-api.html#appengine.utils/map-keys" id="var-tag">map-keys</a> </span><span id="var-link"><a href="appengine.utils-api.html#appengine.utils/min-constructor-args" id="var-tag">min-constructor-args</a> </span><span id="var-link"><a href="appengine.utils-api.html#appengine.utils/stringify" id="var-tag">stringify</a> </span><br />
   
 </div>
 </div>

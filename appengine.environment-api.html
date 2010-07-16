@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>appengine.users API reference (Clojure for Google App Engine)</title>
+    <title>appengine.environment API reference (Clojure for Google App Engine)</title>
     <link href="static/favicon.png" rel="icon" />
     <link href="static/favicon.png" rel="shortcut icon" />
     <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
@@ -48,102 +48,120 @@ namespace.
   <div style="margin-left: 1em;" class="toc-section">
     <a href="#toc0">Overview</a>
     <div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.users/current-user">current-user</a>
+      <a href="#appengine.environment/environment-decorator">environment-decorator</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.users/login-url">login-url</a>
+      <a href="#appengine.environment/init-appengine">init-appengine</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.users/logout-url">logout-url</a>
+      <a href="#appengine.environment/init-repl">init-repl</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.users/user-&gt;map">user-&gt;map</a>
+      <a href="#appengine.environment/local-proxy">local-proxy</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.users/user-info">user-info</a>
+      <a href="#appengine.environment/local-server-environment">local-server-environment</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.users/user-service">user-service</a>
+      <a href="#appengine.environment/login-aware-proxy">login-aware-proxy</a>
     </div><div style="margin-left: 1em;" class="toc-entry">
-      <a href="#appengine.users/wrap-with-user-info">wrap-with-user-info</a>
+      <a href="#appengine.environment/parse-configuration">parse-configuration</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.environment/set-system-properties">set-system-properties</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#appengine.environment/with-appengine">with-appengine</a>
     </div>
     <br />
   </div>
 </div>
 </div>
-                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">appengine.users</span></h1>
-by <span id="author">John D. Hume</span><br />
+                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">appengine.environment</span></h1>
+by <span id="author">Roman Scherer</span><br />
 <br />Usage:
 <pre>
 (ns your-namespace
-  (:require <span id="long-name">appengine.users</span>))
+  (:require <span id="long-name">appengine.environment</span>))
 </pre><pre>
 </pre><h2>Overview</h2>
-<pre id="namespace-docstr">The Clojure API for the Google App Engine user service.</pre>
+<pre id="namespace-docstr"></pre>
 <br />
 <h2>Public Variables and Functions</h2>
 <div id="var-entry">
   <br />
   <hr />
-  <h2 id="appengine.users/current-user">current-user</h2>
+  <h2 id="appengine.environment/environment-decorator">environment-decorator</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (current-user)
+  <pre id="var-usage">Usage: (environment-decorator application)
 </pre>
-  <pre id="var-docstr">If the user is logged in, this method will return a User that
-contains information about them.</pre>
+  <pre id="var-docstr">Decorates the given application with local api proxy environment.</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="appengine.users/login-url">login-url</h2>
+  <h2 id="appengine.environment/init-appengine">init-appengine</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (login-url destination-url &amp; [auth-domain federated-identity attributes-request])
+  <pre id="var-usage">Usage: (init-appengine &amp; [directory])
 </pre>
-  <pre id="var-docstr">Returns an URL that can be used to display a login page to the user.</pre>
+  <pre id="var-docstr">Initialize the App Engine services.</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="appengine.users/logout-url">logout-url</h2>
+  <h2 id="appengine.environment/init-repl">init-repl</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (logout-url destination-url &amp; [auth-domain])
+  <pre id="var-usage">Usage: (init-repl &amp; [directory])
 </pre>
-  <pre id="var-docstr"> Returns an URL that can be used to log the current user out.</pre>
+  <pre id="var-docstr">Initialize the App Engine services.</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="appengine.users/user-&gt;map">user-&gt;map</h2>
+  <h2 id="appengine.environment/local-proxy">local-proxy</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (user-&gt;map user)
+  <pre id="var-usage">Usage: (local-proxy &amp; options)
 </pre>
-  <pre id="var-docstr">Converts a user object into a map.</pre>
+  <pre id="var-docstr">Returns a local api proxy environment.</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="appengine.users/user-info">user-info</h2>
+  <h2 id="appengine.environment/local-server-environment">local-server-environment</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (user-info)
-       (user-info request)
+  <pre id="var-usage">Usage: (local-server-environment &amp; [directory])
 </pre>
-  <pre id="var-docstr">With no arguments, returns a UserService and User for the current request in a map keyed by :user-service and :user respectively.
-If the user is not logged in, :user will be nil.
-With a single map argument, a Ring request, returns the user-info map associated with the request by wrap-with-user-info.</pre>
+  <pre id="var-docstr">Returns a local server environment.</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="appengine.users/user-service">user-service</h2>
+  <h2 id="appengine.environment/login-aware-proxy">login-aware-proxy</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (user-service)
+  <pre id="var-usage">Usage: (login-aware-proxy request)
 </pre>
-  <pre id="var-docstr">Returns the user service.</pre>
+  <pre id="var-docstr">Returns a local api proxy environment.</pre>
   
 </div><div id="var-entry">
   <br />
   <hr />
-  <h2 id="appengine.users/wrap-with-user-info">wrap-with-user-info</h2>
+  <h2 id="appengine.environment/parse-configuration">parse-configuration</h2>
   <span id="var-type">function</span><br />
-  <pre id="var-usage">Usage: (wrap-with-user-info application)
+  <pre id="var-usage">Usage: (parse-configuration filename)
 </pre>
-  <pre id="var-docstr">Ring middleware method that wraps an application so that every request will have
-a user-info map assoc'd to the request under the key :appengine/user-info.</pre>
+  <pre id="var-docstr">Read the appengine-web.xml file, extract and save all system
+properties defined in this file.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.environment/set-system-properties">set-system-properties</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (set-system-properties properties)
+</pre>
+  <pre id="var-docstr">Set the system properties.</pre>
+  
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="appengine.environment/with-appengine">with-appengine</h2>
+  <span id="var-type">macro</span><br />
+  <pre id="var-usage">Usage: (with-appengine proxy body)
+</pre>
+  <pre id="var-docstr">Macro to set the environment for the current thread.</pre>
   
 </div>
 
