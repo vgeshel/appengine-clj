@@ -54,8 +54,8 @@ Datastore Examples
     ; Make a country record (a country must have a continent as it's parent).
     (def *germany* (country *europe* {:iso-3166-alpha-2 "de" :name "Germany" :location {:latitude 1 :longitude 2}}))
 
-    ; Lookup a contient by key (returns nil, because the continent has not been saved yet).  
-    (lookup *europe*)
+    ; Find a contient (returns nil, because the continent has not been saved yet).  
+    (find-entity *europe*)
 
     ; Save the continent to the datastore.
     (save-entity *europe*)
