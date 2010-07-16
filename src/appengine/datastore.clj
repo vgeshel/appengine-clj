@@ -10,7 +10,7 @@ Examples:
      (name)))
   ; => (user.Continent)
 
-  (def *europe* (continent :name \"Europe\" :iso-3166-alpha-2 \"eu\"))
+  (def *europe* (continent {:name \"Europe\" :iso-3166-alpha-2 \"eu\"}))
   ; => #'user/*europe*
 
   (create *europe*)

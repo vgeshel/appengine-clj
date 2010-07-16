@@ -27,9 +27,8 @@
 ;;   ;; (continent-key {:iso-3166-alpha-2 "eu"})
 ;;   ;; (country-key nil nil)
 ;;   ;; (person {})
-;;   (country
-;;    (continent {:iso-3166-alpha-2 "eu"})
-;;    {:iso-3166-alpha-2 "de"})
+;;   ;; (println (country (continent {:iso-3166-alpha-2 "eu" :name "Europe"})
+;;   ;;           {:iso-3166-alpha-2 "de" :name "Germany"}))
 ;;   )
 
 (defentity Country (Continent)

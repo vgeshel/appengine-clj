@@ -9,7 +9,7 @@ and a set of zero or more typed properties." }
            (clojure.lang IPersistentMap))
   (:require [appengine.datastore.service :as datastore]
             [appengine.datastore.types :as types])
-  (:use [clojure.contrib.string :only (blank? join lower-case replace-str)]
+  (:use [clojure.contrib.string :only (blank? join lower-case replace-str replace-re)]
         [clojure.contrib.seq :only (includes?)]
         [appengine.datastore.utils :only (assert-new)]
         appengine.datastore.query
@@ -272,7 +272,8 @@ Examples:
        (~(entity-fn-sym entity)   [~@arglist] ~(entity-fn-doc entity)))))
 
 (defn- define-record [entity properties]
-  `(defrecord ~entity [~'key ~'kind ~@properties]))
+  (let [properties (map #(symbol (replace-re #"^:*" "" (str %))) properties)]
+    `(defrecord ~entity [~'key ~'kind ~@properties])))
 
 (defn- extend-entity [entity]
   (let [kind# (entity-kind-name entity) entity-sym (symbol kind#)]    
@@ -341,6 +342,46 @@ Examples:
               (new ~entity (~(key-fn-sym entity) ~entity-sym) ~kind#
                    ~@(map (fn [key#] `(~key# ~entity-sym)) properties))))))))
 
+(defn define-finder [entity property-specs]
+  (let [kind# (entity-kind-name entity)
+        properties# (map (comp keyword first) property-specs)
+        serializers# (extract-serializer property-specs)]
+    `(do
+       (defn ~(find-entities-fn-sym entity) ~(find-entities-fn-doc entity) [& ~'options]
+         (select ~kind#))
+       ~@(for [property# properties#]
+           `(defn ~(find-entities-by-property-fn-sym entity property#)
+              ~(find-entities-by-property-fn-doc entity property#)
+              [~'value & ~'options]
+              (select
+               ~kind#
+               ~'where (= ~property# (types/serialize ~(property# serializers#) ~'value))))))))
+
+(defn define-deserialization [entity property-specs]
+  (let [deserializers# (extract-deserializer property-specs)
+        kind# (entity-kind-name entity)
+        entity# (symbol (entity-kind-name entity))
+        properties# (map (comp keyword first) property-specs)]
+    `(defmethod ~'deserialize-entity ~kind# [~'entity]
+       (new ~entity
+            (.getKey ~'entity)
+            (.getKind ~'entity)
+            ~@(for [property# properties#]
+                `(deserialize-property
+                  (.getProperty ~'entity ~(stringify property#))
+                  ~(property# deserializers#)))))))
+
+(defn define-serialization [entity property-specs]
+  (let [kind# (entity-kind-name entity)        
+        properties# (map (comp keyword first) property-specs)
+        serializers# (extract-serializer property-specs)]
+    `(defmethod ~'serialize-entity ~kind# [~'map]
+       (doto (Entity. (or (:key ~'map) (:kind ~'map)))
+         ~@(for [property# properties#]
+             `(.setProperty
+               ~(stringify property#)
+               (serialize-property (~property# ~'map) ~(property# serializers#))))))))
+
 (defmacro defentity
   "A macro to define entitiy records.
 
@@ -352,10 +393,7 @@ Examples:
      (name)))
   ; => (user.Continent)
 
-  (def *europe* (continent :name \"Europe\" :iso-3166-alpha-2 \"eu\"))
-  ; => #'user/*europe*
-
-  (create *europe*)
+  (continent {:name \"Europe\" :iso-3166-alpha-2 \"eu\"})
   ; => #:user.Continent{:key #<Key user.Continent(\"eu\")>, :kind \"user.Continent\",
                         :iso-3166-alpha-2 \"eu\", :location nil, :name \"Europe\"}
 
@@ -364,52 +402,26 @@ Examples:
      (location :serialize GeoPt)
      (name)))
 
+  (country (continent {:iso-3166-alpha-2 \"eu\" :name \"Europe\"})
+           {:iso-3166-alpha-2 \"de\" :name \"Germany\"})
+  ; => #:user.Country{:key #<Key continent(\"eu\")/country(\"de\")>, :kind country,
+                      :iso-3166-alpha-2 de, :location nil, :name Germany}
 "
   [entity [parent] property-specs]
-  (let [deserializers# (extract-deserializer property-specs)
-        kind# (entity-kind-name entity)
-        entity# (symbol (entity-kind-name entity))
-        parent# (if parent (symbol (entity-kind-name parent)))
-        arglist# (if parent `(~parent# ~entity#) `(~entity#))
-        key-fns# (extract-key-fns property-specs)
-        keys# (map first key-fns#)
-        properties# (map (comp keyword first) property-specs)
-        separator# "-"
-        serializers# (extract-serializer property-specs)]
+  (let [key-fns# (extract-key-fns property-specs)
+        properties# (map (comp keyword first) property-specs)]
     `(do
-       ~(define-record entity (map first property-specs))
+       ~(define-record entity properties#)
        ~(define-protocol entity parent)
+       ~(define-deserialization entity property-specs)
+       ~(define-serialization entity property-specs)
+       ~(define-finder entity property-specs)
        ~(extend-entity entity)
        ~(extend-key entity parent properties#)
        ~(extend-nil entity)
        ~(extend-object entity)
        ~(extend-parent entity parent properties#)
-       ~(extend-persistent-map entity parent properties# key-fns#)
-
-       (defn ~(find-entities-fn-sym entity) ~(find-entities-fn-doc entity) [& ~'options]
-         (select ~kind#))
-
-       ~@(for [property# properties#]
-           `(defn ~(find-entities-by-property-fn-sym entity property#)
-              ~(find-entities-by-property-fn-doc entity property#)
-              [~'value & ~'options]
-              (select ~kind# ~'where (= ~property# (types/serialize ~(property# serializers#) ~'value)))))
-
-       (defmethod ~'deserialize-entity ~kind# [~'entity]
-                  (new ~entity
-                       (.getKey ~'entity)
-                       (.getKind ~'entity)
-                       ~@(for [property# properties#]
-                           `(deserialize-property
-                             (.getProperty ~'entity ~(stringify property#))
-                             ~(property# deserializers#)))))
-
-       (defmethod ~'serialize-entity ~kind# [~'map]
-                  (doto (Entity. (or (:key ~'map) (:kind ~'map)))
-                    ~@(for [property# properties#]
-                        `(.setProperty
-                          ~(stringify property#)
-                          (serialize-property (~property# ~'map) ~(property# deserializers#)))))))))
+       ~(extend-persistent-map entity parent properties# key-fns#))))
 
 (extend-type Entity
   Record
@@ -422,7 +434,7 @@ Examples:
   (deserialize [entity] (deserialize-entity entity))
   (serialize   [entity] entity))
 
-(extend-type clojure.lang.IPersistentMap
+(extend-type IPersistentMap
   Record
   (create [map] (create (serialize map)))
   (delete [map] (delete (serialize map)))
