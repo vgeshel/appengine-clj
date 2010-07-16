@@ -28,8 +28,8 @@ To build from source, run the following commands:
     lein deps
     lein jar
 
-Examples
---------
+Datastore Examples
+------------------
 
     ; Use the datastore api.
     (use 'appengine.datastore)
