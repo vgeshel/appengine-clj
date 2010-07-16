@@ -95,27 +95,7 @@ namespace.
   by <span id="author">Roman Scherer with contributions by John D. Hume and
 Jean-Denis Greze.</span><br />
   <a href="appengine.datastore-api.html" id="api-link">Detailed API documentation</a><br />
-  <pre id="namespace-docstr">Clojure API for the Google App Engine datastore service.
-
-Examples:
-
-  (defentity Continent ()
-    ((iso-3166-alpha-2 :key lower-case :serialize lower-case)
-     (location :serialize GeoPt)
-     (name)))
-  ; =&gt; (user.Continent)
-
-  (def *europe* (continent {:name "Europe" :iso-3166-alpha-2 "eu"}))
-  ; =&gt; #'user/*europe*
-
-  (create-entity *europe*)
-  ; =&gt; #:user.Continent{:key #&lt;Key user.Continent("eu")&gt;, :kind "user.Continent",
-                        :iso-3166-alpha-2 "eu", :location nil, :name "Europe"}
-
-  (defentity Country (Continent)
-    ((iso-3166-alpha-2 :key lower-case :serialize lower-case)
-     (location :serialize GeoPt)
-     (name)))</pre>
+  <pre id="namespace-docstr">API for the Google App Engine datastore service.</pre>
   
   Public variables and functions:
   <span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/active?" id="var-tag">active?</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/commit" id="var-tag">commit</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/create-entity" id="var-tag">create-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/defentity" id="var-tag">defentity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/delete-entity" id="var-tag">delete-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/deserialize-entity" id="var-tag">deserialize-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/find-entity" id="var-tag">find-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/key-&gt;string" id="var-tag">key-&gt;string</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/key?" id="var-tag">key?</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/make-key" id="var-tag">make-key</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/query?" id="var-tag">query?</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/rollback" id="var-tag">rollback</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/save-entity" id="var-tag">save-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/select" id="var-tag">select</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/serialize-entity" id="var-tag">serialize-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/string-&gt;key" id="var-tag">string-&gt;key</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/update-entity" id="var-tag">update-entity</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/with-commit-transaction" id="var-tag">with-commit-transaction</a> </span><span id="var-link"><a href="appengine.datastore-api.html#appengine.datastore/with-rollback-transaction" id="var-tag">with-rollback-transaction</a> </span><br />
@@ -305,7 +285,7 @@ Examples:
   <h2 id="appengine.taskqueue">appengine.taskqueue</h2>
   by <span id="author">Roman Scherer</span><br />
   <a href="appengine.taskqueue-api.html" id="api-link">Detailed API documentation</a><br />
-  <pre id="namespace-docstr">The Clojure API for the Google App Engine task queue service.</pre>
+  <pre id="namespace-docstr">API for the Google App Engine task queue service.</pre>
   
   Public variables and functions:
   <span id="var-link"><a href="appengine.taskqueue-api.html#appengine.taskqueue/*queue*" id="var-tag">*queue*</a> </span><span id="var-link"><a href="appengine.taskqueue-api.html#appengine.taskqueue/add" id="var-tag">add</a> </span><span id="var-link"><a href="appengine.taskqueue-api.html#appengine.taskqueue/default-queue" id="var-tag">default-queue</a> </span><br />

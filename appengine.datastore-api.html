@@ -245,27 +245,7 @@ Jean-Denis Greze.</span><br />
   (:require <span id="long-name">appengine.datastore</span>))
 </pre><pre>
 </pre><h2>Overview</h2>
-<pre id="namespace-docstr">Clojure API for the Google App Engine datastore service.
-
-Examples:
-
-  (defentity Continent ()
-    ((iso-3166-alpha-2 :key lower-case :serialize lower-case)
-     (location :serialize GeoPt)
-     (name)))
-  ; =&gt; (user.Continent)
-
-  (def *europe* (continent {:name "Europe" :iso-3166-alpha-2 "eu"}))
-  ; =&gt; #'user/*europe*
-
-  (create-entity *europe*)
-  ; =&gt; #:user.Continent{:key #&lt;Key user.Continent("eu")&gt;, :kind "user.Continent",
-                        :iso-3166-alpha-2 "eu", :location nil, :name "Europe"}
-
-  (defentity Country (Continent)
-    ((iso-3166-alpha-2 :key lower-case :serialize lower-case)
-     (location :serialize GeoPt)
-     (name)))</pre>
+<pre id="namespace-docstr">API for the Google App Engine datastore service.</pre>
 <br />
 <h2>Public Variables and Functions</h2>
 <div id="var-entry">
@@ -380,7 +360,7 @@ Examples:
 
   (key-&gt;string (make-key (make-key "continent" "eu") "country" "de")
   ; =&gt; "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA"</pre>
-  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L38" id="var-source">Source</a>
+  <a href="http://github.com/r0man/appengine-clj/blob/0a444baf887557be4c2051c73bcabb28f9220021/src/appengine/datastore/keys.clj#L38" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -389,7 +369,7 @@ Examples:
   <pre id="var-usage">Usage: (key? arg)
 </pre>
   <pre id="var-docstr">Returns true if arg is a Key, else false.</pre>
-  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L14" id="var-source">Source</a>
+  <a href="http://github.com/r0man/appengine-clj/blob/0a444baf887557be4c2051c73bcabb28f9220021/src/appengine/datastore/keys.clj#L14" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -408,7 +388,7 @@ Examples:
  	
   (make-key (make-key "continent" "eu") "country" "de")
   ; =&gt; #&lt;Key continent("eu")/country("de")&gt;</pre>
-  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L18" id="var-source">Source</a>
+  <a href="http://github.com/r0man/appengine-clj/blob/0a444baf887557be4c2051c73bcabb28f9220021/src/appengine/datastore/keys.clj#L18" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -496,7 +476,7 @@ Examples:
 
   (string-&gt;key "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA")
   ; =&gt; #&lt;Key continent("eu")/country("de")&gt;</pre>
-  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L50" id="var-source">Source</a>
+  <a href="http://github.com/r0man/appengine-clj/blob/0a444baf887557be4c2051c73bcabb28f9220021/src/appengine/datastore/keys.clj#L50" id="var-source">Source</a>
 </div><div id="var-entry">
   <br />
   <hr />
@@ -735,7 +715,7 @@ Examples:
 
   (key-&gt;string (make-key (make-key "continent" "eu") "country" "de")
   ; =&gt; "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA"</pre>
-  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L38" id="var-source">Source</a>
+  <a href="http://github.com/r0man/appengine-clj/blob/0a444baf887557be4c2051c73bcabb28f9220021/src/appengine/datastore/keys.clj#L38" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.keys/key?">key?</h2>
@@ -743,7 +723,7 @@ Examples:
   <pre id="var-usage">Usage: (key? arg)
 </pre>
   <pre id="var-docstr">Returns true if arg is a Key, else false.</pre>
-  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L14" id="var-source">Source</a>
+  <a href="http://github.com/r0man/appengine-clj/blob/0a444baf887557be4c2051c73bcabb28f9220021/src/appengine/datastore/keys.clj#L14" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.keys/make-key">make-key</h2>
@@ -761,7 +741,7 @@ Examples:
  	
   (make-key (make-key "continent" "eu") "country" "de")
   ; =&gt; #&lt;Key continent("eu")/country("de")&gt;</pre>
-  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L18" id="var-source">Source</a>
+  <a href="http://github.com/r0man/appengine-clj/blob/0a444baf887557be4c2051c73bcabb28f9220021/src/appengine/datastore/keys.clj#L18" id="var-source">Source</a>
 </div><div id="var-entry">
   <hr />
   <h2 id="appengine.datastore.keys/string-&gt;key">string-&gt;key</h2>
@@ -777,7 +757,7 @@ Examples:
 
   (string-&gt;key "agR0ZXN0ciALEgljb250aW5lbnQiAmV1DAsSB2NvdW50cnkiAmRlDA")
   ; =&gt; #&lt;Key continent("eu")/country("de")&gt;</pre>
-  <a href="http://github.com/r0man/appengine-clj/blob/9e1175f7d66685a07b628a09607fc4a7c2b5bec3/src/appengine/datastore/keys.clj#L50" id="var-source">Source</a>
+  <a href="http://github.com/r0man/appengine-clj/blob/0a444baf887557be4c2051c73bcabb28f9220021/src/appengine/datastore/keys.clj#L50" id="var-source">Source</a>
 </div>
 <h2 id="namespace-name">appengine.datastore.protocols</h2>
 <pre id="namespace-docstr">The datastore protocols.</pre>
