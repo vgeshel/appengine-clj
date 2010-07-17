@@ -4,22 +4,34 @@
   (:use appengine.utils))
 
 (defprotocol LifecycleProtocol
-  (before-validation [record]
-    "Callback fns to evaluate before validating the record.")
-  (before-validation-on-create [record]
-    "Callback fns to evaluate before validating a new record.")
+  (after-create [record]
+    "Callback fns to evaluate after creating the record.")
+  (after-delete [record]
+    "Callback fns to evaluate after deleting the record.")
+  (after-save [record]
+    "Callback fns to evaluate after saving the record.")
+  (after-update [record]
+    "Callback fns to evaluate after updating the record.")
   (after-validation [record]
     "Callback fns to evaluate after validation.")
   (after-validation-on-create [record]
     "Callback fns to evaluate after validating a new record.")
-  (before-save [record]
-    "Callback fns to evaluate before saving the record.")
+  (after-validation-on-update [record]
+    "Callback fns to evaluate after validating an already saved record.")
   (before-create [record]
     "Callback fns to evaluate before creating the record.")
-  (after-create [record]
-    "Callback fns to evaluate after creating the record.")
-  (after-save [record]
-    "Callback fns to evaluate after saving the record."))
+  (before-delete [record]
+    "Callback fns to evaluate before deleting the record.")
+  (before-save [record]
+    "Callback fns to evaluate before saving the record.")
+  (before-update [record]
+    "Callback fns to evaluate before updating the record.")
+  (before-validation [record]
+    "Callback fns to evaluate before validating the record.")
+  (before-validation-on-create [record]
+    "Callback fns to evaluate before validating a new record.")
+  (before-validation-on-update [record]
+    "Callback fns to evaluate before validating an already saved record."))
 
 (defprotocol EntityProtocol
   (create-entity [entity]
