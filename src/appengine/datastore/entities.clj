@@ -423,7 +423,7 @@ Examples:
        ~(extend-parent entity parent properties#)
        ~(extend-persistent-map entity parent properties# key-fns#))))
 
-(extend-type com.google.appengine.api.datastore.Entity
+(extend-type Entity
   EntityProtocol
   (create-entity [entity] (save-entity (assert-new entity)))
   (delete-entity [entity] (delete-entity (.getKey entity)))
