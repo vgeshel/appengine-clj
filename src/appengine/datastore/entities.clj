@@ -217,9 +217,9 @@ Examples:
   (fn [entity] (.getKind entity)))
 
 (defmethod deserialize-entity :default [entity]
-           (reduce #(assoc %1 (keyword (key %2)) (val %2))
-                   (merge {:kind (.getKind entity) :key (.getKey entity)})
-                   (.entrySet (.getProperties entity))))
+  (reduce #(assoc %1 (keyword (key %2)) (val %2))
+          (merge {:kind (.getKind entity) :key (.getKey entity)})
+          (.entrySet (.getProperties entity))))
 
 (defmulti serialize-entity
   "Converts a map into an entity. The kind of the entity is determined
@@ -241,9 +241,9 @@ Examples:
       (:kind map))))
 
 (defmethod serialize-entity :default [map]
-           (reduce #(.setProperty %1 (stringify (first %2)) (deserialize (second %2)))
-                   (com.google.appengine.api.datastore.Entity. (or (:key map) (:kind map)))
-                   (dissoc map :key :kind)))
+  (reduce #(.setProperty %1 (stringify (first %2)) (deserialize (second %2)))
+          (com.google.appengine.api.datastore.Entity. (or (:key map) (:kind map)))
+          (dissoc map :key :kind)))
 
 (defn deserialize-property
   "Deserialize the property value with the deserializer."
@@ -427,7 +427,7 @@ Examples:
   EntityProtocol
   (create-entity [entity] (save-entity (assert-new entity)))
   (delete-entity [entity] (delete-entity (.getKey entity)))
-  (find-entity [entity] (find-entity (.getKey entity)))
+  (find-entity   [entity] (find-entity (.getKey entity)))
   (save-entity   [entity] (deserialize-entity (datastore/put entity)))
   (update-entity [entity key-vals] (update-entity (deserialize-entity entity) key-vals))
   SerializationProtocol
