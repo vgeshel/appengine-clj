@@ -47,11 +47,19 @@
     "Update the entity with the key-vals and save it in the
     datastore."))
 
+(defprotocol QueryProtocol
+  (execute [query] "Execute the query against the datastore.")
+  (prepare [query] "Prepare a query for execution."))
+
 (defprotocol SerializationProtocol
   (deserialize [object]
     "Deserialize an object into a clojure data structure.")
   (serialize [entity]
     "Serialize the entity into an entity."))
+
+(defprotocol ValidationProtocol
+  (validate-entity [entity]
+    "Validate the entity."))
 
 (extend-type clojure.lang.Seqable
   EntityProtocol

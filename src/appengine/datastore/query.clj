@@ -15,10 +15,6 @@ iterator."}
         appengine.datastore.protocols
         appengine.utils))
 
-(defprotocol QueryProtocol
-  (execute [query] "Execute the query against the datastore.")
-  (prepare [query] "Prepare a query for execution."))
-
 (defn- extract-clauses
   "Extract and return the query, where and order-by clauses."
   [& args]
@@ -105,9 +101,6 @@ Examples:
 
 (defmethod query [String Key] [kind key]
   (Query. kind key))
-
-;; (defmethod query :default []
-;;   (Query.))
 
 (defn filter-by
   "Add a filter on the specified property to the query.
