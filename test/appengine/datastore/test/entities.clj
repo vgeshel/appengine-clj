@@ -11,6 +11,14 @@
 
 (refer-private 'appengine.datastore.entities)
 
+;; (defn validate-continent [continent]
+;;   (-> continent
+;;       (validate-presence :iso-3166-alpha-2)
+;;       (validate-exact-length :iso-3166-alpha-2 2)
+;;       (validate-presence :name)
+;;       ;; (validate-presence :location)
+;;       ))
+
 (defentity Person ()
   ((name)))
 
@@ -18,18 +26,6 @@
   ((iso-3166-alpha-2 :key lower-case)
    (location :serialize GeoPt)
    (name)))
-
-;; (with-local-datastore
-;;   ;; (country-key
-;;   ;;  (continent-key {:iso-3166-alpha-2 "eu"})
-;;   ;;  {:iso-3166-alpha-2 "de"})
-;;   ;; (person-key {})
-;;   ;; (continent-key {:iso-3166-alpha-2 "eu"})
-;;   ;; (country-key nil nil)
-;;   ;; (person {})
-;;   ;; (println (country (continent {:iso-3166-alpha-2 "eu" :name "Europe"})
-;;   ;;           {:iso-3166-alpha-2 "de" :name "Germany"}))
-;;   )
 
 (defentity Country (Continent)
   ((iso-3166-alpha-2 :key lower-case)

@@ -217,9 +217,9 @@ Examples:
   (fn [entity] (.getKind entity)))
 
 (defmethod deserialize-entity :default [entity]
-  (reduce #(assoc %1 (keyword (key %2)) (val %2))
-          (merge {:kind (.getKind entity) :key (.getKey entity)})
-          (.entrySet (.getProperties entity))))
+           (reduce #(assoc %1 (keyword (key %2)) (val %2))
+                   (merge {:kind (.getKind entity) :key (.getKey entity)})
+                   (.entrySet (.getProperties entity))))
 
 (defmulti serialize-entity
   "Converts a map into an entity. The kind of the entity is determined
@@ -241,9 +241,9 @@ Examples:
       (:kind map))))
 
 (defmethod serialize-entity :default [map]
-  (reduce #(.setProperty %1 (stringify (first %2)) (deserialize (second %2)))
-          (com.google.appengine.api.datastore.Entity. (or (:key map) (:kind map)))
-          (dissoc map :key :kind)))
+           (reduce #(.setProperty %1 (stringify (first %2)) (deserialize (second %2)))
+                   (com.google.appengine.api.datastore.Entity. (or (:key map) (:kind map)))
+                   (dissoc map :key :kind)))
 
 (defn deserialize-property
   "Deserialize the property value with the deserializer."
@@ -261,6 +261,46 @@ Examples:
         (class? serializer) (types/serialize serializer value)
         :else value))
 
+(defn- define-finder [entity property-specs]
+  (let [kind# (entity-kind-name entity)
+        properties# (map (comp keyword first) property-specs)
+        serializers# (extract-serializer property-specs)]
+    `(do
+       (defn ~(find-entities-fn-sym entity) ~(find-entities-fn-doc entity) [& ~'options]
+         (select ~kind#))
+       ~@(for [property# properties#]
+           `(defn ~(find-entities-by-property-fn-sym entity property#)
+              ~(find-entities-by-property-fn-doc entity property#)
+              [~'value & ~'options]
+              (select
+               ~kind#
+               ~'where (= ~property# (types/serialize ~(property# serializers#) ~'value))))))))
+
+(defn- define-deserialization [entity property-specs]
+  (let [deserializers# (extract-deserializer property-specs)
+        kind# (entity-kind-name entity)
+        entity# (symbol (entity-kind-name entity))
+        properties# (map (comp keyword first) property-specs)]
+    `(defmethod ~'deserialize-entity ~kind# [~'entity]
+                (new ~entity
+                     (.getKey ~'entity)
+                     (.getKind ~'entity)
+                     ~@(for [property# properties#]
+                         `(deserialize-property
+                           (.getProperty ~'entity ~(stringify property#))
+                           ~(property# deserializers#)))))))
+
+(defn- define-serialization [entity property-specs]
+  (let [kind# (entity-kind-name entity)        
+        properties# (map (comp keyword first) property-specs)
+        serializers# (extract-serializer property-specs)]
+    `(defmethod ~'serialize-entity ~kind# [~'map]
+                (doto (com.google.appengine.api.datastore.Entity. (or (:key ~'map) (:kind ~'map)))
+                  ~@(for [property# properties#]
+                      `(.setProperty
+                        ~(stringify property#)
+                        (serialize-property (~property# ~'map) ~(property# serializers#))))))))
+
 (defn- define-protocol [entity parent]
   (let [entity-sym (symbol (entity-kind-name entity))
         parent-sym (if parent (symbol (entity-kind-name parent)))
@@ -271,9 +311,19 @@ Examples:
        (~(key-fn-sym entity)      [~@arglist] ~(key-fn-doc entity))
        (~(entity-fn-sym entity)   [~@arglist] ~(entity-fn-doc entity)))))
 
-(defn- define-record [entity properties]
-  (let [properties (map #(symbol (replace-re #"^:*" "" (str %))) properties)]
-    `(defrecord ~entity [~'key ~'kind ~@properties])))
+(defn- define-record [entity properties options]
+  (let [entity-sym (symbol (entity-kind-name entity))
+        properties (map #(symbol (replace-re #"^:*" "" (str %))) properties)]
+    `(defrecord ~entity [~'key ~'kind ~@properties]
+       EntityProtocol
+       (create-entity [~entity-sym] (create-entity (serialize ~entity-sym)))
+       (delete-entity [~entity-sym] (delete-entity (:key ~entity-sym)))
+       (save-entity   [~entity-sym] (save-entity (serialize ~entity-sym)))
+       (find-entity   [~entity-sym] (find-entity (serialize ~entity-sym)))
+       (update-entity [~entity-sym ~'key-vals] (save-entity (merge ~entity-sym ~'key-vals)))
+       SerializationProtocol
+       (deserialize [~entity-sym] ~entity-sym)
+       (serialize   [~entity-sym] (serialize-entity ~entity-sym)))))
 
 (defn- extend-entity [entity]
   (let [kind# (entity-kind-name entity) entity-sym (symbol kind#)]    
@@ -342,46 +392,6 @@ Examples:
               (new ~entity (~(key-fn-sym entity) ~entity-sym) ~kind#
                    ~@(map (fn [key#] `(~key# ~entity-sym)) properties))))))))
 
-(defn define-finder [entity property-specs]
-  (let [kind# (entity-kind-name entity)
-        properties# (map (comp keyword first) property-specs)
-        serializers# (extract-serializer property-specs)]
-    `(do
-       (defn ~(find-entities-fn-sym entity) ~(find-entities-fn-doc entity) [& ~'options]
-         (select ~kind#))
-       ~@(for [property# properties#]
-           `(defn ~(find-entities-by-property-fn-sym entity property#)
-              ~(find-entities-by-property-fn-doc entity property#)
-              [~'value & ~'options]
-              (select
-               ~kind#
-               ~'where (= ~property# (types/serialize ~(property# serializers#) ~'value))))))))
-
-(defn define-deserialization [entity property-specs]
-  (let [deserializers# (extract-deserializer property-specs)
-        kind# (entity-kind-name entity)
-        entity# (symbol (entity-kind-name entity))
-        properties# (map (comp keyword first) property-specs)]
-    `(defmethod ~'deserialize-entity ~kind# [~'entity]
-       (new ~entity
-            (.getKey ~'entity)
-            (.getKind ~'entity)
-            ~@(for [property# properties#]
-                `(deserialize-property
-                  (.getProperty ~'entity ~(stringify property#))
-                  ~(property# deserializers#)))))))
-
-(defn define-serialization [entity property-specs]
-  (let [kind# (entity-kind-name entity)        
-        properties# (map (comp keyword first) property-specs)
-        serializers# (extract-serializer property-specs)]
-    `(defmethod ~'serialize-entity ~kind# [~'map]
-       (doto (com.google.appengine.api.datastore.Entity. (or (:key ~'map) (:kind ~'map)))
-         ~@(for [property# properties#]
-             `(.setProperty
-               ~(stringify property#)
-               (serialize-property (~property# ~'map) ~(property# serializers#))))))))
-
 (defmacro defentity
   "A macro to define entitiy records.
 
@@ -407,11 +417,12 @@ Examples:
   ; => #:user.Country{:key #<Key continent(\"eu\")/country(\"de\")>, :kind country,
                       :iso-3166-alpha-2 de, :location nil, :name Germany}
 "
-  [entity [parent] property-specs]
+  [entity [parent] property-specs & options]
   (let [key-fns# (extract-key-fns property-specs)
-        properties# (map (comp keyword first) property-specs)]
+        properties# (map (comp keyword first) property-specs)
+        options (apply hash-map options)]
     `(do
-       ~(define-record entity properties#)
+       ~(define-record entity properties# options)
        ~(define-protocol entity parent)
        ~(define-deserialization entity property-specs)
        ~(define-serialization entity property-specs)
@@ -428,8 +439,8 @@ Examples:
   (create-entity [entity] (save-entity (assert-new entity)))
   (delete-entity [entity] (delete-entity (.getKey entity)))
   (find-entity   [entity] (find-entity (.getKey entity)))
-  (save-entity   [entity] (deserialize-entity (datastore/put entity)))
-  (update-entity [entity key-vals] (update-entity (deserialize-entity entity) key-vals))
+  (save-entity   [entity] (deserialize (datastore/put entity)))
+  (update-entity [entity key-vals] (update-entity (deserialize entity) key-vals))
   SerializationProtocol
   (deserialize [entity] (deserialize-entity entity))
   (serialize   [entity] entity))
@@ -438,8 +449,8 @@ Examples:
   EntityProtocol
   (create-entity [map] (create-entity (serialize map)))
   (delete-entity [map] (delete-entity (serialize map)))
-  (save-entity   [map] (save-entity (serialize-entity map)))
-  (find-entity   [map] (find-entity (serialize-entity map)))
+  (save-entity   [map] (save-entity (serialize map)))
+  (find-entity   [map] (find-entity (serialize map)))
   (update-entity [map key-vals] (save-entity (merge map key-vals)))
   SerializationProtocol
   (deserialize [map] map)
