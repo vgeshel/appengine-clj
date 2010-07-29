@@ -443,10 +443,11 @@
       (is (not (.isComplete key))))))
 
 (datastore-test test-serialize-entity-with-color
-  (let [entity (serialize-entity {:kind "color" :key (make-key "color" "red")})]
+  (let [entity (serialize-entity {:kind "color" :key (make-key "color" "red") :name "Red"})]
     (is (entity? entity))
     (is (= (.getKind entity) "color"))
-    (is (empty? (.getProperties entity)))
+    (is (= (.getProperty entity "name") "Red"))
+    (is (= (count (.getProperties entity)) 1))
     (let [key (.getKey entity)]
       (is (.isComplete key))
       (is (= (.getId key) 0))

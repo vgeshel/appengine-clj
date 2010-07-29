@@ -241,9 +241,9 @@ Examples:
       (:kind map))))
 
 (defmethod serialize-entity :default [map]
-           (reduce #(.setProperty %1 (stringify (first %2)) (deserialize (second %2)))
-                   (com.google.appengine.api.datastore.Entity. (or (:key map) (:kind map)))
-                   (dissoc map :key :kind)))
+  (reduce #(do (.setProperty %1 (stringify (first %2)) (deserialize (second %2))) %1)
+          (Entity. (or (:key map) (:kind map)))
+          (dissoc map :key :kind)))
 
 (defn deserialize-property
   "Deserialize the property value with the deserializer."
