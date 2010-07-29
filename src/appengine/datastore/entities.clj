@@ -139,7 +139,7 @@ Examples:
 
 (defn entity?
   "Returns true if arg is an Entity, false otherwise."
-  [arg] (isa? (class arg) com.google.appengine.api.datastore.Entity))
+  [arg] (isa? (class arg) Entity))
 
 (defn entity-kind-name
   "Returns the kind of the entity as a string.
@@ -196,9 +196,9 @@ Examples:
   ; => #<Entity [continent(\"eu\")]>
 "
   ([key-or-kind]
-     (com.google.appengine.api.datastore.Entity. key-or-kind))
+     (Entity. key-or-kind))
   ([#^Key parent #^String kind key-or-id]
-     (com.google.appengine.api.datastore.Entity. (make-key parent kind key-or-id))))
+     (Entity. (make-key parent kind key-or-id))))
 
 (defmulti deserialize-entity
   "Convert a Entity into a persistent map. The property values are
@@ -295,7 +295,7 @@ Examples:
         properties# (map (comp keyword first) property-specs)
         serializers# (extract-serializer property-specs)]
     `(defmethod ~'serialize-entity ~kind# [~'map]
-                (doto (com.google.appengine.api.datastore.Entity. (or (:key ~'map) (:kind ~'map)))
+                (doto (Entity. (or (:key ~'map) (:kind ~'map)))
                   ~@(for [property# properties#]
                       `(.setProperty
                         ~(stringify property#)
@@ -327,7 +327,7 @@ Examples:
 
 (defn- extend-entity [entity]
   (let [kind# (entity-kind-name entity) entity-sym (symbol kind#)]    
-    `(extend-type com.google.appengine.api.datastore.Entity
+    `(extend-type Entity
        ~(symbol (entity-protocol-name entity))
        (~(entity-p-fn-sym entity) [~entity-sym]
         (= (.getKind ~entity-sym) ~kind#)))))
