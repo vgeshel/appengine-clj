@@ -8,8 +8,8 @@
             :copyright "Copyright (c) 2009, 2010 John D. Hume, Roman Scherer, Jean-Denis Greze, E.Fukamachi"}
   :dependencies [[com.google.appengine/appengine-api-1.0-sdk "1.3.5"]
                  [inflections "0.4-SNAPSHOT"]
-                 [org.clojure/clojure "1.2.0-beta1"]
-                 [org.clojure/clojure-contrib "1.2.0-beta1"]
+                 [org.clojure/clojure "1.2.0-RC1"]
+                 [org.clojure/clojure-contrib "1.2.0-RC1"]
                  [ring/ring-servlet "0.2.3"]]
   :dev-dependencies [[autodoc "0.7.1-SNAPSHOT"]
                      [lein-clojars "0.5.0"]
