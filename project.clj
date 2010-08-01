@@ -20,4 +20,4 @@
                      [com.google.appengine/appengine-testing "1.3.5"]
                      [ring/ring-jetty-adapter "0.2.3"]
                      [swank-clojure "1.2.1"]]
-  :repositories [["maven-gae-plugin" "http://maven-gae-plugin.googlecode.com/svn/repository"]])
+  :repositories {"maven-gae-plugin" "http://maven-gae-plugin.googlecode.com/svn/repository"})
