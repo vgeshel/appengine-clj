@@ -281,7 +281,7 @@ Examples:
         kind# (entity-kind-name entity)
         entity# (symbol (entity-kind-name entity))
         properties# (map (comp keyword first) property-specs)]
-    `(defmethod ~'deserialize-entity ~kind# [~'entity]
+    `(defmethod ~'appengine.datastore.entities/deserialize-entity ~kind# [~'entity]
                 (new ~entity
                      (.getKey ~'entity)
                      (.getKind ~'entity)
@@ -294,7 +294,7 @@ Examples:
   (let [kind# (entity-kind-name entity)        
         properties# (map (comp keyword first) property-specs)
         serializers# (extract-serializer property-specs)]
-    `(defmethod ~'serialize-entity ~kind# [~'map]
+    `(defmethod ~'appengine.datastore.entities/serialize-entity ~kind# [~'map]
                 (doto (Entity. (or (:key ~'map) (:kind ~'map)))
                   ~@(for [property# properties#]
                       `(.setProperty
