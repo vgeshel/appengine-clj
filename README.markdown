@@ -23,6 +23,13 @@ following dependency to your project.clj file:
 
     [appengine "0.4-SNAPSHOT"]
 
+At the moment not all App Engine JARs are available through the public
+Maven repositories (or I couldn't find them). Running the following
+command downloads and installs all required JARs into your local Maven
+repository ...
+
+    ./bin/install-appengine-jars.sh
+
 To build from source, run the following commands:
 
     lein deps
