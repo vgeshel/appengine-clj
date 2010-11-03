@@ -69,7 +69,9 @@ Examples:
 
 (defn current-transaction
   "Returns the current datastore transaction, or nil if not within a
-  transaction."  [] (.getCurrentTransaction (datastore) nil))
+  transaction."  [] 
+  (.getCurrentTransaction 
+    ^com.google.appengine.api.datastore.DatastoreService (datastore) nil))
 
 (defn commit-transaction
   "Commits the transaction. If no transaction is given"
