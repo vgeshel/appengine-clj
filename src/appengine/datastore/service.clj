@@ -1,9 +1,9 @@
-(ns #^{:author "Roman Scherer"
+<(ns #^{:author "Roman Scherer"
        :doc "Low-level API for the Google App Engine datastore service."}
   appengine.datastore.service
   (:refer-clojure :exclude (get))
   (:import (com.google.appengine.api.datastore
-            DatastoreService DatastoreServiceFactory DatastoreServiceConfig
+            DatastoreService DatastoreServiceFactory DatastoreServiceConfig 
             DatastoreServiceConfig$Builder Entity EntityNotFoundException Key Transaction Query))
   (:use [clojure.contrib.def :only (defvar)]))
 
@@ -39,7 +39,7 @@ Examples:
   (put (Entity. (make-key \"continent\" \"eu\")))
   ; => #<Entity <Entity [continent(\"eu\")]:>>"))
 
-(defn datastore
+(defn ^DatastoreService datastore
   "Returns a DatastoreService with the default or the provided
   configuration.
 
@@ -70,8 +70,7 @@ Examples:
 (defn current-transaction
   "Returns the current datastore transaction, or nil if not within a
   transaction."  [] 
-  (.getCurrentTransaction 
-    ^com.google.appengine.api.datastore.DatastoreService (datastore) nil))
+  (.getCurrentTransaction (datastore) nil))
 
 (defn commit-transaction
   "Commits the transaction. If no transaction is given"
