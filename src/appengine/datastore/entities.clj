@@ -200,6 +200,22 @@ Examples:
   ([#^Key parent #^String kind key-or-id]
      (Entity. (make-key parent kind key-or-id))))
 
+(defn deserialize-property
+  "Deserialize the property value with the deserializer."
+  [value deserializer]
+  (cond (nil? value) nil
+        (fn? deserializer) (deserializer value)
+        (class? deserializer) (deserialize value)
+        :else value))
+
+(defn serialize-property
+  "Serialize the property value with the serializer."
+  [value serializer]
+  (cond (nil? value) nil
+        (fn? serializer) (serializer value)
+        (class? serializer) (types/serialize serializer value)
+        :else value))
+
 (defmulti deserialize-entity
   "Convert a Entity into a persistent map. The property values are
 stored under their property names converted to a keywords, the
@@ -241,25 +257,9 @@ Examples:
       (:kind map))))
 
 (defmethod serialize-entity :default [map]
-  (reduce #(do (.setProperty %1 (stringify (first %2)) (deserialize (second %2))) %1)
+  (reduce #(do (.setProperty %1 (stringify (first %2)) (serialize-property (second %2) nil)) %1)
           (Entity. (or (:key map) (:kind map)))
           (dissoc map :key :kind)))
-
-(defn deserialize-property
-  "Deserialize the property value with the deserializer."
-  [value deserializer]
-  (cond (nil? value) nil
-        (fn? deserializer) (deserializer value)
-        (class? deserializer) (deserialize value)
-        :else value))
-
-(defn serialize-property
-  "Serialize the property value with the serializer."
-  [value serializer]
-  (cond (nil? value) nil
-        (fn? serializer) (serializer value)
-        (class? serializer) (types/serialize serializer value)
-        :else value))
 
 (defn- define-finder [entity property-specs]
   (let [kind# (entity-kind-name entity)
