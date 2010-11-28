@@ -1,5 +1,5 @@
 (ns appengine.datastore.test.entities
-  (:import (com.google.appengine.api.datastore Entity Key GeoPt))
+  (:import (com.google.appengine.api.datastore Entity Key GeoPt Text))
   (:use appengine.datastore.entities
         appengine.datastore.keys
         appengine.datastore.protocols
@@ -20,7 +20,8 @@
 ;;       ))
 
 (defentity Person ()
-  ((name)))
+  ((name)
+   (description)))
 
 (defentity Continent ()
   ((iso-3166-alpha-2 :key lower-case)
@@ -430,10 +431,11 @@
 ;; SERIALIZE
 
 (datastore-test test-serialize-entity-with-person
-  (let [entity (serialize-entity {:kind "person" :name "Roman"})]
+  (let [entity (serialize-entity {:kind "person" :name "Roman" :description (Text. "description")})]
     (is (entity? entity))
     (is (= (.getKind entity) "person"))
     (is (= (.getProperty entity "name") "Roman"))
+    (is (= (.getProperty entity "description") (Text. "description")))
     (let [key (.getKey entity)]
       (is (= (.getId key) 0))
       (is (= (.getKind key) "person"))
