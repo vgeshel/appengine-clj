@@ -21,7 +21,7 @@ The easiest way to use this library in your own projects is via
 [Leiningen](http://github.com/technomancy/leiningen). Add the
 following dependency to your project.clj file:
 
-    [appengine "0.4.2-SNAPSHOT"]
+    [appengine "0.4.3-SNAPSHOT"]
 
 At the moment not all App Engine JARs are available through the public
 Maven repositories (or I couldn't find them). Running the following
@@ -55,13 +55,13 @@ Datastore Examples
     ; Initialize the environment for the repl.
     (appengine.environment/init-repl)
 
-    ; Make a continent record.    
+    ; Make a continent record.
     (def *europe* (continent {:iso-3166-alpha-2 "eu" :name "Europe" :location {:latitude 1 :longitude 2}}))
 
     ; Make a country record (a country must have a continent as it's parent).
     (def *germany* (country *europe* {:iso-3166-alpha-2 "de" :name "Germany" :location {:latitude 1 :longitude 2}}))
 
-    ; Find a contient (returns nil, because the continent has not been saved yet).  
+    ; Find a contient (returns nil, because the continent has not been saved yet).
     (find-entity *europe*)
 
     ; Save the continent to the datastore.
