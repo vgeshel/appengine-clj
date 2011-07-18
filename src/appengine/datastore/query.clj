@@ -11,7 +11,6 @@ iterator."}
   (:import (com.google.appengine.api.datastore Key Query Query$FilterOperator Query$SortDirection))
   (:use [appengine.datastore.service :only (datastore current-transaction prepare-query)]
         [clojure.contrib.seq :only (includes?)]
-        appengine.datastore.entities
         appengine.datastore.protocols
         appengine.utils))
 
@@ -64,7 +63,7 @@ Examples:
 
   (sort-direction :desc)
   ; => #<SortDirection DESCENDING>
-"  
+"
   [direction]
   (cond
    (= direction :asc) Query$SortDirection/ASCENDING
